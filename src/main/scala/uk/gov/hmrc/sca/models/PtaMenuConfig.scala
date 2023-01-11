@@ -16,4 +16,4 @@
 
 package uk.gov.hmrc.sca.models
 
-case class PtaMenuConfig(leftAlignedItems: Seq[PtaMenuItemConfig], rightAlignedItems: Seq[PtaMenuItemConfig])
+case class PtaMenuConfig(leftAlignedItems: Seq[MenuItemConfig], rightAlignedItems: Seq[MenuItemConfig])

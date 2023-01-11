@@ -20,6 +20,8 @@
 @import uk.gov.hmrc.hmrcfrontend.config.AccountMenuConfig
 @import uk.gov.hmrc.ptafrontend.views.html.PtaScripts
 @import uk.gov.hmrc.sca.controllers.TestLibrary
+@import scala.concurrent.ExecutionContext
+@import uk.gov.hmrc.http.HeaderCarrier
 
 @this(
         appConfig: AppConfig,
@@ -37,7 +39,7 @@
         hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
         hmrcAccountMenu: HmrcAccountMenu,
         ptaScripts: PtaScripts,
-        testLibrary: TestLibrary)(implicit accountMenuConfig: AccountMenuConfig)
+        testLibrary: TestLibrary)(implicit accountMenuConfig: AccountMenuConfig, ec: ExecutionContext, hc: HeaderCarrier)
 
 @(pageTitle: Option[String], signoutUrl: String, keepAliveUrl: String, serviceUrl: String, showBackLink: Boolean = false, timeout: Boolean = true, showSignOut: Boolean = true)(contentBlock: Html)(implicit request: Request[_], messages: Messages)
 
@@ -80,7 +82,9 @@
   <main class="govuk-main-wrapper govuk-main-wrapper--l">
    <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
+     <p>---------------------------------------------Wrapper---------------------------------------------</p>
     @contentBlock
+     <p>---------------------------------------------Wrapper---------------------------------------------</p>
     </div>
    </div>
 

@@ -14,18 +14,18 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.sca.models.PtaMenuItemConfig
+@import uk.gov.hmrc.sca.models.MenuItemConfig
 
 @this(hmrcNotificationBadge: HmrcNotificationBadge)
-@(accountMenuConfig: PtaMenuItemConfig)
+@(accountMenuConfig: MenuItemConfig)
 
 <li>
- <a href="@accountMenuConfig.href" class="hmrc-account-menu__link @if(accountMenuConfig.isActive){ hmrc-account-menu__link--active}">
+ <a href="@accountMenuConfig.href" class="hmrc-account-menu__link @if(1==2){ hmrc-account-menu__link--active}">
  @defining(accountMenuConfig.icon.getOrElse("")) { iconClass =>
   <span class="@iconClass">
    @accountMenuConfig.text
-   @if(accountMenuConfig.hasNotificationBadge.isDefined){
-    @hmrcNotificationBadge(NotificationBadge(accountMenuConfig.hasNotificationBadge.get.count))
+   @if(accountMenuConfig.notificationBadge.isDefined){
+    @hmrcNotificationBadge(NotificationBadge(accountMenuConfig.notificationBadge.get))
    }
   </span>
  }
