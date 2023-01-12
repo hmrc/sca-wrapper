@@ -16,5 +16,10 @@
 
 package uk.gov.hmrc.sca.models
 
-case class PtaMenuItemConfig(leftAligned: Boolean, position: Int, icon: Option[String], text: String, href: String, isActive: Boolean, hasNotificationBadge: Option[NotificationBadgeConfig])
-case class NotificationBadgeConfig(count: Int)
+import play.api.libs.json.{Json, OFormat}
+
+case class MenuItemConfig(text: String, href: String, leftAligned: Boolean, position: Int, icon: Option[String], notificationBadge: Option[Int])
+
+object MenuItemConfig {
+  implicit val format: OFormat[MenuItemConfig] = Json.format[MenuItemConfig]
+}

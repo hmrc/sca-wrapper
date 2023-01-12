@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,18 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import uk.gov.hmrc.sca.models.MenuItemConfig
+package uk.gov.hmrc.sca.models
 
-@this(hmrcNotificationBadge: HmrcNotificationBadge)
-
-@(accountMenuConfig: MenuItemConfig)
-
-<a href="@accountMenuConfig.href" class="hmrc-account-menu__link @if(1==2){ hmrc-account-menu__link--active}">
- @defining(accountMenuConfig.icon.getOrElse("")) { iconClass =>
- <span class="@iconClass">
- @accountMenuConfig.text
- </span>
- }
-</a>
+case class NotificationBadge(count: Int)
