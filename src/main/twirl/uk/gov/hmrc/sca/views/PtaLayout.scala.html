@@ -39,9 +39,9 @@
         hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
         hmrcAccountMenu: HmrcAccountMenu,
         ptaScripts: PtaScripts,
-        testLibrary: TestLibrary)(implicit accountMenuConfig: AccountMenuConfig, ec: ExecutionContext, hc: HeaderCarrier)
+        testLibrary: TestLibrary)(implicit accountMenuConfig: AccountMenuConfig)
 
-@(pageTitle: Option[String], signoutUrl: String, keepAliveUrl: String, serviceUrl: String, showBackLink: Boolean = false, timeout: Boolean = true, showSignOut: Boolean = true)(contentBlock: Html)(implicit request: Request[_], messages: Messages)
+@(pageTitle: Option[String], signoutUrl: String, keepAliveUrl: String, serviceUrl: String, showBackLink: Boolean = false, timeout: Boolean = true, showSignOut: Boolean = true)(contentBlock: Html)(implicit request: Request[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier)
 
 @head = {
 

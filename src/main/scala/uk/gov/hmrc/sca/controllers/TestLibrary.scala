@@ -33,7 +33,7 @@ class TestLibrary @Inject()(ptaMenuBar: PtaMenuBar, scaWrapperDataConnector: Sca
   val btaHost = "http://localhost:9020/business-tax-account"
 
   private def sortMenuItemConfig(menuItemConfig: Seq[MenuItemConfig]): PtaMenuConfig = {
-    PtaMenuConfig(menuItemConfig.filter(_.leftAligned), menuItemConfig.filterNot(_.leftAligned))
+    PtaMenuConfig(menuItemConfig.filter(_.leftAligned).sortBy(_.position), menuItemConfig.filterNot(_.leftAligned).sortBy(_.position))
   }
 
   def menu(implicit ec: ExecutionContext, hc: HeaderCarrier): HtmlFormat.Appendable = {
