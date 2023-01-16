@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.sca.controllers.TestLibrary
 @import scala.concurrent.ExecutionContext
 @import uk.gov.hmrc.http.HeaderCarrier
+@import uk.gov.hmrc.sca.views.html.components.backLink
 
 @this(
         appConfig: AppConfig,
@@ -39,9 +40,10 @@
         hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
         hmrcAccountMenu: HmrcAccountMenu,
         ptaScripts: PtaScripts,
+        backLink: backLink,
         testLibrary: TestLibrary)(implicit accountMenuConfig: AccountMenuConfig)
 
-@(pageTitle: Option[String], signoutUrl: String, keepAliveUrl: String, serviceUrl: String, showBackLink: Boolean = false, timeout: Boolean = true, showSignOut: Boolean = true)(contentBlock: Html)(implicit request: Request[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier)
+@(pageTitle: Option[String], showSignOutInHeader: Boolean = false, headerHomeUrl: Option[String] = None, signOutUrl: String, keepAliveUrl: String, serviceUrl: String, timeout: Boolean = true, showBackLink: Boolean = false, backLinkID: Boolean = true, backLinkUrl: String = "#")(contentBlock: Html)(implicit request: Request[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier)
 
 @head = {
 
@@ -53,7 +55,7 @@
    countdown           = Some(appConfig.countdown),
    keepAliveUrl        = Some(keepAliveUrl),
    keepAliveButtonText = Some(messages("timeout.keepAlive")),
-   signOutUrl          = Some(signoutUrl),
+   signOutUrl          = Some(signOutUrl),
    signOutButtonText   = Some(messages("timeout.signOut")),
    title               = Some(messages("timeout.title")),
    message             = Some(messages("timeout.message"))
@@ -67,13 +69,20 @@
 }
 
 @beforeContent = {
-
-@if(showBackLink) {
- @govukBackLink(BackLinkViewModel(href = "#"))
-}
-
 @defining(request.uri) { uri =>
   @testLibrary.menu
+}
+@if(showBackLink){
+ <div class="govuk-grid-row">
+  <div class="govuk-grid-column-one-half">
+  @backLink(backLinkUrl, backLinkID)
+  </div>
+  <div class="govuk-grid-column-one-half">
+  @hmrcLanguageSelectHelper()
+  </div>
+ </div>
+} else {
+ @hmrcLanguageSelectHelper()
 }
 }
 
@@ -100,8 +109,8 @@
  pageTitle   = pageTitle,
  headBlock   = Some(head),
  headerBlock = Some(hmrcStandardHeader(
-  serviceUrl  = Some(serviceUrl),
-  signOutUrl  = None,
+  serviceUrl  = headerHomeUrl,
+  signOutUrl  = if(showSignOutInHeader) Some(signOutUrl) else None,
   phaseBanner = Some(alphaBanner(appConfig.feedbackUrl))
  )),
  beforeContentBlock = Some(beforeContent),

@@ -27,30 +27,30 @@ import scala.concurrent.duration.Duration
 @Singleton
 class AppConfig @Inject()(configuration: Configuration) {
 
-  val xxx = configuration.get[String]("test1")
-  private val scaWrapperDataBaseUrl = configuration.get[String]("microservice.services.single-customer-account-wrapper-data.url")
-  val scaWrapperDataUrl = s"$scaWrapperDataBaseUrl/single-customer-account-wrapper-data"
-
-  val wrapperDataTimeout: Duration = Duration(configuration.get[String]("wrapper-data-timeout"))
+  private val appName: String = configuration.get[String]("appName")
+  private val host: String = configuration.get[String]("host")
 
   val loginUrl: String = configuration.get[String]("urls.login")
   val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
   val signOutUrl: String = configuration.get[String]("urls.signOut")
-  private val exitSurveyBaseUrl: String = configuration.get[String]("microservice.services.feedback-frontend.url")
-  def exitSurveyUrl(serviceName: String): String = s"$exitSurveyBaseUrl/feedback/$serviceName"
 
-  val timeout: Int = configuration.get[Int]("timeout-dialog.timeout")
-  val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
-
-  private val appName: String = configuration.get[String]("appName")
-  private val host: String = configuration.get[String]("host")
-  private val contactBaseUrl: String = configuration.get[String]("microservice.services.contact-frontend.url")
+  //wrapper specific
+  val xxx = configuration.get[String]("test1")
+  private val scaWrapperDataBaseUrl = configuration.get[String]("sca-wrapper.single-customer-account-wrapper-data.url")
+  val scaWrapperDataUrl = s"$scaWrapperDataBaseUrl/single-customer-account-wrapper-data"
+  val pertaxUrl: String = s"${configuration.get[String]("sca-wrapper.pertax-frontend.url")}/personal-account"
+  val businessTaxAccountUrl: String = s"${configuration.get[String]("sca-wrapper.business-tax-frontend.url")}/business-tax-account"
+  val wrapperDataTimeout: Duration = Duration(configuration.get[String]("sca-wrapper.wrapper-data-timeout"))
+  private val exitSurveyBaseUrl: String = configuration.get[String]("sca-wrapper.feedback-frontend.url")
+  private val exitSurveyServiceName: String = configuration.get[String]("sca-wrapper.exit-survey-service-name")
+  val exitSurveyUrl: String = s"$exitSurveyBaseUrl/feedback/$exitSurveyServiceName"
+  private val contactBaseUrl: String = configuration.get[String]("sca-wrapper.contact-frontend.url")
+  private val feedbackServiceName: String = configuration.get[String]("sca-wrapper.feedback-service-name")
   def feedbackUrl(implicit request: RequestHeader): String =
-    s"$contactBaseUrl/contact/beta-feedback?service=$appName&backUrl=${SafeRedirectUrl(host + request.uri).encodedUrl}"
-
-
-  val pertaxUrl: String = s"${configuration.get[String]("microservice.services.pertax-frontend.url")}/personal-account"
-  val businessTaxAccountUrl: String = s"${configuration.get[String]("microservice.services.business-tax-frontend.url")}/business-tax-account"
+    s"$contactBaseUrl/contact/beta-feedback?service=$feedbackServiceName&backUrl=${SafeRedirectUrl(host + request.uri).encodedUrl}"
+  val timeout: Int = configuration.get[Int]("sca-wrapper.timeout-dialog.timeout")
+  val countdown: Int = configuration.get[Int]("sca-wrapper.timeout-dialog.countdown")
+  //wrapper specific
 
   private def signoutParams(continueUrl: Option[String], origin: Option[String]) = {
     val contUrl = s"${continueUrl.fold("") { url => s"continueUrl=$url" }}"
