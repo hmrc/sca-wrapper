@@ -17,6 +17,7 @@
 package uk.gov.hmrc.sca.connectors
 
 import com.google.inject.Inject
+import play.Application
 import play.api.Logging
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.sca.config.AppConfig

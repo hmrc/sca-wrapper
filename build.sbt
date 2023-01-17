@@ -1,15 +1,17 @@
 import play.sbt.routes.RoutesKeys
-
 import scoverage.ScoverageKeys
+import ReleaseTra
 
 lazy val root = (project in file("."))
-  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin, SbtTwirl)
+  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin, SbtTwirl,BuildInfoPlugin)
   .disablePlugins(PlayLayoutPlugin)
   .settings(
     scalaVersion := "2.12.16",
     isPublicArtefact := true,
-    version := "1.0.0-SNAPSHOT",
+   // ThisBuild / version := "1.0.0-SNAPSHOT",
     //    publish / skip := true,
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := "uk.gov.hmrc.sca",
     name := "sca-wrapper",
     isSnapshot := true,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.scala-lang"),
