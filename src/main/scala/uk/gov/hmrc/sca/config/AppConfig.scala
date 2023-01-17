@@ -38,14 +38,22 @@ class AppConfig @Inject()(configuration: Configuration) {
   val xxx = configuration.get[String]("test1")
   private val scaWrapperDataBaseUrl = configuration.get[String]("sca-wrapper.single-customer-account-wrapper-data.url")
   val scaWrapperDataUrl = s"$scaWrapperDataBaseUrl/single-customer-account-wrapper-data"
+  val wrapperDataTimeout: Duration = Duration(configuration.get[String]("sca-wrapper.wrapper-data-timeout"))
+
   private val pertaxBaseUrl: String = configuration.get[String]("sca-wrapper.pertax-frontend.base-url")
   private val pertaxServicePath: String = configuration.get[String]("sca-wrapper.pertax-frontend.service-path")
-  private val pertaxSignoutPath: String = configuration.get[String]("sca-wrapper.pertax-frontend.service-path")
+  private val pertaxSignoutPath: String = configuration.get[String]("sca-wrapper.pertax-frontend.signout-path")
   val pertaxUrl = s"$pertaxBaseUrl/$pertaxServicePath"
-  val businessTaxAccountBaseUrl: String = configuration.get[String]("sca-wrapper.business-tax-frontend.base-url")
+  private val usePertaxSignout: Boolean = configuration.get[Boolean]("sca-wrapper.signout.use-pertax-signout")
+  private val continueUrl: Option[String] = configuration.getOptional[String]("sca-wrapper.signout.continue-url")
+  private val origin: Option[String] = configuration.getOptional[String]("sca-wrapper.signout.origin")
+  val pertaxSignoutUrl = s"$pertaxUrl/$pertaxSignoutPath"
+  val customSignoutUrl: Option[String] = configuration.get[Option[String]]("sca-wrapper.signout.custom-signout-url")
+
+  private val businessTaxAccountBaseUrl: String = configuration.get[String]("sca-wrapper.business-tax-frontend.base-url")
   val businessTaxAccountServicePath: String = configuration.get[String]("sca-wrapper.business-tax-frontend.service-path")
   val businessTaxAccountUrl: String = s"$businessTaxAccountBaseUrl/$businessTaxAccountServicePath"
-  val wrapperDataTimeout: Duration = Duration(configuration.get[String]("sca-wrapper.wrapper-data-timeout"))
+
   private val exitSurveyBaseUrl: String = configuration.get[String]("sca-wrapper.feedback-frontend.url")
   private val exitSurveyServiceName: String = configuration.get[String]("sca-wrapper.exit-survey-service-name")
   val exitSurveyUrl: String = s"$exitSurveyBaseUrl/feedback/$exitSurveyServiceName"
@@ -56,21 +64,16 @@ class AppConfig @Inject()(configuration: Configuration) {
   val timeout: Int = configuration.get[Int]("sca-wrapper.timeout-dialog.timeout")
   val countdown: Int = configuration.get[Int]("sca-wrapper.timeout-dialog.countdown")
   val welshToggle: Boolean = configuration.get[Boolean]("sca-wrapper.welsh-enabled")
-  private val usePertaxSignout: Boolean = configuration.get[Boolean]("sca-wrapper.signout.use-pertax-signout")
-  private val customSignoutUrl: Option[String] = configuration.get[Option[String]]("sca-wrapper.signout.custom-signout-url ")
-  private val continueUrl: Option[String] = configuration.get[Option[String]]("sca-wrapper.signout.continue-url")
-  private val origin: Option[String] = configuration.get[Option[String]]("sca-wrapper.signout.origin")
 //TODO accessibility
   //wrapper specific
 
-  private def signoutUrl(pertaxSignout: Boolean, customSignout: Option[String]): String = {
-    val pertaxSignoutUrl = s"$pertaxUrl/$pertaxSignoutPath"
-    if(pertaxSignout){
+  private def signoutUrl: String = {
+    if(usePertaxSignout){
       pertaxSignoutUrl
     } else {
       //TODO url validation
-      customSignout match {
-        case Some(url) if url.nonEmpty => customSignout.get
+      customSignoutUrl match {
+        case Some(url) if url.nonEmpty => customSignoutUrl.get
         case _ => pertaxSignoutUrl
       }
     }
@@ -91,6 +94,6 @@ class AppConfig @Inject()(configuration: Configuration) {
     MenuItemConfig("Check progress", s"${pertaxUrl}/track", leftAligned = false, position = 1, None, None),
     MenuItemConfig("Profile and settings", s"${pertaxUrl}/profile-and-settings", leftAligned = false, position = 2, None, None),
     MenuItemConfig("Business tax account", s"${businessTaxAccountUrl}/business-account", leftAligned = false, position = 3, None, None),
-    MenuItemConfig("Sign out", s"${signoutUrl(usePertaxSignout, customSignoutUrl)}${signoutParams(continueUrl, origin)}", leftAligned = false, position = 4, None, None)
+    MenuItemConfig("Sign out", s"${signoutUrl}${signoutParams(continueUrl, origin)}", leftAligned = false, position = 4, None, None)
   )
 }
