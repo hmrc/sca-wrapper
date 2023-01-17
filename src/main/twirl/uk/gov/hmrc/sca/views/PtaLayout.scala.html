@@ -17,7 +17,6 @@
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
 @import views.html.helper.CSPNonce
 @import uk.gov.hmrc.sca.config.AppConfig
-@import uk.gov.hmrc.hmrcfrontend.config.AccountMenuConfig
 @import uk.gov.hmrc.ptafrontend.views.html.PtaScripts
 @import uk.gov.hmrc.sca.controllers.TestLibrary
 @import scala.concurrent.ExecutionContext
@@ -41,7 +40,7 @@
         hmrcAccountMenu: HmrcAccountMenu,
         ptaScripts: PtaScripts,
         backLink: backLink,
-        testLibrary: TestLibrary)(implicit accountMenuConfig: AccountMenuConfig)
+        testLibrary: TestLibrary)
 
 @(pageTitle: Option[String], showSignOutInHeader: Boolean = false, headerHomeUrl: Option[String] = None, signOutUrl: String, keepAliveUrl: String, serviceUrl: String, timeout: Boolean = true, showBackLink: Boolean = false, backLinkID: Boolean = true, backLinkUrl: String = "#")(contentBlock: Html)(implicit request: Request[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier)
 
@@ -70,19 +69,26 @@
 
 @beforeContent = {
 @defining(request.uri) { uri =>
-  @testLibrary.menu
+ @testLibrary.menu
 }
-@if(showBackLink){
- <div class="govuk-grid-row">
-  <div class="govuk-grid-column-one-half">
-  @backLink(backLinkUrl, backLinkID)
+
+@defining(appConfig.welshToggle) { welshEnabled =>
+ @if(showBackLink) {
+  <div class="govuk-grid-row">
+   <div class="govuk-grid-column-one-half">
+   @backLink(backLinkUrl, backLinkID)
+   </div>
+   <div class="govuk-grid-column-one-half">
+    @if(welshEnabled){
+     @hmrcLanguageSelectHelper()
+    }
+   </div>
   </div>
-  <div class="govuk-grid-column-one-half">
-  @hmrcLanguageSelectHelper()
-  </div>
- </div>
-} else {
- @hmrcLanguageSelectHelper()
+ } else {
+  @if(welshEnabled){
+   @hmrcLanguageSelectHelper()
+  }
+ }
 }
 }
 
