@@ -16,12 +16,12 @@
 
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
 @import views.html.helper.CSPNonce
-@import uk.gov.hmrc.sca.config.AppConfig
 @import uk.gov.hmrc.ptafrontend.views.html.PtaScripts
 @import uk.gov.hmrc.sca.controllers.TestLibrary
 @import scala.concurrent.ExecutionContext
 @import uk.gov.hmrc.http.HeaderCarrier
 @import uk.gov.hmrc.sca.views.html.components.backLink
+@import uk.gov.hmrc.sca.config.AppConfig
 
 @this(
         appConfig: AppConfig,
@@ -42,7 +42,7 @@
         backLink: backLink,
         testLibrary: TestLibrary)
 
-@(pageTitle: Option[String], showSignOutInHeader: Boolean = false, headerHomeUrl: Option[String] = None, signOutUrl: String, keepAliveUrl: String, serviceUrl: String, timeout: Boolean = true, showBackLink: Boolean = false, backLinkID: Boolean = true, backLinkUrl: String = "#")(contentBlock: Html)(implicit request: Request[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier)
+@(pageTitle: Option[String], signoutUrl: String, keepAliveUrl: String, serviceUrl: String, showBackLink: Boolean = false, timeout: Boolean = true, headerHomeUrl: Option[String] = None, backLinkID: Boolean = true, backLinkUrl: String = "#", showSignOutInHeader: Boolean = false)(contentBlock: Html)(implicit request: Request[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier)
 
 @head = {
 
@@ -54,7 +54,7 @@
    countdown           = Some(appConfig.countdown),
    keepAliveUrl        = Some(keepAliveUrl),
    keepAliveButtonText = Some(messages("timeout.keepAlive")),
-   signOutUrl          = Some(signOutUrl),
+   signOutUrl          = Some(signoutUrl),
    signOutButtonText   = Some(messages("timeout.signOut")),
    title               = Some(messages("timeout.title")),
    message             = Some(messages("timeout.message"))
@@ -68,6 +68,7 @@
 }
 
 @beforeContent = {
+ <p>hello, I'm a wrapper</p>
 @defining(request.uri) { uri =>
  @testLibrary.menu
 }
@@ -108,6 +109,7 @@
 
  <div class="govuk-!-margin-top-8">
  @hmrcReportTechnicalIssueHelper()
+  <p>hello, I'm a wrapper</p>
  </div>
 }
 
@@ -116,8 +118,8 @@
  headBlock   = Some(head),
  headerBlock = Some(hmrcStandardHeader(
   serviceUrl  = headerHomeUrl,
-  signOutUrl  = if(showSignOutInHeader) Some(signOutUrl) else None,
-  phaseBanner = Some(alphaBanner(appConfig.feedbackUrl))
+  signOutUrl  = if(showSignOutInHeader) Some(signoutUrl) else None,
+  phaseBanner = Some(alphaBanner("/TODO"))
  )),
  beforeContentBlock = Some(beforeContent),
  footerBlock        = Some(hmrcStandardFooter()),
