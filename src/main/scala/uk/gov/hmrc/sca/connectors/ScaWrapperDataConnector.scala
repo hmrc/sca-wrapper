@@ -28,8 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ScaWrapperDataConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Logging {
 
   def getWrapperData(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Seq[MenuItemConfig]] = {
-    println("kritika" + getClass.getPackage.getImplementationVersion)
-    http.GET[Seq[MenuItemConfig]](s"${appConfig.scaWrapperDataUrl}/get-wrapper-data/${getClass.getPackage.getImplementationVersion}").recover {
+    http.GET[Seq[MenuItemConfig]](s"${appConfig.scaWrapperDataUrl}/get-wrapper-data/${appConfig.versionNum}").recover {
       case ex: Exception =>
         println(ex.getMessage)
         throw ex

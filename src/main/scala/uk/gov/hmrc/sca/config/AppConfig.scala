@@ -28,6 +28,7 @@ import scala.concurrent.duration.Duration
 class AppConfig @Inject()(configuration: Configuration) {
 
   val xxx = configuration.get[String]("test1")
+  val versionNum: String = "1.0.0"
   private val scaWrapperDataBaseUrl = configuration.get[String]("microservice.services.single-customer-account-wrapper-data.url")
   val scaWrapperDataUrl = s"$scaWrapperDataBaseUrl/single-customer-account-wrapper-data"
 
