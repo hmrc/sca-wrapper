@@ -29,6 +29,7 @@ class AppConfig @Inject()(configuration: Configuration) {
 
   val xxx = configuration.get[String]("test1")
   val host: String = configuration.get[String]("host")
+  val versionNum: String = "1.0.0"
 
   val scaWrapperDataUrl = s"${configuration.get[String]("sca-wrapper.internal.single-customer-account-wrapper-data.url")}/single-customer-account-wrapper-data"
 

@@ -17,6 +17,7 @@
 package uk.gov.hmrc.sca.connectors
 
 import com.google.inject.Inject
+import play.Application
 import play.api.Logging
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.sca.config.AppConfig
@@ -26,8 +27,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ScaWrapperDataConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Logging {
 
+
   def wrapperData(wrapperDataRequest: WrapperDataRequest)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[WrapperDataResponse] = {
-    http.POST[WrapperDataRequest, WrapperDataResponse](s"${appConfig.scaWrapperDataUrl}/wrapper-data", wrapperDataRequest).map { i =>
+    http.POST[WrapperDataRequest, WrapperDataResponse](s"${appConfig.scaWrapperDataUrl}/wrapper-data/${appConfig.versionNum}", wrapperDataRequest).map { i =>
       i
     }.recover {
       case ex: Exception =>
