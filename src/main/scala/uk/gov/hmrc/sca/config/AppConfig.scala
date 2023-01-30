@@ -36,8 +36,8 @@ class AppConfig @Inject()(configuration: Configuration) {
   val exitSurveyServiceName: String = configuration.get[String]("sca-wrapper.exit-survey-service-name")
   val feedbackServiceName: String = configuration.get[String]("sca-wrapper.feedback-service-name")
 
-  private val signoutBaseUrl = configuration.get[Option[String]]("sca-wrapper.signout.url")
-  private val signoutBaseUrlAlt = configuration.get[Option[String]]("sca-wrapper.signout.alternative-url")
+  val signoutBaseUrl = configuration.get[String]("sca-wrapper.signout.url")
+  val signoutBaseUrlAlt = configuration.get[Option[String]]("sca-wrapper.signout.alternative-url")
 
   def exitSurveyUrl(feedbackFrontendUrl: String)(implicit request: RequestHeader): String = s"$feedbackFrontendUrl/$exitSurveyServiceName"
 
@@ -54,10 +54,9 @@ class AppConfig @Inject()(configuration: Configuration) {
   private val fallbackContactUrl: String = s"${configuration.get[String]("sca-wrapper.fallback.contact-frontend.url")}/contact/beta-feedback"
   private val fallbackAccessibilityStatementUrl: String = configuration.get[String]("sca-wrapper.fallback.accessibility-statement-frontend.url")
 
-  val signoutUrl: String = signoutBaseUrlAlt.getOrElse(signoutBaseUrl.getOrElse(s"$fallbackPertaxUrl/signout/feedback/PERTAX"))
-  val ggLoginUrl: String = configuration.get[String]("urls.login")
-  val ggLoginContinueUrl: String = configuration.get[String]("urls.loginContinue")
-  val ggSignoutUrl: String = configuration.get[String]("urls.signOut")
+  val serviceUrl: String = configuration.get[String]("sca-wrapper.service.url")
+  val ggLoginContinueUrl: String = configuration.get[String]("sca-wrapper.service.url")
+  val ggSigninUrl: String = configuration.get[String]("sca-wrapper.fallback.gg.signin.url")
 
   private val fallbackMenuConfig: Seq[MenuItemConfig] = Seq(
     MenuItemConfig("Account Home", s"${fallbackPertaxUrl}", leftAligned = true, position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None),
@@ -65,10 +64,11 @@ class AppConfig @Inject()(configuration: Configuration) {
     MenuItemConfig("Check progress", s"${fallbackPertaxUrl}/track", leftAligned = false, position = 1, None, None),
     MenuItemConfig("Profile and settings", s"${fallbackPertaxUrl}/profile-and-settings", leftAligned = false, position = 2, None, None),
     MenuItemConfig("Business tax account", s"${fallbackBusinessTaxAccountUrl}", leftAligned = false, position = 3, None, None),
-    MenuItemConfig("Sign out", s"${signoutUrl}", leftAligned = false, position = 4, None, None)
+    MenuItemConfig("Sign out", s"$fallbackPertaxUrl/signout/feedback/PERTAX", leftAligned = false, position = 4, None, None)
   )
 
   val fallbackWrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
-    fallbackFeedbackFrontendUrl, fallbackContactUrl, fallbackBusinessTaxAccountUrl, fallbackPertaxUrl, fallbackAccessibilityStatementUrl, fallbackMenuConfig
+    fallbackFeedbackFrontendUrl, fallbackContactUrl, fallbackBusinessTaxAccountUrl,
+    fallbackPertaxUrl, fallbackAccessibilityStatementUrl, ggSigninUrl, fallbackMenuConfig
   )
 }

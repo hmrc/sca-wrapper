@@ -27,6 +27,7 @@ import uk.gov.hmrc.domain
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.sca.config.AppConfig
+import uk.gov.hmrc.sca.controllers.routes
 import uk.gov.hmrc.sca.models.auth.AuthenticatedRequest
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -80,14 +81,13 @@ class AuthActionImpl @Inject()(
           trimmedRequest
         )
         block(authenticatedRequest)
-      case _ => Future.successful(Redirect(""))
-        //routes.UnauthorisedController.onPageLoad
+      case _ => Future.successful(Redirect(routes.UnauthorisedController.onPageLoad))
     }
   }.recover {
     case authException =>
       logger.error(authException.getMessage)
       Redirect(
-      appConfig.ggLoginUrl,
+      appConfig.ggSigninUrl,
       Map("continue" -> Seq(appConfig.ggLoginContinueUrl), "origin" -> Seq("single-customer-account-frontend")))
   }
 }

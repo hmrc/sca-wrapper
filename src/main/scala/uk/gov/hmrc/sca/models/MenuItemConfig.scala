@@ -18,7 +18,8 @@ package uk.gov.hmrc.sca.models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class MenuItemConfig(text: String, href: String, leftAligned: Boolean, position: Int, icon: Option[String], notificationBadge: Option[Int])
+case class MenuItemConfig(text: String, href: String, leftAligned: Boolean, position: Int,
+                          icon: Option[String], notificationBadge: Option[Int], signout: Boolean = false)
 
 object MenuItemConfig {
   implicit val format: OFormat[MenuItemConfig] = Json.format[MenuItemConfig]

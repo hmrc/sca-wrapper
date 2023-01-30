@@ -24,6 +24,7 @@ case class WrapperDataResponse(
                             businessTaxAccountFrontendUrl: String,
                             pertaxFrontendUrl: String,
                             accessibilityStatementUrl: String,
+                            ggSigninUrl: String,
                             menuItemConfig: Seq[MenuItemConfig])
 object WrapperDataResponse {
   implicit val format: OFormat[WrapperDataResponse] = Json.format[WrapperDataResponse]

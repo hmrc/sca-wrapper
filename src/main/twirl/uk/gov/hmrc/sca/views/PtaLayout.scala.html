@@ -40,7 +40,7 @@
         ptaScripts: PtaScripts,
         backLink: backLink)
 
-@(menu: HtmlFormat.Appendable, pageTitle: Option[String] = None, signoutUrl: String = appConfig.ggSignoutUrl, keepAliveUrl: String = appConfig.keepAliveUrl, showBackLink: Boolean = false, timeout: Boolean = true, headerHomeUrl: Option[String] = None, backLinkID: Boolean = true, backLinkUrl: String = "#", showSignOutInHeader: Boolean = false)(contentBlock: Html)(implicit request: Request[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier)
+@(menu: HtmlFormat.Appendable, pageTitle: Option[String] = None, signoutUrl: String = appConfig.signoutBaseUrl, keepAliveUrl: String, showBackLink: Boolean = false, timeout: Boolean = true, headerHomeUrl: Option[String] = None, backLinkID: Boolean = true, backLinkUrl: String = "#", showSignOutInHeader: Boolean = false)(contentBlock: Html)(implicit request: Request[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier)
 
 @head = {
 
@@ -70,7 +70,6 @@
 @defining(request.uri) { uri =>
  @menu
 }
- @keepAliveUrl
 
 @defining(appConfig.welshToggle) { welshEnabled =>
  @if(showBackLink) {

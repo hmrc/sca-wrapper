@@ -17,29 +17,41 @@
 package uk.gov.hmrc.sca.services
 
 import play.api.i18n.Messages
-import play.api.mvc.{AnyContent, Request}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
-import uk.gov.hmrc.sca.controllers.actions.AuthAction
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMenuConfig, WrapperDataRequest}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMenuConfig}
 import uk.gov.hmrc.sca.views.html.{PtaLayout, PtaMenuBar}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 
-class WrapperService @Inject()(val controllerComponents: MessagesControllerComponents, authenticate: AuthAction, ptaMenuBar: PtaMenuBar, ptaLayout: PtaLayout, scaWrapperDataConnector: ScaWrapperDataConnector, appConfig: AppConfig) extends FrontendBaseController {
+class WrapperService @Inject()(
+                                val controllerComponents: MessagesControllerComponents,
+                                ptaMenuBar: PtaMenuBar,
+                                ptaLayout: PtaLayout,
+                                scaWrapperDataConnector: ScaWrapperDataConnector,
+                                appConfig: AppConfig) extends FrontendBaseController {
 
   private def sortMenuItemConfig(menuItemConfig: Seq[MenuItemConfig]): PtaMenuConfig = {
-    PtaMenuConfig(menuItemConfig.filter(_.leftAligned).sortBy(_.position), menuItemConfig.filterNot(_.leftAligned).sortBy(_.position))
+    val setSignout = setSigoutUrl(menuItemConfig)
+    PtaMenuConfig(
+      leftAlignedItems = setSignout.filter(_.leftAligned).sortBy(_.position),
+      rightAlignedItems = setSignout.filterNot(_.leftAligned).sortBy(_.position))
+  }
+
+  private def setSigoutUrl(menuItemConfig: Seq[MenuItemConfig]) = {
+    menuItemConfig.find(_.signout).fold(menuItemConfig){ signout =>
+      menuItemConfig.updated(menuItemConfig.indexWhere(_.signout), signout.copy(href = appConfig.signoutBaseUrl))
+    }
   }
 
   def layout(content: HtmlFormat.Appendable,
              pageTitle: Option[String] = None,
-             signoutUrl: String = appConfig.ggSignoutUrl,
+             signoutUrl: String = appConfig.signoutBaseUrl,
              keepAliveUrl: String,
              showBackLink: Boolean = false,
              timeout: Boolean = true,
@@ -51,7 +63,7 @@ class WrapperService @Inject()(val controllerComponents: MessagesControllerCompo
              hc: HeaderCarrier,
              request: Request[AnyContent],
              messages: Messages): Future[HtmlFormat.Appendable] = {
-    scaWrapperDataConnector.wrapperData(WrapperDataRequest(appConfig.signoutUrl)).map { menuItems =>
+    scaWrapperDataConnector.wrapperData.map { menuItems =>
       ptaLayout(
         menu = ptaMenuBar(sortMenuItemConfig(menuItems.menuItemConfig)),
         pageTitle = pageTitle,
@@ -67,8 +79,8 @@ class WrapperService @Inject()(val controllerComponents: MessagesControllerCompo
     }
   }
 
-  def keepAliveAuthenticated: Action[AnyContent] = authenticate { implicit request => Ok }
+  final val keepAliveAuthenticatedUrl: String = s"${appConfig.serviceUrl}/keep-alive-authenticated"
 
-  def keepAliveUnauthenticated: Action[AnyContent] = Action { implicit request => Ok }
+  final val keepAliveUnauthenticatedUrl: String = s"${appConfig.serviceUrl}/keep-alive-unauthenticated"
 
 }

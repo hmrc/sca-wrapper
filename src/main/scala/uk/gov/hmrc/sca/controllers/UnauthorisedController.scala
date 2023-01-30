@@ -39,7 +39,7 @@ class UnauthorisedController @Inject()(
     wrapperService.layout(
       content = view(),
       pageTitle = Some(titleNoForm(messages("unauthorised.title"))),
-      signoutUrl = appConfig.ggSignoutUrl,
+      signoutUrl = appConfig.signoutBaseUrl,
       keepAliveUrl = Redirect(routes.KeepAliveController.keepAliveUnauthenticated).toString()).map { layout =>
       Ok(layout)
     }
