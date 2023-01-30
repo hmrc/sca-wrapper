@@ -17,7 +17,6 @@
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
 @import views.html.helper.CSPNonce
 @import uk.gov.hmrc.ptafrontend.views.html.PtaScripts
-@import uk.gov.hmrc.sca.controllers.TestLibrary
 @import scala.concurrent.ExecutionContext
 @import uk.gov.hmrc.http.HeaderCarrier
 @import uk.gov.hmrc.sca.views.html.components.backLink
@@ -39,10 +38,9 @@
         hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
         hmrcAccountMenu: HmrcAccountMenu,
         ptaScripts: PtaScripts,
-        backLink: backLink,
-        testLibrary: TestLibrary)
+        backLink: backLink)
 
-@(pageTitle: Option[String], signoutUrl: String, keepAliveUrl: String, serviceUrl: String, showBackLink: Boolean = false, timeout: Boolean = true, headerHomeUrl: Option[String] = None, backLinkID: Boolean = true, backLinkUrl: String = "#", showSignOutInHeader: Boolean = false)(contentBlock: Html)(implicit request: Request[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier)
+@(menu: HtmlFormat.Appendable, pageTitle: Option[String] = None, signoutUrl: String = appConfig.ggSignoutUrl, keepAliveUrl: String = appConfig.keepAliveUrl, showBackLink: Boolean = false, timeout: Boolean = true, headerHomeUrl: Option[String] = None, backLinkID: Boolean = true, backLinkUrl: String = "#", showSignOutInHeader: Boolean = false)(contentBlock: Html)(implicit request: Request[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier)
 
 @head = {
 
@@ -70,8 +68,9 @@
 @beforeContent = {
  <p>hello, I'm a wrapper</p>
 @defining(request.uri) { uri =>
- @testLibrary.menu
+ @menu
 }
+ @keepAliveUrl
 
 @defining(appConfig.welshToggle) { welshEnabled =>
  @if(showBackLink) {

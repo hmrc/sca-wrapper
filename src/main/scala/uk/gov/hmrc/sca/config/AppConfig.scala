@@ -55,6 +55,9 @@ class AppConfig @Inject()(configuration: Configuration) {
   private val fallbackAccessibilityStatementUrl: String = configuration.get[String]("sca-wrapper.fallback.accessibility-statement-frontend.url")
 
   val signoutUrl: String = signoutBaseUrlAlt.getOrElse(signoutBaseUrl.getOrElse(s"$fallbackPertaxUrl/signout/feedback/PERTAX"))
+  val ggLoginUrl: String = configuration.get[String]("urls.login")
+  val ggLoginContinueUrl: String = configuration.get[String]("urls.loginContinue")
+  val ggSignoutUrl: String = configuration.get[String]("urls.signOut")
 
   private val fallbackMenuConfig: Seq[MenuItemConfig] = Seq(
     MenuItemConfig("Account Home", s"${fallbackPertaxUrl}", leftAligned = true, position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None),
