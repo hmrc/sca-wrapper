@@ -18,7 +18,9 @@ package uk.gov.hmrc.sca.connectors
 
 import com.google.inject.Inject
 import play.api.Logging
+import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models.WrapperDataResponse
 
@@ -28,6 +30,8 @@ class ScaWrapperDataConnector @Inject()(http: HttpClient, appConfig: AppConfig) 
 
 
   def wrapperData(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[WrapperDataResponse] = {
+    println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+    println(hc.authorization.getOrElse("nooooooooooooo").toString)
     http.GET[WrapperDataResponse](s"${appConfig.scaWrapperDataUrl}/wrapper-data/${appConfig.versionNum}").recover {
       case ex: Exception =>
         println(ex.getMessage)

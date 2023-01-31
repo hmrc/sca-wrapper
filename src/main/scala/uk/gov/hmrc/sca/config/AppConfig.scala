@@ -36,13 +36,17 @@ class AppConfig @Inject()(configuration: Configuration) {
   val exitSurveyServiceName: String = configuration.get[String]("sca-wrapper.exit-survey-service-name")
   val feedbackServiceName: String = configuration.get[String]("sca-wrapper.feedback-service-name")
 
-  val signoutBaseUrl = configuration.get[String]("sca-wrapper.signout.url")
-  val signoutBaseUrlAlt = configuration.get[Option[String]]("sca-wrapper.signout.alternative-url")
-
+  val signoutBaseUrl: String = configuration.get[String]("sca-wrapper.signout.url")
+  val signoutBaseUrlAlt: Option[String] = configuration.get[Option[String]]("sca-wrapper.signout.alternative-url")
+//TODO alt signout
   def exitSurveyUrl(feedbackFrontendUrl: String)(implicit request: RequestHeader): String = s"$feedbackFrontendUrl/$exitSurveyServiceName"
-
   def feedbackUrl(contactFrontendUrl: String)(implicit request: RequestHeader): String =
     s"$contactFrontendUrl?service=$feedbackServiceName&backUrl=${SafeRedirectUrl(host + request.uri).encodedUrl}"
+  private val accessibilityStatementReferrerUrl = configuration.get[String]("sca-wrapper.accessibility-statement.referrer.url")
+  private val accessibilityStatementRedirectUrl = configuration.get[String]("sca-wrapper.accessibility-statement.redirect.url")
+
+  def accessibilityStatementUrl(accessibilityBaseUrl: String) =
+    s"$accessibilityBaseUrl/accessibility-statement/$accessibilityStatementRedirectUrl?referrerUrl=${SafeRedirectUrl(accessibilityBaseUrl + accessibilityStatementReferrerUrl).encodedUrl}"
 
   val timeout: Int = configuration.get[Int]("sca-wrapper.timeout-dialog.timeout")
   val countdown: Int = configuration.get[Int]("sca-wrapper.timeout-dialog.countdown")

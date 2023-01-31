@@ -21,8 +21,10 @@
 @import uk.gov.hmrc.http.HeaderCarrier
 @import uk.gov.hmrc.sca.views.html.components.backLink
 @import uk.gov.hmrc.sca.config.AppConfig
+@import uk.gov.hmrc.sca.models.WrapperDataResponse
 
 @this(
+        hmrcLayout: HmrcLayout,
         appConfig: AppConfig,
         govukLayout: GovukLayout,
         govukBackLink: GovukBackLink,
@@ -40,7 +42,7 @@
         ptaScripts: PtaScripts,
         backLink: backLink)
 
-@(menu: HtmlFormat.Appendable, pageTitle: Option[String] = None, signoutUrl: String = appConfig.signoutBaseUrl, keepAliveUrl: String, showBackLink: Boolean = false, timeout: Boolean = true, headerHomeUrl: Option[String] = None, backLinkID: Boolean = true, backLinkUrl: String = "#", showSignOutInHeader: Boolean = false)(contentBlock: Html)(implicit request: Request[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier)
+@(menu: HtmlFormat.Appendable, wrapperDataResponse: WrapperDataResponse, pageTitle: Option[String] = None, signoutUrl: String = appConfig.signoutBaseUrl, keepAliveUrl: String, showBackLink: Boolean = false, timeout: Boolean = true, headerHomeUrl: Option[String] = None, backLinkID: Boolean = true, backLinkUrl: String = "#", showSignOutInHeader: Boolean = false)(contentBlock: Html)(implicit request: Request[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier)
 
 @head = {
 
@@ -117,10 +119,12 @@
  headerBlock = Some(hmrcStandardHeader(
   serviceUrl  = headerHomeUrl,
   signOutUrl  = if(showSignOutInHeader) Some(signoutUrl) else None,
-  phaseBanner = Some(alphaBanner("/TODO"))
+  phaseBanner = Some(alphaBanner(appConfig.feedbackUrl(wrapperDataResponse.contactFrontendUrl)))
  )),
  beforeContentBlock = Some(beforeContent),
- footerBlock        = Some(hmrcStandardFooter()),
+ footerBlock        = Some(hmrcStandardFooter(
+  accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(wrapperDataResponse.accessibilityStatementUrl))
+ )),
  scriptsBlock       = Some(hmrcScripts(
   nonce        = CSPNonce.get,
   scriptsBlock = Some(additionalScripts)

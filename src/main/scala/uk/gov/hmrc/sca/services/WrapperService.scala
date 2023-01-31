@@ -17,7 +17,7 @@
 package uk.gov.hmrc.sca.services
 
 import play.api.i18n.Messages
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Request, RequestHeader}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -34,7 +34,8 @@ class WrapperService @Inject()(
                                 ptaMenuBar: PtaMenuBar,
                                 ptaLayout: PtaLayout,
                                 scaWrapperDataConnector: ScaWrapperDataConnector,
-                                appConfig: AppConfig) extends FrontendBaseController {
+                                appConfig: AppConfig)
+                              (implicit ec: ExecutionContext) extends FrontendBaseController {
 
   private def sortMenuItemConfig(menuItemConfig: Seq[MenuItemConfig]): PtaMenuConfig = {
     val setSignout = setSigoutUrl(menuItemConfig)
@@ -59,13 +60,12 @@ class WrapperService @Inject()(
              backLinkID: Boolean = true,
              backLinkUrl: String = "#",
              showSignOutInHeader: Boolean = false)
-            (implicit ec: ExecutionContext,
+            (implicit messages: Messages,
              hc: HeaderCarrier,
-             request: Request[AnyContent],
-             messages: Messages): Future[HtmlFormat.Appendable] = {
-    scaWrapperDataConnector.wrapperData.map { menuItems =>
+             request: Request[AnyContent]): Future[HtmlFormat.Appendable] = {
+    scaWrapperDataConnector.wrapperData.map { wrapperDataResponse =>
       ptaLayout(
-        menu = ptaMenuBar(sortMenuItemConfig(menuItems.menuItemConfig)),
+        menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse.menuItemConfig)),
         pageTitle = pageTitle,
         signoutUrl = signoutUrl,
         keepAliveUrl = keepAliveUrl,
@@ -74,7 +74,8 @@ class WrapperService @Inject()(
         headerHomeUrl = headerHomeUrl,
         backLinkID = backLinkID,
         backLinkUrl = backLinkUrl,
-        showSignOutInHeader = showSignOutInHeader
+        showSignOutInHeader = showSignOutInHeader,
+        wrapperDataResponse = wrapperDataResponse
       )(content)
     }
   }
