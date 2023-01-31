@@ -42,7 +42,7 @@
         ptaScripts: PtaScripts,
         backLink: backLink)
 
-@(menu: HtmlFormat.Appendable, wrapperDataResponse: WrapperDataResponse, pageTitle: Option[String] = None, signoutUrl: String = appConfig.signoutBaseUrl, keepAliveUrl: String, showBackLink: Boolean = false, timeout: Boolean = true, headerHomeUrl: Option[String] = None, backLinkID: Boolean = true, backLinkUrl: String = "#", showSignOutInHeader: Boolean = false)(contentBlock: Html)(implicit request: Request[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier)
+@(menu: HtmlFormat.Appendable, wrapperDataResponse: WrapperDataResponse, showServiceName: Boolean, serviceNameKey: Option[String], pageTitle: Option[String], signoutUrl: String, keepAliveUrl: String, showBackLink: Boolean, timeout: Boolean, headerHomeUrl: Option[String], backLinkID: Boolean, backLinkUrl: String, showSignOutInHeader: Boolean)(contentBlock: Html)(implicit request: Request[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier)
 
 @head = {
 
@@ -68,7 +68,6 @@
 }
 
 @beforeContent = {
- <p>hello, I'm a wrapper</p>
 @defining(request.uri) { uri =>
  @menu
 }
@@ -98,9 +97,7 @@
   <main class="govuk-main-wrapper govuk-main-wrapper--l">
    <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-     <p>---------------------------------------------Wrapper---------------------------------------------</p>
     @contentBlock
-     <p>---------------------------------------------Wrapper---------------------------------------------</p>
     </div>
    </div>
 
@@ -109,7 +106,6 @@
 
  <div class="govuk-!-margin-top-8">
  @hmrcReportTechnicalIssueHelper()
-  <p>hello, I'm a wrapper</p>
  </div>
 }
 
@@ -119,7 +115,10 @@
  headerBlock = Some(hmrcStandardHeader(
   serviceUrl  = headerHomeUrl,
   signOutUrl  = if(showSignOutInHeader) Some(signoutUrl) else None,
-  phaseBanner = Some(alphaBanner(appConfig.feedbackUrl(wrapperDataResponse.contactFrontendUrl)))
+  phaseBanner = Some(alphaBanner(appConfig.feedbackUrl(wrapperDataResponse.contactFrontendUrl))),
+  serviceName = if(showServiceName){
+   serviceNameKey.fold(Some(""): Option[String]){key => Some(messages(key))}
+  } else Some("")
  )),
  beforeContentBlock = Some(beforeContent),
  footerBlock        = Some(hmrcStandardFooter(

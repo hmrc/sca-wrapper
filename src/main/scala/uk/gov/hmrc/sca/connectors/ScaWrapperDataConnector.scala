@@ -30,12 +30,9 @@ class ScaWrapperDataConnector @Inject()(http: HttpClient, appConfig: AppConfig) 
 
 
   def wrapperData(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[WrapperDataResponse] = {
-    println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-    println(hc.authorization.getOrElse("nooooooooooooo").toString)
     http.GET[WrapperDataResponse](s"${appConfig.scaWrapperDataUrl}/wrapper-data/${appConfig.versionNum}").recover {
       case ex: Exception =>
-        println(ex.getMessage)
-        println("fallback")
+        println("FALLBACK!!!!!!!")
         appConfig.fallbackWrapperDataResponse
     }
   }

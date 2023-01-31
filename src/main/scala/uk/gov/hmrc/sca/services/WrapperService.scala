@@ -52,6 +52,8 @@ class WrapperService @Inject()(
 
   def layout(content: HtmlFormat.Appendable,
              pageTitle: Option[String] = None,
+             showServiceName: Boolean = appConfig.showServiceName,
+             serviceNameKey: Option[String] = appConfig.serviceNameKey,
              signoutUrl: String = appConfig.signoutBaseUrl,
              keepAliveUrl: String,
              showBackLink: Boolean = false,
@@ -66,6 +68,8 @@ class WrapperService @Inject()(
     scaWrapperDataConnector.wrapperData.map { wrapperDataResponse =>
       ptaLayout(
         menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse.menuItemConfig)),
+        showServiceName = showServiceName,
+        serviceNameKey = serviceNameKey,
         pageTitle = pageTitle,
         signoutUrl = signoutUrl,
         keepAliveUrl = keepAliveUrl,

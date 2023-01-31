@@ -31,6 +31,9 @@ class AppConfig @Inject()(configuration: Configuration) {
   val host: String = configuration.get[String]("host")
   val versionNum: String = "1.0.0"
 
+  val serviceNameKey: Option[String] = configuration.get[Option[String]]("sca-wrapper.service-name.messages-key")
+  val showServiceName: Boolean = configuration.get[Boolean]("sca-wrapper.service-name.show-service-name")
+
   val scaWrapperDataUrl = s"${configuration.get[String]("sca-wrapper.internal.single-customer-account-wrapper-data.url")}/single-customer-account-wrapper-data"
 
   val exitSurveyServiceName: String = configuration.get[String]("sca-wrapper.exit-survey-service-name")
