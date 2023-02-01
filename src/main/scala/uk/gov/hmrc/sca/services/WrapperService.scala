@@ -15,11 +15,12 @@
  */
 
 package uk.gov.hmrc.sca.services
-
 import play.api.i18n.Messages
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Request, RequestHeader}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
+import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
@@ -46,7 +47,7 @@ class WrapperService @Inject()(
 
   private def setSigoutUrl(menuItemConfig: Seq[MenuItemConfig]) = {
     menuItemConfig.find(_.signout).fold(menuItemConfig){ signout =>
-      menuItemConfig.updated(menuItemConfig.indexWhere(_.signout), signout.copy(href = appConfig.signoutBaseUrl))
+      menuItemConfig.updated(menuItemConfig.indexWhere(_.signout), signout.copy(href = appConfig.signoutUrl))
     }
   }
 
@@ -54,11 +55,11 @@ class WrapperService @Inject()(
              pageTitle: Option[String] = None,
              showServiceName: Boolean = appConfig.showServiceName,
              serviceNameKey: Option[String] = appConfig.serviceNameKey,
-             signoutUrl: String = appConfig.signoutBaseUrl,
-             keepAliveUrl: String,
+             serviceNameUrl: Option[String] = None,
+             signoutUrl: String = appConfig.signoutUrl,
+             keepAliveUrl: String = appConfig.keepAliveAuthenticatedUrl,
              showBackLink: Boolean = false,
              timeout: Boolean = true,
-             headerHomeUrl: Option[String] = None,
              backLinkID: Boolean = true,
              backLinkUrl: String = "#",
              showSignOutInHeader: Boolean = false)
@@ -75,7 +76,7 @@ class WrapperService @Inject()(
         keepAliveUrl = keepAliveUrl,
         showBackLink = showBackLink,
         timeout = timeout,
-        headerHomeUrl = headerHomeUrl,
+        serviceNameUrl = serviceNameUrl,
         backLinkID = backLinkID,
         backLinkUrl = backLinkUrl,
         showSignOutInHeader = showSignOutInHeader,
@@ -84,8 +85,19 @@ class WrapperService @Inject()(
     }
   }
 
-  final val keepAliveAuthenticatedUrl: String = s"${appConfig.serviceUrl}/keep-alive-authenticated"
+  //TODO turn into one-time call on-startup config, or maybe put it into a custom Action builder
+  //if None, origin is not set within appconfig so service return a 400 badRequest
+  //returns exit survey url or continue url if supplied
+  def safeSignoutUrl(continueUrl: Option[RedirectUrl] = None)(implicit hc: HeaderCarrier): Future[Option[String]] = {
+    scaWrapperDataConnector.wrapperData.map { wrapperDataResponse =>
+      val exitSurveyUrl = appConfig.exitSurveyOrigin.map(origin => wrapperDataResponse.feedbackFrontendUrl + "/feedback/" + appConfig.enc(origin))
+      (continueUrl) match {
+        case Some(continue) if continue.getEither(OnlyRelative).isRight => Some(continue.getEither(OnlyRelative).right.get.url)
+        case _ => exitSurveyUrl
+      }
+    }
+  }
 
-  final val keepAliveUnauthenticatedUrl: String = s"${appConfig.serviceUrl}/keep-alive-unauthenticated"
-
+  final val keepAliveAuthenticatedUrl: String = appConfig.keepAliveAuthenticatedUrl
+  final val keepAliveUnauthenticatedUrl: String = appConfig.keepAliveAuthenticatedUrl
 }

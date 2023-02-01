@@ -31,16 +31,16 @@ class UnauthorisedController @Inject()(
                                         val controllerComponents: MessagesControllerComponents,
                                         view: UnauthorisedView,
                                         wrapperService: WrapperService,
-                                        appConfig: AppConfig,
-                                        keepAliveController: KeepAliveController
+                                        appConfig: AppConfig
                                       )(implicit messages: Messages, ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
     wrapperService.layout(
       content = view(),
       pageTitle = Some(titleNoForm(messages("unauthorised.title"))),
-      signoutUrl = appConfig.signoutBaseUrl,
-      keepAliveUrl = Redirect(routes.KeepAliveController.keepAliveUnauthenticated).toString()).map { layout =>
+      signoutUrl = appConfig.signoutUrl,
+      keepAliveUrl = appConfig.keepAliveUnauthenticatedUrl
+    ).map { layout =>
       Ok(layout)
     }
   }
