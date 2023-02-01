@@ -90,7 +90,7 @@ class WrapperService @Inject()(
   //returns exit survey url or continue url if supplied
   def safeSignoutUrl(continueUrl: Option[RedirectUrl] = None)(implicit hc: HeaderCarrier): Future[Option[String]] = {
     scaWrapperDataConnector.wrapperData.map { wrapperDataResponse =>
-      val exitSurveyUrl = appConfig.exitSurveyOrigin.map(origin => wrapperDataResponse.feedbackFrontendUrl + appConfig.enc(origin))
+      val exitSurveyUrl = appConfig.exitSurveyOrigin.map(origin => wrapperDataResponse.feedbackFrontendUrl + "/" + appConfig.enc(origin))
       (continueUrl) match {
         case Some(continue) if continue.getEither(OnlyRelative).isRight => Some(continue.getEither(OnlyRelative).right.get.url)
         case _ => exitSurveyUrl
