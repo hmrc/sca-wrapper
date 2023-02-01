@@ -50,14 +50,17 @@ lazy val templateImports: Seq[String] = Seq(
 //  "controllers.routes._"
 )
 
+val playVersion = "play-28"
+
 val appDependencies = Seq(
-  "com.typesafe.play" %% "play-json"                % "2.9.3",
-  "uk.gov.hmrc" %% "play-frontend-hmrc"       % "3.22.0-play-28",
-  "uk.gov.hmrc" %% "bootstrap-frontend-play-28"     % "5.24.0",
-  "uk.gov.hmrc" %% "play-language"                  % "5.3.0-play-28",
-  "uk.gov.hmrc" %% "play-partials"                % "8.3.0-play-28",
-  "uk.gov.hmrc" %% "domain"                         % s"8.0.0-play-28",
-  "uk.gov.hmrc"         %% "play-frontend-pta"        % "0.3.0"
+  "com.typesafe.play"           %% "play-json"                        % "2.9.3",
+  "uk.gov.hmrc"                 %% "play-frontend-hmrc"               % s"3.22.0-$playVersion",
+  "uk.gov.hmrc"                 %% s"bootstrap-frontend-$playVersion" % "5.24.0",
+  "uk.gov.hmrc"                 %% "play-language"                    % s"5.3.0-$playVersion",
+  "uk.gov.hmrc"                 %% "play-partials"                    % s"8.3.0-$playVersion",
+  "uk.gov.hmrc"                 %% "domain"                           % s"8.0.0-$playVersion",
+  "uk.gov.hmrc"                 %% "play-ui"                          % s"9.8.0-$playVersion",
+  "uk.gov.hmrc"                 %% "play-frontend-pta"                % "0.3.0"
 )
 
 val testDependencies = Seq(

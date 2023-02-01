@@ -18,19 +18,22 @@ package uk.gov.hmrc.sca.connectors
 
 import com.google.inject.Inject
 import play.api.Logging
+import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import uk.gov.hmrc.sca.config.AppConfig
-import uk.gov.hmrc.sca.models.MenuItemConfig
+import uk.gov.hmrc.sca.models.WrapperDataResponse
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class ScaWrapperDataConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Logging {
 
-  def getWrapperData(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Seq[MenuItemConfig]] = {
-    http.GET[Seq[MenuItemConfig]](s"${appConfig.scaWrapperDataUrl}/get-wrapper-data").recover {
+
+  def wrapperData(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[WrapperDataResponse] = {
+    http.GET[WrapperDataResponse](s"${appConfig.scaWrapperDataUrl}/wrapper-data/${appConfig.versionNum}").recover {
       case ex: Exception =>
-        println(ex.getMessage)
-        throw ex
+        println("FALLBACK!!!!!!!")
+        appConfig.fallbackWrapperDataResponse
     }
   }
 

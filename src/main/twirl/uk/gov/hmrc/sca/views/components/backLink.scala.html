@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,15 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package uk.gov.hmrc.sca.models
+@this()
 
-import play.api.libs.json.{Json, OFormat}
+@(href: String = "#", backLinkID: Boolean = true, attrs: Map[String, String] = Map.empty)(implicit messages: Messages)
 
-case class MenuItemConfig(text: String, href: String, leftAligned: Boolean, position: Int,
-                          icon: Option[String], notificationBadge: Option[Int], signout: Boolean = false)
-
-object MenuItemConfig {
-  implicit val format: OFormat[MenuItemConfig] = Json.format[MenuItemConfig]
+@attrValues = @{
+  attrs.map{
+    case(key, value) => key + "=" + value
+  }
 }
+    <a @if(backLinkID){id="back-link"} href="@href" class="govuk-back-link print-hidden" @attrValues>@messages("label.back")</a>
+
+

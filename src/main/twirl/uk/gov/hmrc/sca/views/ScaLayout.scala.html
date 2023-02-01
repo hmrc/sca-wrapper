@@ -17,7 +17,7 @@
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
 @import views.html.helper.CSPNonce
 @import uk.gov.hmrc.sca.config.AppConfig
-
+@import uk.gov.hmrc.sca.viewmodels.BackLinkViewModel
 @this(
         appConfig: AppConfig,
         govukLayout: GovukLayout,
@@ -34,7 +34,7 @@
         hmrcLanguageSelectHelper: HmrcLanguageSelectHelper
 )
 
-@(pageTitle: Option[String], signoutUrl: String, keepAliveUrl: String, serviceUrl: String, showBackLink: Boolean = false, timeout: Boolean = true, showSignOut: Boolean = true)(contentBlock: Html)(implicit request: Request[_], messages: Messages)
+@(pageTitle: Option[String], signoutUrl: String, keepAliveUrl: String, serviceUrl: String, showBackLink: Boolean = false, timeout: Boolean = true)(contentBlock: Html)(implicit request: Request[_], messages: Messages)
 
 @head = {
 
@@ -108,7 +108,7 @@
  headerBlock = Some(hmrcStandardHeader(
   serviceUrl  = Some(serviceUrl),
   signOutUrl  = None,
-  phaseBanner = Some(alphaBanner(appConfig.feedbackUrl))
+  phaseBanner = Some(alphaBanner("/TODO"))
  )),
  beforeContentBlock = Some(beforeContent),
  footerBlock        = Some(hmrcStandardFooter()),

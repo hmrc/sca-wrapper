@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.sca.models
+package uk.gov.hmrc.sca.models.auth
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.mvc.{Request, WrappedRequest}
 
-case class MenuItemConfig(text: String, href: String, leftAligned: Boolean, position: Int,
-                          icon: Option[String], notificationBadge: Option[Int], signout: Boolean = false)
-
-object MenuItemConfig {
-  implicit val format: OFormat[MenuItemConfig] = Json.format[MenuItemConfig]
-}
+case class SessionRequest[A](request: Request[A], userId: String) extends WrappedRequest[A](request)

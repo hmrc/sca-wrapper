@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.sca.models
+package uk.gov.hmrc.sca.config
 
-import play.api.libs.json.{Json, OFormat}
+import com.google.inject.AbstractModule
+import uk.gov.hmrc.sca.controllers.actions.{AuthAction, AuthActionImpl}
 
-case class MenuItemConfig(text: String, href: String, leftAligned: Boolean, position: Int,
-                          icon: Option[String], notificationBadge: Option[Int], signout: Boolean = false)
+import java.time.{Clock, ZoneOffset}
 
-object MenuItemConfig {
-  implicit val format: OFormat[MenuItemConfig] = Json.format[MenuItemConfig]
+class Module extends AbstractModule {
+
+  override def configure(): Unit = {
+
+    bind(classOf[AuthAction]).to(classOf[AuthActionImpl]).asEagerSingleton()
+    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
+  }
 }
