@@ -13,69 +13,13 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
 
   implicit override val patienceConfig = PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
 
-  val configTaxYear = 2021
-  val testTaxYear = configTaxYear - 1
-  val generatedNino = new Generator().nextNino
-
-  val authResponse =
-    s"""
-       |{
-       |    "confidenceLevel": 200,
-       |    "nino": "$generatedNino",
-       |    "name": {
-       |        "name": "John",
-       |        "lastName": "Smith"
-       |    },
-       |    "loginTimes": {
-       |        "currentLogin": "2021-06-07T10:52:02.594Z",
-       |        "previousLogin": null
-       |    },
-       |    "optionalCredentials": {
-       |        "providerId": "4911434741952698",
-       |        "providerType": "GovernmentGateway"
-       |    },
-       |    "authProviderId": {
-       |        "ggCredId": "xyz"
-       |    },
-       |    "externalId": "testExternalId",
-       |    "allEnrolments": [],
-       |    "affinityGroup": "Individual",
-       |    "credentialStrength": "strong"
-       |}
-       |""".stripMargin
-
-  val citizenResponse =
-    s"""|
-       |{
-       |  "name": {
-       |    "current": {
-       |      "firstName": "John",
-       |      "lastName": "Smith"
-       |    },
-       |    "previous": []
-       |  },
-       |  "ids": {
-       |    "nino": "$generatedNino"
-       |  },
-       |  "dateOfBirth": "11121971"
-       |}
-       |""".stripMargin
-
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .configure(
-        "microservice.services.citizen-details.port" -> server.port(),
-        "microservice.services.auth.port" -> server.port(),
-        "microservice.services.message-frontend.port" -> server.port(),
-        "microservice.services.agent-client-authorisation.port" -> server.port(),
-        "microservice.services.cachable.session-cache.port" -> server.port(),
-        "microservice.services.breathing-space-if-proxy.port" -> server.port()
+        "microservice.services.auth.port" -> server.port()
       )
 
   override def beforeEach() = {
     super.beforeEach()
-    server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
-    server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
-    server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
   }
 }

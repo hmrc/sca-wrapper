@@ -11,7 +11,6 @@ import uk.gov.hmrc.http.SessionKeys
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-<<<<<<< HEAD
 class KeepAliveControllerISpec extends IntegrationSpec {
 
 
