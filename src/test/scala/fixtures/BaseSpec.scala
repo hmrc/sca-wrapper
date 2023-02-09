@@ -18,13 +18,14 @@ package fixtures
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
+import com.typesafe.config.ConfigFactory
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Application
+import play.api.{Application, Configuration}
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.Injector
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -36,11 +37,16 @@ import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.sca.config.AppConfig
-import uk.gov.hmrc.sca.controllers.actions.AuthAction
+import uk.gov.hmrc.sca.controllers.actions.{AuthAction, AuthActionImpl}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.{FiniteDuration, _}
 import scala.reflect.ClassTag
+import play.api.inject.{Injector, bind}
+import uk.gov.hmrc.play.audit.http.HttpAuditing
+import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
+import uk.gov.hmrc.play.bootstrap.config.AppName
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpAuditing
 
 trait BaseSpec
   extends AnyWordSpec
@@ -51,6 +57,7 @@ trait BaseSpec
     with MockitoSugar
     with GuiceOneAppPerSuite
     with BeforeAndAfterEach {
+  override implicit lazy val app: Application = applicationBuilder().build()
 
   // override lazy val app: Application = applicationBuilder().build()
   implicit val system: ActorSystem = ActorSystem("Test")
@@ -58,7 +65,6 @@ trait BaseSpec
   lazy val injector: Injector = app.injector
   def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
 
-  override implicit lazy val app: Application = GuiceApplicationBuilder().build()
   lazy val appConfig = app.injector.instanceOf[AppConfig]
 
   implicit val defaultTimeout: FiniteDuration = 5.seconds
@@ -69,11 +75,10 @@ trait BaseSpec
   lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "").withSession(
     SessionKeys.sessionId -> "foo").withCSRFToken.asInstanceOf[FakeRequest[AnyContentAsEmpty.type]]
   lazy val messagesApiInstance: MessagesApi = injector.instanceOf[MessagesApi]
+  implicit lazy val messages: Messages = messagesApiInstance.preferred(fakeRequest)
   // lazy val messages: Messages = messagesApiInstance.preferred(fakeRequest)
   lazy val messagesControllerComponents: MessagesControllerComponents = injector.instanceOf[MessagesControllerComponents]
-  lazy val authActionInstance: AuthAction = injector.instanceOf[AuthAction]
   lazy val bodyParserInstance: BodyParsers.Default = injector.instanceOf[BodyParsers.Default]
-  lazy val FakeAuthAction : AuthAction = mock[AuthAction]
 
   type AuthRetrievals =
     Option[String] ~ AffinityGroup ~ Enrolments ~ Option[Credentials] ~ Option[String] ~
@@ -83,5 +88,18 @@ trait BaseSpec
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
+  protected def applicationBuilder(): GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .overrides(
+      )
+      .configure(
+        Configuration(
+          ConfigFactory.parseString(
+            """
+              |host = "http://localhost:9000"
+              |""".stripMargin
+          ).resolve()
+        )
+      )
 
 }

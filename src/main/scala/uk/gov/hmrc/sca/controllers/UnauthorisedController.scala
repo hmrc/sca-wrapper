@@ -41,7 +41,7 @@ class UnauthorisedController @Inject()(
       signoutUrl = appConfig.signoutUrl,
       keepAliveUrl = appConfig.keepAliveUnauthenticatedUrl
     ).map { layout =>
-      Ok(layout)
+      Unauthorized(layout)
     }
   }
 }
