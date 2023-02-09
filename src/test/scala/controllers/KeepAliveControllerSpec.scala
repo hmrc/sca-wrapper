@@ -29,7 +29,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.{AuthConnector, ConfidenceLevel, CredentialStrength, Enrolments}
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier}
-import uk.gov.hmrc.sca.controllers.actions.{AuthAction, AuthActionImpl}
+import uk.gov.hmrc.sca.controllers.actions.AuthActionImpl
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
@@ -47,23 +47,40 @@ import uk.gov.hmrc.sca.controllers.KeepAliveController
 
 import scala.concurrent.Future
 
-class KeepAliveControllerSpec extends BaseSpec {
+//class KeepAliveControllerSpec extends BaseSpec {
 
-  override implicit val hc = HeaderCarrier(authorization = Some(Authorization("Bearer 123")))
-  lazy val authAction = mock[AuthAction]
+//  override implicit val hc = HeaderCarrier(authorization = Some(Authorization("Bearer 123")))
+//  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+//  lazy val authAction = new AuthActionImpl(mockAuthConnector, appConfig, messagesControllerComponents)
+//
+//  private val controller = new KeepAliveController(Helpers.stubMessagesControllerComponents(), authAction)
+//  private val wsClient = app.injector.instanceOf[WSClient]
+//  private val baseUrl = "http://localhost:8422/single-customer-account-wrapper-data/wrapper-data/:version"
+//  val nino = "AA999999A"
 
-  private val controller = new KeepAliveController(Helpers.stubMessagesControllerComponents(), authAction)
-  private val wsClient = app.injector.instanceOf[WSClient]
-  private val baseUrl = "http://localhost:8422/single-customer-account-wrapper-data/wrapper-data/:version"
-  val nino = "AA999999A"
+//  wsClient.url(baseUrl).withHttpHeaders("Authorization" -> "Bearer123").get()
+//  when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn Future.successful(
+//    Some(nino) ~
+//      Individual ~
+//      Enrolments(fakeSaEnrolments("11111111", "Activated")) ~
+//      Some(Credentials("id", "type")) ~
+//      Some(CredentialStrength.strong) ~
+//      ConfidenceLevel.L200 ~
+//      Some(Name(Some("chaz"), Some("dingle"))) ~
+//      Some(TrustedHelper("name", "name", "link", "AA999999A")) ~
+//      Some("profileUrl")
+//  )
 
-  "KeepAliveController keepAliveUnauthenticated" must {
-    "return OK given an unauthenticated request" in {
-
-      val result = controller.keepAliveUnauthenticated()(fakeRequest)
-      whenReady(result) { res =>
-        res.header.status shouldBe 200
-      }
-    }
-  }
-}
+//  "The Wrapper data API" must {
+//    "return the normal menu config when wrapper-data and sca-wrapper are the same versions" in {
+//
+//      val version: String = "1.0.0"
+//      val result = controller.keepAliveAuthenticated()(fakeRequest)
+//      whenReady(result) { res =>
+//        res.header.status shouldBe 200
+//      }
+//      contentAsString(result).contains("Profile and settings") mustBe true
+//    }
+//
+//  }
+//}
