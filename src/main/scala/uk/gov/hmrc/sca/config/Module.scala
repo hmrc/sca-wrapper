@@ -17,7 +17,6 @@
 package uk.gov.hmrc.sca.config
 
 import com.google.inject.AbstractModule
-import uk.gov.hmrc.sca.controllers.actions.{AuthAction, AuthActionImpl}
 
 import java.time.{Clock, ZoneOffset}
 

@@ -25,8 +25,7 @@ import scala.concurrent.ExecutionContext
 
 class KeepAliveController @Inject()(
                                      val controllerComponents: MessagesControllerComponents,
-                                     authenticate: AuthAction)
-                                   (implicit ec: ExecutionContext) extends FrontendBaseController {
+                                     authenticate: AuthAction) extends FrontendBaseController {
 
   def keepAliveAuthenticated: Action[AnyContent] = authenticate { implicit request => Ok}
   def keepAliveUnauthenticated: Action[AnyContent] = Action { implicit request => Ok}
