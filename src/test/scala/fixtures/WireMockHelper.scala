@@ -14,17 +14,28 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.sca.config
+package fixtures
 
-import com.google.inject.AbstractModule
-import uk.gov.hmrc.sca.controllers.actions.{AuthAction, AuthActionImpl}
+import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
 
-import java.time.{Clock, ZoneOffset}
+trait WireMockHelper extends BeforeAndAfterAll with BeforeAndAfterEach {
+  this: Suite =>
 
-class Module extends AbstractModule {
+  val server: WireMockServer = new WireMockServer(wireMockConfig().port(8080))
 
-  override def configure(): Unit = {
+  override def beforeAll(): Unit = {
+    server.start()
+    super.beforeAll()
+  }
 
-    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+  }
+
+  override def afterAll(): Unit = {
+    super.afterAll()
+    server.stop()
   }
 }

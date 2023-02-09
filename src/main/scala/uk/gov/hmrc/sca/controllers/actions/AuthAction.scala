@@ -35,14 +35,14 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuthActionImpl @Inject()(
                                 override val authConnector: AuthConnector,
                                 appConfig: AppConfig,
-                                val parser: BodyParsers.Default)
+                                cc: ControllerComponents)
                               (implicit val executionContext: ExecutionContext) extends AuthorisedFunctions with AuthAction with Logging {
-
+//TODO logging, all of it
   object GTOE200 {
     def unapply(confLevel: ConfidenceLevel): Option[ConfidenceLevel] =
       if (confLevel.level >= ConfidenceLevel.L200.level) Some(confLevel) else None
   }
-
+//TODO config driven custom auth checks
   def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
@@ -88,8 +88,10 @@ class AuthActionImpl @Inject()(
       logger.error(authException.getMessage)
       Redirect(
       appConfig.ggSigninUrl,
-      Map("continue" -> Seq(appConfig.ggLoginContinueUrl), "origin" -> Seq("single-customer-account-frontend")))
+      Map("continue" -> Seq(appConfig.ggLoginContinueUrl), "origin" -> Seq(appConfig.serviceUrl)))
   }
+  override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
+
 }
 
 @ImplementedBy(classOf[AuthActionImpl])
