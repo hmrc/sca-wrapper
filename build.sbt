@@ -6,6 +6,8 @@ import play.core.PlayVersion.current
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin, SbtTwirl)
   .disablePlugins(PlayLayoutPlugin)
+  .configs(IntegrationTest)
+  .settings(inConfig(IntegrationTest)(itSettings): _*)
   .settings(
     scalaVersion := "2.12.15",
     isPublicArtefact := true,
@@ -25,6 +27,17 @@ lazy val root = (project in file("."))
     ),
     libraryDependencies ++= appDependencies ++ testDependencies
   )
+
+lazy val itSettings = Defaults.itSettings ++ Seq(
+  unmanagedSourceDirectories := Seq(
+    baseDirectory.value / "src" / "it"
+  ),
+  unmanagedResourceDirectories := Seq(
+    baseDirectory.value / "it" / "resources"
+  ),
+  parallelExecution := false,
+  fork := true
+)
 
 lazy val templateImports: Seq[String] = Seq(
   "_root_.play.twirl.api.Html",
@@ -73,5 +86,5 @@ val testDependencies = Seq(
   "org.scalacheck"          %% "scalacheck"          % "1.15.1",
   "com.github.tomakehurst"  % "wiremock-standalone"  % "2.27.2",
   "com.vladsch.flexmark"    % "flexmark-all"         % "0.36.8"
-).map(_ % "test")
+).map(_ % "test,it")
 
