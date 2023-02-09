@@ -11,6 +11,7 @@ import uk.gov.hmrc.http.SessionKeys
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
+<<<<<<< HEAD
 class KeepAliveControllerISpec extends IntegrationSpec {
 
 
@@ -42,3 +43,42 @@ class KeepAliveControllerISpec extends IntegrationSpec {
   }
 
 }
+=======
+//class KeepAliveControllerISpec extends IntegrationSpec {
+
+//
+//  override implicit lazy val app: Application = localGuiceApplicationBuilder()
+//    .configure(
+//
+//    )
+//    .build()
+//
+//  val url = s"/refresh-session-unauthenticated"
+//
+//  def request: FakeRequest[AnyContentAsEmpty.type] = {
+//    val uuid = UUID.randomUUID().toString
+//    FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid)
+//  }
+//
+//  implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
+
+//  "personal-account" must {
+//    "show BreathingSpaceIndicator when receive true response from BreathingSpaceIfProxy" in {
+//
+////      server.stubFor(put(urlMatching(s"/keystore/pertax-frontend/.*"))
+////        .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString)))
+////      server.stubFor(
+////        get(urlPathEqualTo(breathingSpaceUrl))
+////          .willReturn(ok(breathingSpaceTrueResponse))
+////      )
+//
+//      val result: Future[Result] = route(app, request).get
+//      contentAsString(result).contains("BREATHING SPACE") mustBe true
+//      contentAsString(result).contains("/personal-account/breathing-space") mustBe true
+//      server.verify(1, getRequestedFor(urlEqualTo(s"/$generatedNino/memorandum")))
+//    }
+//
+//  }
+
+//}
+>>>>>>> 9075985 (FS-733 update release version)

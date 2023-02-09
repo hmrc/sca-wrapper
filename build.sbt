@@ -86,5 +86,5 @@ val testDependencies = Seq(
   "org.scalacheck"          %% "scalacheck"          % "1.15.1",
   "com.github.tomakehurst"  % "wiremock-standalone"  % "2.27.2",
   "com.vladsch.flexmark"    % "flexmark-all"         % "0.36.8"
-).map(_ % "test")
+).map(_ % "test,it")
 
