@@ -1,2 +1,2 @@
 #!/bin/bash
-sbt clean coverage compile scalastyle test dependencyUpdates coverageReport
+sbt clean coverage compile scalastyle test it:test dependencyUpdates

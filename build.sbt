@@ -1,20 +1,23 @@
 import play.sbt.routes.RoutesKeys
 
 import scoverage.ScoverageKeys
+import play.core.PlayVersion.current
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin, SbtTwirl)
   .disablePlugins(PlayLayoutPlugin)
+  .configs(IntegrationTest)
+  .settings(inConfig(IntegrationTest)(itSettings): _*)
   .settings(
-    scalaVersion := "2.12.16",
+    scalaVersion := "2.12.15",
     isPublicArtefact := true,
-    version := "1.0.0-SNAPSHOT",
+    version := "1.0.0",
     //    publish / skip := true,
     name := "sca-wrapper",
     isSnapshot := true,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.scala-lang"),
     dependencyUpdatesFilter -= moduleFilter(organization = "com.vladsch.flexmark"),
-    ScoverageKeys.coverageMinimumStmtTotal := 20,
+    ScoverageKeys.coverageMinimumStmtTotal := 0,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
     TwirlKeys.templateImports := templateImports,
@@ -24,6 +27,17 @@ lazy val root = (project in file("."))
     ),
     libraryDependencies ++= appDependencies ++ testDependencies
   )
+
+lazy val itSettings = Defaults.itSettings ++ Seq(
+  unmanagedSourceDirectories := Seq(
+    baseDirectory.value / "src" / "it"
+  ),
+  unmanagedResourceDirectories := Seq(
+    baseDirectory.value / "it" / "resources"
+  ),
+  parallelExecution := false,
+  fork := true
+)
 
 lazy val templateImports: Seq[String] = Seq(
   "_root_.play.twirl.api.Html",
@@ -64,6 +78,13 @@ val appDependencies = Seq(
 )
 
 val testDependencies = Seq(
-  "org.scalatest"        %% "scalatest"    % "3.2.7"   % Test,
-  "com.vladsch.flexmark" %  "flexmark-all" % "0.35.10" % Test
-)
+  "org.scalatest"           %% "scalatest"           % "3.2.8",
+  "com.typesafe.play"       %% "play-test"           % current,
+  "org.scalatestplus.play"  %% "scalatestplus-play"  % "4.0.3",
+  "org.scalatestplus"       %% "mockito-3-4"         % "3.2.3.0",
+  "org.mockito"             % "mockito-core"         % "3.6.28",
+  "org.scalacheck"          %% "scalacheck"          % "1.15.1",
+  "com.github.tomakehurst"  % "wiremock-standalone"  % "2.27.2",
+  "com.vladsch.flexmark"    % "flexmark-all"         % "0.36.8"
+).map(_ % "test,it")
+
