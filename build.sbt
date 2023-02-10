@@ -4,7 +4,7 @@ import scoverage.ScoverageKeys
 import play.core.PlayVersion.current
 
 lazy val root = (project in file("."))
-  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin, SbtTwirl)
+  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtTwirl)
   .disablePlugins(PlayLayoutPlugin)
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(itSettings): _*)
