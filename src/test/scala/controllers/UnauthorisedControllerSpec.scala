@@ -51,7 +51,7 @@ class UnauthorisedControllerSpec extends BaseSpec {
 
   "UnauthorisedController" must {
     "return a 401" in {
-      when(wrapperService.layout(any(),any(),any(),any(),any(),any(),any(),any(),any(),any(),any(),any())(any(), any(), any()))
+      when(wrapperService.layout(any(),any(),any(),any(),any(),any(),any(),any(),any(),any(),any())(any(), any(), any()))
         .thenReturn(Future.successful(HtmlFormat.raw("test")))
 
       val result = controller.onPageLoad()(fakeRequest)
