@@ -17,6 +17,7 @@
 package uk.gov.hmrc.sca.config
 
 import play.api.Configuration
+import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
@@ -27,14 +28,13 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.duration.Duration
 
 @Singleton
-class AppConfig @Inject()(configuration: Configuration) {
+class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
 
   //library manual update, MAJOR.MINOR.PATCH
-  final val versionNum: String = "1.0.0"
+  final val versionNum: String = "1.0.1" //TODO read from build.sbt
 
   //config for service name in black bar
   val serviceNameKey: Option[String] = configuration.get[Option[String]]("sca-wrapper.service-name.messages-key")
-  val showServiceName: Boolean = configuration.get[Boolean]("sca-wrapper.service-name.show-service-name")
 
   //service name config for links
   val feedbackServiceName: String = configuration.get[String]("sca-wrapper.feedback-service-name")
@@ -76,17 +76,16 @@ class AppConfig @Inject()(configuration: Configuration) {
   private val fallbackAccessibilityStatementUrl: String = configuration.get[String]("sca-wrapper.fallback.accessibility-statement-frontend.url")
 
   //fallback menu config in the event that wrapper data is offline
-  private val fallbackMenuConfig: Seq[MenuItemConfig] = Seq(
-    MenuItemConfig("Account Home", s"${fallbackPertaxUrl}", leftAligned = true, position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None),
-    MenuItemConfig("Messages", s"${fallbackPertaxUrl}/messages", leftAligned = false, position = 0, None, None),
-    MenuItemConfig("Check progress", s"${fallbackPertaxUrl}/track", leftAligned = false, position = 1, None, None),
-    MenuItemConfig("Profile and settings", s"${fallbackPertaxUrl}/profile-and-settings", leftAligned = false, position = 2, None, None),
-    MenuItemConfig("Business tax account", s"${fallbackBusinessTaxAccountUrl}", leftAligned = false, position = 3, None, None),
-    MenuItemConfig("Sign out", s"$fallbackPertaxUrl/signout/feedback/PERTAX", leftAligned = false, position = 4, None, None)
+  private def fallbackMenuConfig(implicit lang: Lang): Seq[MenuItemConfig] = Seq(
+    MenuItemConfig(messages("sca-wrapper.fallback.menu.home"), s"${fallbackPertaxUrl}", leftAligned = true, position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None),
+    MenuItemConfig(messages("sca-wrapper.fallback.menu.messages"), s"${fallbackPertaxUrl}/messages", leftAligned = false, position = 0, None, None),
+    MenuItemConfig(messages("sca-wrapper.fallback.menu.progress"), s"${fallbackPertaxUrl}/track", leftAligned = false, position = 1, None, None),
+    MenuItemConfig(messages("sca-wrapper.fallback.menu.profile"), s"${fallbackPertaxUrl}/profile-and-settings", leftAligned = false, position = 2, None, None),
+    MenuItemConfig(messages("sca-wrapper.fallback.menu.signout"), s"$fallbackPertaxUrl/signout/feedback/PERTAX", leftAligned = false, position = 3, None, None)
   )
 
   //fallback wrapper data response in the event that wrapper data is offline
-  val fallbackWrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
+  def fallbackWrapperDataResponse(implicit lang: Lang): WrapperDataResponse = WrapperDataResponse(
     fallbackFeedbackFrontendUrl, fallbackContactUrl, fallbackBusinessTaxAccountUrl,
     fallbackPertaxUrl, fallbackAccessibilityStatementUrl, ggSigninUrl, fallbackMenuConfig
   )

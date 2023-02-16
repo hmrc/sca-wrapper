@@ -1,4 +1,11 @@
-timeout.title = You’re about to be signed out
-timeout.message = For security reasons, you will be signed out of this service in
-timeout.keepAlive = Stay signed in
-timeout.signOut = Sign out
+sca-wrapper.timeout.title = You’re about to be signed out
+sca-wrapper.timeout.message = For security reasons, you will be signed out of this service in
+sca-wrapper.timeout.keepAlive = Stay signed in
+sca-wrapper.timeout.signOut = Sign out
+
+sca-wrapper.fallback.menu.home = Account Home
+sca-wrapper.fallback.menu.messages = Messages
+sca-wrapper.fallback.menu.progress = Check progress
+sca-wrapper.fallback.menu.profile = Profile and settings
+sca-wrapper.fallback.menu.signout = Sign out
+sca-wrapper.fallback.menu.bta = Business tax account

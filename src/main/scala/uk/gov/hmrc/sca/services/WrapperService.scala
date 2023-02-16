@@ -53,7 +53,6 @@ class WrapperService @Inject()(
 
   def layout(content: HtmlFormat.Appendable,
              pageTitle: Option[String] = None,
-             showServiceName: Boolean = appConfig.showServiceName,
              serviceNameKey: Option[String] = appConfig.serviceNameKey,
              serviceNameUrl: Option[String] = None,
              signoutUrl: String = appConfig.signoutUrl,
@@ -69,7 +68,6 @@ class WrapperService @Inject()(
     scaWrapperDataConnector.wrapperData.map { wrapperDataResponse =>
       ptaLayout(
         menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse.menuItemConfig)),
-        showServiceName = showServiceName,
         serviceNameKey = serviceNameKey,
         pageTitle = pageTitle,
         signoutUrl = signoutUrl,
@@ -88,7 +86,7 @@ class WrapperService @Inject()(
   //TODO turn into one-time call on-startup config, or maybe put it into a custom Action builder
   //if None, origin is not set within appconfig so service return a 400 badRequest
   //returns exit survey url or continue url if supplied
-  def safeSignoutUrl(continueUrl: Option[RedirectUrl] = None)(implicit hc: HeaderCarrier): Future[Option[String]] = {
+  def safeSignoutUrl(continueUrl: Option[RedirectUrl] = None)(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Option[String]] = {
     scaWrapperDataConnector.wrapperData.map { wrapperDataResponse =>
       val exitSurveyUrl = appConfig.exitSurveyOrigin.map(origin => wrapperDataResponse.feedbackFrontendUrl + "/" + appConfig.enc(origin))
       (continueUrl) match {
