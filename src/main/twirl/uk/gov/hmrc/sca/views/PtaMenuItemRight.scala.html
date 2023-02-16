@@ -20,7 +20,7 @@
 @(accountMenuConfig: MenuItemConfig)
 
 <li>
- <a href="@accountMenuConfig.href" class="hmrc-account-menu__link @if(1==2){ hmrc-account-menu__link--active}">
+ <a href="@accountMenuConfig.href" class="hmrc-account-menu__link @if(1==2){ hmrc-account-menu__link--active}" id="menu.@accountMenuConfig.position">
  @defining(accountMenuConfig.icon.getOrElse("")) { iconClass =>
   <span class="@iconClass">
    @accountMenuConfig.text
