@@ -18,6 +18,8 @@ package uk.gov.hmrc.sca.connectors
 
 import com.google.inject.Inject
 import play.api.Logging
+import play.api.i18n.Lang
+import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models.WrapperDataResponse
@@ -27,11 +29,14 @@ import scala.concurrent.{ExecutionContext, Future}
 class ScaWrapperDataConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Logging {
 
 
-  def wrapperData(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[WrapperDataResponse] = {
-    http.GET[WrapperDataResponse](s"${appConfig.scaWrapperDataUrl}/wrapper-data/${appConfig.versionNum}").recover {
+  def wrapperData(implicit ec: ExecutionContext, hc: HeaderCarrier, request: Request[AnyContent]): Future[WrapperDataResponse] = {
+    val lang = request.cookies.get("PLAY_LANG").map(_.value).getOrElse("en")
+    val langParameter = s"?lang=$lang"
+    println(request.cookies.get("PLAY_LANG").getOrElse("en"))
+    http.GET[WrapperDataResponse](s"${appConfig.scaWrapperDataUrl}/wrapper-data/${appConfig.versionNum}$langParameter").recover {
       case ex: Exception =>
         println("FALLBACK!!!!!!!")
-        appConfig.fallbackWrapperDataResponse
+        appConfig.fallbackWrapperDataResponse(Lang(lang))
     }
   }
 

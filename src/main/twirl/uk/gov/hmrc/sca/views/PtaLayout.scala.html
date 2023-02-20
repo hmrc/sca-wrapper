@@ -17,7 +17,6 @@
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
 @import views.html.helper.CSPNonce
 @import uk.gov.hmrc.ptafrontend.views.html.PtaScripts
-@import scala.concurrent.ExecutionContext
 @import uk.gov.hmrc.http.HeaderCarrier
 @import uk.gov.hmrc.sca.views.html.components.backLink
 @import uk.gov.hmrc.sca.config.AppConfig
@@ -38,13 +37,13 @@
         hmrcScripts: HmrcScripts,
         alphaBanner: StandardAlphaBanner,
         hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
+        hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
         hmrcAccountMenu: HmrcAccountMenu,
         ptaScripts: PtaScripts,
         backLink: backLink)
 
 @(menu: HtmlFormat.Appendable,
         wrapperDataResponse: WrapperDataResponse,
-        showServiceName: Boolean,
         serviceNameKey: Option[String],
         serviceNameUrl: Option[String],
         pageTitle: Option[String],
@@ -61,16 +60,12 @@
 @hmrcHead(
  nonce     = CSPNonce.get,
  headBlock = if(timeout) { Some(
-  hmrcTimeoutDialog(TimeoutDialog(
+  hmrcTimeoutDialogHelper(
    timeout             = Some(appConfig.timeout),
    countdown           = Some(appConfig.countdown),
    keepAliveUrl        = Some(keepAliveUrl),
-   keepAliveButtonText = Some(messages("timeout.keepAlive")),
-   signOutUrl          = Some(signoutUrl),
-   signOutButtonText   = Some(messages("timeout.signOut")),
-   title               = Some(messages("timeout.title")),
-   message             = Some(messages("timeout.message"))
-  )))
+   signOutUrl          = signoutUrl
+  ))
  } else None
 )
 }
@@ -121,23 +116,15 @@
  </div>
 }
 
-@govukLayout(
+@hmrcLayout(
  pageTitle   = pageTitle,
- headBlock   = Some(head),
- headerBlock = Some(hmrcStandardHeader(
-  serviceUrl  = serviceNameUrl,
-  signOutUrl  = if(showSignOutInHeader) Some(signoutUrl) else None,
-  phaseBanner = Some(alphaBanner(appConfig.feedbackUrl(wrapperDataResponse.contactFrontendUrl))),
-  serviceName = if(showServiceName){
-   serviceNameKey.fold(Some(""): Option[String]){key => Some(messages(key))}
-  } else Some("")
- )),
+ additionalHeadBlock = Some(head),
+ phaseBanner = Some(alphaBanner(appConfig.feedbackUrl(wrapperDataResponse.contactFrontendUrl))),
+ serviceName = serviceNameKey.map(messages(_)),
+ serviceUrl  = serviceNameUrl,
  beforeContentBlock = Some(beforeContent),
- footerBlock        = Some(hmrcStandardFooter(
-  accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(wrapperDataResponse.accessibilityStatementUrl))
- )),
- scriptsBlock       = Some(hmrcScripts(
-  nonce        = CSPNonce.get,
-  scriptsBlock = Some(additionalScripts)
- ))
+ accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(wrapperDataResponse.accessibilityStatementUrl)),
+ additionalScriptsBlock = Some(additionalScripts),
+ nonce = CSPNonce.get,
+ isWelshTranslationAvailable = true
 )(content)
