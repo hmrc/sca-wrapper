@@ -72,7 +72,7 @@ trait BaseSpec
   implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
   implicit val frontendAppConfigInstance: AppConfig = injector.instanceOf[AppConfig]
 
-  lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "").withSession(
+  implicit lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "").withSession(
     SessionKeys.sessionId -> "foo").withCSRFToken.asInstanceOf[FakeRequest[AnyContentAsEmpty.type]]
   lazy val messagesApiInstance: MessagesApi = injector.instanceOf[MessagesApi]
   implicit lazy val messages: Messages = messagesApiInstance.preferred(fakeRequest)
