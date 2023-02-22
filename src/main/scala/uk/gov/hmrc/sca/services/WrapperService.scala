@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMenuConfig}
-import uk.gov.hmrc.sca.views.html.{PtaLayout, PtaMenuBar}
+import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -33,7 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class WrapperService @Inject()(
                                 val controllerComponents: MessagesControllerComponents,
                                 ptaMenuBar: PtaMenuBar,
-                                ptaLayout: PtaLayout,
+                                scaLayout: ScaLayout,
                                 scaWrapperDataConnector: ScaWrapperDataConnector,
                                 appConfig: AppConfig)
                               (implicit ec: ExecutionContext) extends FrontendBaseController {
@@ -65,8 +65,8 @@ class WrapperService @Inject()(
             (implicit messages: Messages,
              hc: HeaderCarrier,
              request: Request[AnyContent]): Future[HtmlFormat.Appendable] = {
-    scaWrapperDataConnector.wrapperData.map { wrapperDataResponse =>
-      ptaLayout(
+    scaWrapperDataConnector.wrapperData(signoutUrl).map { wrapperDataResponse =>
+      scaLayout(
         menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse.menuItemConfig)),
         serviceNameKey = serviceNameKey,
         pageTitle = pageTitle,
@@ -83,16 +83,10 @@ class WrapperService @Inject()(
     }
   }
 
-  //TODO turn into one-time call on-startup config, or maybe put it into a custom Action builder
-  //if None, origin is not set within appconfig so service return a 400 badRequest
-  //returns exit survey url or continue url if supplied
-  def safeSignoutUrl(continueUrl: Option[RedirectUrl] = None)(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Option[String]] = {
-    scaWrapperDataConnector.wrapperData.map { wrapperDataResponse =>
-      val exitSurveyUrl = appConfig.exitSurveyOrigin.map(origin => wrapperDataResponse.feedbackFrontendUrl + "/" + appConfig.enc(origin))
-      (continueUrl) match {
-        case Some(continue) if continue.getEither(OnlyRelative).isRight => Some(continue.getEither(OnlyRelative).right.get.url)
-        case _ => exitSurveyUrl
-      }
+  def safeSignoutUrl(continueUrl: Option[RedirectUrl] = None): Option[String] = {
+    (continueUrl) match {
+      case Some(continue) if continue.getEither(OnlyRelative).isRight => Some(continue.getEither(OnlyRelative).right.get.url)
+      case _ => appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
     }
   }
 

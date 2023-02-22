@@ -31,7 +31,7 @@ import scala.concurrent.duration.Duration
 class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
 
   //library manual update, MAJOR.MINOR.PATCH
-  final val versionNum: String = "1.0.1" //TODO read from build.sbt
+  final val versionNum: String = "1.0.2" //TODO read from build.sbt
 
   //config for service name in black bar
   val serviceNameKey: Option[String] = configuration.get[Option[String]]("sca-wrapper.service-name.messages-key")
@@ -64,29 +64,26 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
   final val keepAliveUnauthenticatedUrl: String = s"${serviceUrl}/keep-alive-unauthenticated"
 
   //external url
-  final val scaWrapperDataUrl = s"${configuration.get[String]("sca-wrapper.internal.single-customer-account-wrapper-data.url")}/single-customer-account-wrapper-data"
   final val ggLoginContinueUrl: String = configuration.get[String]("sca-wrapper.service.url")
-  final val ggSigninUrl: String = configuration.get[String]("sca-wrapper.fallback.gg.signin.url")
 
-  //fallback urls in the event that wrapper data is offline
-  private val fallbackPertaxUrl: String = s"${configuration.get[String]("sca-wrapper.fallback.pertax-frontend.url")}/personal-account"
-  private val fallbackBusinessTaxAccountUrl: String = s"${configuration.get[String]("sca-wrapper.fallback.business-tax-frontend.url")}/business-account"
-  private val fallbackFeedbackFrontendUrl: String = s"${configuration.get[String]("sca-wrapper.fallback.feedback-frontend.url")}/feedback"
-  private val fallbackContactUrl: String = s"${configuration.get[String]("sca-wrapper.fallback.contact-frontend.url")}/contact/beta-feedback"
-  private val fallbackAccessibilityStatementUrl: String = configuration.get[String]("sca-wrapper.fallback.accessibility-statement-frontend.url")
+  //service urls
+  val pertaxUrl: String = s"${configuration.get[String]("sca-wrapper.services.pertax-frontend.url")}/personal-account"
+  val trackingUrl: String = s"${configuration.get[String]("sca-wrapper.services.tracking-frontend.url")}"
+  val feedbackFrontendUrl: String = s"${configuration.get[String]("sca-wrapper.services.feedback-frontend.url")}/feedback"
+  val contactFrontendUrl: String = s"${configuration.get[String]("sca-wrapper.services.contact-frontend.url")}/contact/beta-feedback"
+  val accessibilityStatementUrl: String = configuration.get[String]("sca-wrapper.services.accessibility-statement-frontend.url")
+  val ggSigninUrl: String = configuration.get[String]("sca-wrapper.services.gg-signin.url")
+  val scaWrapperDataUrl = s"${configuration.get[String]("sca-wrapper.services.single-customer-account-wrapper-data.url")}/single-customer-account-wrapper-data"
 
   //fallback menu config in the event that wrapper data is offline
   private def fallbackMenuConfig(implicit lang: Lang): Seq[MenuItemConfig] = Seq(
-    MenuItemConfig(messages("sca-wrapper.fallback.menu.home"), s"${fallbackPertaxUrl}", leftAligned = true, position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None),
-    MenuItemConfig(messages("sca-wrapper.fallback.menu.messages"), s"${fallbackPertaxUrl}/messages", leftAligned = false, position = 0, None, None),
-    MenuItemConfig(messages("sca-wrapper.fallback.menu.progress"), s"${fallbackPertaxUrl}/track", leftAligned = false, position = 1, None, None),
-    MenuItemConfig(messages("sca-wrapper.fallback.menu.profile"), s"${fallbackPertaxUrl}/profile-and-settings", leftAligned = false, position = 2, None, None),
-    MenuItemConfig(messages("sca-wrapper.fallback.menu.signout"), s"$fallbackPertaxUrl/signout/feedback/PERTAX", leftAligned = false, position = 3, None, None)
+    MenuItemConfig(messages("sca-wrapper.fallback.menu.home"), s"${pertaxUrl}", leftAligned = true, position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None),
+    MenuItemConfig(messages("sca-wrapper.fallback.menu.messages"), s"${pertaxUrl}/messages", leftAligned = false, position = 0, None, None),
+    MenuItemConfig(messages("sca-wrapper.fallback.menu.progress"), s"${trackingUrl}/track", leftAligned = false, position = 1, None, None),
+    MenuItemConfig(messages("sca-wrapper.fallback.menu.profile"), s"${pertaxUrl}/profile-and-settings", leftAligned = false, position = 2, None, None),
+    MenuItemConfig(messages("sca-wrapper.fallback.menu.signout"), s"$pertaxUrl/signout/feedback/PERTAX", leftAligned = false, position = 3, None, None)
   )
 
   //fallback wrapper data response in the event that wrapper data is offline
-  def fallbackWrapperDataResponse(implicit lang: Lang): WrapperDataResponse = WrapperDataResponse(
-    fallbackFeedbackFrontendUrl, fallbackContactUrl, fallbackBusinessTaxAccountUrl,
-    fallbackPertaxUrl, fallbackAccessibilityStatementUrl, ggSigninUrl, fallbackMenuConfig
-  )
+  def fallbackWrapperDataResponse(implicit lang: Lang): WrapperDataResponse = WrapperDataResponse(fallbackMenuConfig)
 }

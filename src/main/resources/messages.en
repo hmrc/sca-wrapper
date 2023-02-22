@@ -3,7 +3,7 @@ sca-wrapper.timeout.message = For security reasons, you will be signed out of th
 sca-wrapper.timeout.keepAlive = Stay signed in
 sca-wrapper.timeout.signOut = Sign out
 
-sca-wrapper.fallback.menu.home = Account Home
+sca-wrapper.fallback.menu.home = Account home
 sca-wrapper.fallback.menu.messages = Messages
 sca-wrapper.fallback.menu.progress = Check progress
 sca-wrapper.fallback.menu.profile = Profile and settings
