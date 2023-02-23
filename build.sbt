@@ -12,8 +12,8 @@ lazy val root = (project in file("."))
     scalaVersion := "2.12.15",
     isPublicArtefact := true,
     //TODO tests to check SNAPSHOT is changed back
-//    version := "1.0.2",
-    version := "1.0.0-SNAPSHOT",
+    version := "1.0.3",
+//    version := "1.0.0-SNAPSHOT",
     //    publish / skip := true,
     name := "sca-wrapper",
     isSnapshot := true,

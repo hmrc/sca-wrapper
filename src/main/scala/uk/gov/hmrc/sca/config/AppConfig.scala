@@ -31,7 +31,7 @@ import scala.concurrent.duration.Duration
 class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
 
   //library manual update, MAJOR.MINOR.PATCH
-  final val versionNum: String = "1.0.2" //TODO read from build.sbt
+  final val versionNum: String = "1.0.3" //TODO read from build.sbt
 
   //config for service name in black bar
   val serviceNameKey: Option[String] = configuration.get[Option[String]]("sca-wrapper.service-name.messages-key")
