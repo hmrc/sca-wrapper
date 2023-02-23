@@ -9,3 +9,5 @@ sca-wrapper.fallback.menu.progress = Gwirio cynnydd
 sca-wrapper.fallback.menu.profile = Proffil a gosodiadau
 sca-wrapper.fallback.menu.signout = Allgofnodi
 sca-wrapper.fallback.menu.bta = Cyfrif treth busnes
+sca-wrapper.fallback.menu.name = Dewislen y cyfrif
+sca-wrapper.fallback.menu.back = Yn ôl

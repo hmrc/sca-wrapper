@@ -9,3 +9,5 @@ sca-wrapper.fallback.menu.progress = Check progress
 sca-wrapper.fallback.menu.profile = Profile and settings
 sca-wrapper.fallback.menu.signout = Sign out
 sca-wrapper.fallback.menu.bta = Business tax account
+sca-wrapper.fallback.menu.name = Account menu
+sca-wrapper.fallback.menu.back = Back

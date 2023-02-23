@@ -21,7 +21,7 @@ import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
-import uk.gov.hmrc.sca.models.{MenuItemConfig, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 
 import java.net.URLEncoder
 import javax.inject.{Inject, Singleton}
@@ -85,5 +85,7 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
   )
 
   //fallback wrapper data response in the event that wrapper data is offline
-  def fallbackWrapperDataResponse(implicit lang: Lang): WrapperDataResponse = WrapperDataResponse(fallbackMenuConfig)
+  def fallbackWrapperDataResponse(implicit lang: Lang): WrapperDataResponse = WrapperDataResponse(
+    fallbackMenuConfig,PtaMinMenuConfig(menuName = messages("sca-wrapper.fallback.menu.name"), backName = messages("sca-wrapper.fallback.menu.back"))
+  )
 }
