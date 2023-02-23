@@ -29,7 +29,7 @@ import play.api.{Application, Configuration}
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.Injector
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.{AnyContentAsEmpty, BodyParsers, MessagesControllerComponents}
+import play.api.mvc.{AnyContentAsEmpty, BodyParsers, Cookie, MessagesControllerComponents}
 import play.api.test.CSRFTokenHelper.CSRFFRequestHeader
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core._
@@ -76,6 +76,7 @@ trait BaseSpec
     SessionKeys.sessionId -> "foo").withCSRFToken.asInstanceOf[FakeRequest[AnyContentAsEmpty.type]]
   lazy val messagesApiInstance: MessagesApi = injector.instanceOf[MessagesApi]
   implicit lazy val messages: Messages = messagesApiInstance.preferred(fakeRequest)
+  lazy val messagesCy: Messages = messagesApiInstance.preferred(fakeRequest.withCookies(Cookie("PLAY_LANG", "cy")))
   // lazy val messages: Messages = messagesApiInstance.preferred(fakeRequest)
   lazy val messagesControllerComponents: MessagesControllerComponents = injector.instanceOf[MessagesControllerComponents]
   lazy val bodyParserInstance: BodyParsers.Default = injector.instanceOf[BodyParsers.Default]

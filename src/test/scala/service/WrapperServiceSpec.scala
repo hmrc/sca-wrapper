@@ -42,8 +42,15 @@ class WrapperServiceSpec extends BaseSpec {
       implicit val lang: Lang = Lang("en")
       when(connector.wrapperData(any())(any(),any(),any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
 
-      val result = service.layout(Html(""))
+      val result = service.layout(
+        content = Html(""),
+        serviceNameKey = Some("test.test")
+      )
+
       whenReady(result) { res =>
+        res.body must include("test.test")
+        res.body must include("Account menu")
+        res.body must include("Back")
         res.body must include("Account home")
         res.body must include("Messages")
         res.body must include("Check progress")
@@ -70,6 +77,9 @@ class WrapperServiceSpec extends BaseSpec {
         res.body must include("Help using GOV.UK")
         res.body must include("Contact")
         res.body must include("Rhestr o Wasanaethau Cymraeg")
+        res.body must include("All content is available under the")
+        res.body must include("Open Government Licence v3.0</a>, except where otherwise stated")
+        res.body must include("Crown copyright")
       }
     }
 
@@ -77,8 +87,13 @@ class WrapperServiceSpec extends BaseSpec {
       implicit val lang: Lang = Lang("cy")
       when(connector.wrapperData(any())(any(),any(),any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
 
-      val result = service.layout(Html(""))
+      val result = service.layout(
+        content = Html(""),
+        serviceNameKey = Some("test.test")
+      )(messages = messagesCy, hc = hc, request = fakeRequest)
+
       whenReady(result) { res =>
+        res.body must include("test.test")
         res.body must include("Hafan y cyfrif")
         res.body must include("Negeseuon")
         res.body must include("Gwirio cynnydd")
@@ -89,22 +104,25 @@ class WrapperServiceSpec extends BaseSpec {
         res.body must include("href=\"http://localhost:9100/track\"")
         res.body must include("href=\"http://localhost:9232/personal-account/messages\"")
         res.body must include("href=\"http://localhost:9232/personal-account\"")
-        res.body must include("Skip to main content")
+        res.body must include("Ewch yn syth i‘r prif gynnwys")
         res.body must include("data-keep-alive-url=\"http://localhost:8420/single-customer-account/keep-alive-authenticated\"")
         res.body must include("data-sign-out-url=\"http://localhost:9232/personal-account/signout\"")
-        res.body must include("data-language=\"en\"")
+        res.body must include("data-language=\"cy\"")
         res.body must include("content=\"hmrc-timeout-dialog\"")
         res.body must include("English")
         res.body must include("Cymraeg")
-        res.body must include("This is a new service – your <a class=\"govuk-link\" href=\"http://localhost:9250/contact/beta-feedback?service=single-customer-account-frontend&amp;backUrl=http%3A%2F%2Flocalhost%3A9000\">feedback</a> will help us to improve it.")
+        res.body must include("Gwasanaeth newydd yw hwn – bydd eich")
         res.body must include("href=\"http://localhost:12346/accessibility-statement/single-customer-account-frontend?referrerUrl=http%3A%2F%2Flocalhost%3A12346%2Fsingle-customer-account\"")
-        res.body must include("Cookies")
-        res.body must include("Accessibility statement")
-        res.body must include("Privacy policy")
-        res.body must include("Terms and conditions")
-        res.body must include("Help using GOV.UK")
-        res.body must include("Contact")
+        res.body must include("Cwcis")
+        res.body must include("Datganiad hygyrchedd")
+        res.body must include("Polisi preifatrwydd")
+        res.body must include("Telerau ac Amodau")
+        res.body must include("Help wrth ddefnyddio GOV.UK")
+        res.body must include("Cysylltu")
         res.body must include("Rhestr o Wasanaethau Cymraeg")
+        res.body must include("Mae‘r holl gynnwys ar gael o dan")
+        res.body must include("Drwydded Llywodraeth Agored v3.0</a>, oni nodir yn wahanol")
+        res.body must include("Hawlfraint y Goron")
       }
     }
   }

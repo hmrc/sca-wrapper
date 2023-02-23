@@ -24,7 +24,7 @@ import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMenuConfig}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMenuConfig, WrapperDataResponse}
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout}
 
 import javax.inject.Inject
@@ -38,11 +38,12 @@ class WrapperService @Inject()(
                                 appConfig: AppConfig)
                               (implicit ec: ExecutionContext) extends FrontendBaseController {
 
-  private def sortMenuItemConfig(menuItemConfig: Seq[MenuItemConfig]): PtaMenuConfig = {
-    val setSignout = setSigoutUrl(menuItemConfig)
+  private def sortMenuItemConfig(wrapperDataResponse: WrapperDataResponse): PtaMenuConfig = {
+    val setSignout = setSigoutUrl(wrapperDataResponse.menuItemConfig)
     PtaMenuConfig(
       leftAlignedItems = setSignout.filter(_.leftAligned).sortBy(_.position),
-      rightAlignedItems = setSignout.filterNot(_.leftAligned).sortBy(_.position))
+      rightAlignedItems = setSignout.filterNot(_.leftAligned).sortBy(_.position),
+      ptaMinMenuConfig = wrapperDataResponse.ptaMinMenuConfig)
   }
 
   private def setSigoutUrl(menuItemConfig: Seq[MenuItemConfig]) = {
@@ -67,7 +68,7 @@ class WrapperService @Inject()(
              request: Request[AnyContent]): Future[HtmlFormat.Appendable] = {
     scaWrapperDataConnector.wrapperData(signoutUrl).map { wrapperDataResponse =>
       scaLayout(
-        menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse.menuItemConfig)),
+        menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse)),
         serviceNameKey = serviceNameKey,
         pageTitle = pageTitle,
         signoutUrl = signoutUrl,

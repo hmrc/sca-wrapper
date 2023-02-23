@@ -16,4 +16,10 @@
 
 package uk.gov.hmrc.sca.models
 
-case class PtaMenuConfig(leftAlignedItems: Seq[MenuItemConfig], rightAlignedItems: Seq[MenuItemConfig], ptaMinMenuConfig: PtaMinMenuConfig)
+import play.api.libs.json.{Json, OFormat}
+
+case class PtaMinMenuConfig(menuName: String, backName: String)
+
+object PtaMinMenuConfig {
+  implicit val format: OFormat[PtaMinMenuConfig] = Json.format[PtaMinMenuConfig]
+}

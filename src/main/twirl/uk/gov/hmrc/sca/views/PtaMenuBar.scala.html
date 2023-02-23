@@ -21,7 +21,7 @@
         hmrcNotificationBadge: HmrcNotificationBadge,
         ptaMenuItemLeft: PtaMenuItemLeft,
         ptaMenuItemRight: PtaMenuItemRight)
-@(ptaMenuConfig: PtaMenuConfig)
+@(ptaMenuConfig: PtaMenuConfig)(implicit messages: Messages)
 
 <!-- ACCOUNT MENU -->
 <nav id="secondary-nav" class="hmrc-account-menu" aria-label="Account" data-module="hmrc-account-menu">
@@ -30,13 +30,13 @@
                 @ptaMenuItemLeft(item)
             }
 <!-- LEFT ALIGNED ITEMS -->
-    <a href="#" class="hmrc-account-menu__link hmrc-account-menu__link--menu js-hidden js-visible" tabindex="-1" aria-hidden="true" aria-expanded="false">
-        Account menu
+    <a id="menu.name" href="#" class="hmrc-account-menu__link hmrc-account-menu__link--menu js-hidden js-visible" tabindex="-1" aria-hidden="true" aria-expanded="false">
+        @{ptaMenuConfig.ptaMinMenuConfig.menuName}
     </a>
     <ul class="hmrc-account-menu__main">
         <li class="hmrc-account-menu__link--back hidden" aria-hidden="false">
-            <a href="#" tabindex="-1" class="hmrc-account-menu__link">
-                Back
+            <a id="menu.back" href="#" tabindex="-1" class="hmrc-account-menu__link">
+            @{ptaMenuConfig.ptaMinMenuConfig.backName}
             </a>
         </li>
 <!-- RIGHT ALIGNED ITEMS -->

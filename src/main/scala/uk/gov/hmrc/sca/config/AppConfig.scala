@@ -21,7 +21,7 @@ import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
-import uk.gov.hmrc.sca.models.{MenuItemConfig, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 
 import java.net.URLEncoder
 import javax.inject.{Inject, Singleton}
@@ -31,7 +31,7 @@ import scala.concurrent.duration.Duration
 class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
 
   //library manual update, MAJOR.MINOR.PATCH
-  final val versionNum: String = "1.0.2" //TODO read from build.sbt
+  final val versionNum: String = "1.0.3" //TODO read from build.sbt
 
   //config for service name in black bar
   val serviceNameKey: Option[String] = configuration.get[Option[String]]("sca-wrapper.service-name.messages-key")
@@ -85,5 +85,7 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
   )
 
   //fallback wrapper data response in the event that wrapper data is offline
-  def fallbackWrapperDataResponse(implicit lang: Lang): WrapperDataResponse = WrapperDataResponse(fallbackMenuConfig)
+  def fallbackWrapperDataResponse(implicit lang: Lang): WrapperDataResponse = WrapperDataResponse(
+    fallbackMenuConfig,PtaMinMenuConfig(menuName = messages("sca-wrapper.fallback.menu.name"), backName = messages("sca-wrapper.fallback.menu.back"))
+  )
 }
