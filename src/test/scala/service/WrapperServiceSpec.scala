@@ -36,7 +36,7 @@ class WrapperServiceSpec extends BaseSpec {
 
 
   private val service = new WrapperService(Helpers.stubMessagesControllerComponents(), menu, layout, connector, appConfig)
-
+  private val scripts: Option[Html]  = Option(Html("<scripts>ptaScript</scripts>"))
   "WrapperService layout" must {
     "return a Wrapper layout in English" in {
       implicit val lang: Lang = Lang("en")
@@ -44,7 +44,8 @@ class WrapperServiceSpec extends BaseSpec {
 
       val result = service.layout(
         content = Html(""),
-        serviceNameKey = Some("test.test")
+        serviceNameKey = Some("test.test"),
+          scripts = scripts
       )
 
       whenReady(result) { res =>
@@ -80,6 +81,7 @@ class WrapperServiceSpec extends BaseSpec {
         res.body must include("All content is available under the")
         res.body must include("Open Government Licence v3.0</a>, except where otherwise stated")
         res.body must include("Crown copyright")
+        res.body must include("ptaScript")
       }
     }
 

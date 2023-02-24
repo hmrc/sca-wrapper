@@ -17,7 +17,7 @@
 package uk.gov.hmrc.sca.services
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
-import play.twirl.api.HtmlFormat
+import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
@@ -62,7 +62,8 @@ class WrapperService @Inject()(
              timeout: Boolean = true,
              backLinkID: Boolean = true,
              backLinkUrl: String = "#",
-             showSignOutInHeader: Boolean = false)
+             showSignOutInHeader: Boolean = false,
+             scripts: Option[Html] = None)
             (implicit messages: Messages,
              hc: HeaderCarrier,
              request: Request[AnyContent]): Future[HtmlFormat.Appendable] = {
@@ -79,6 +80,7 @@ class WrapperService @Inject()(
         backLinkID = backLinkID,
         backLinkUrl = backLinkUrl,
         showSignOutInHeader = showSignOutInHeader,
+        scripts = scripts,
         wrapperDataResponse = wrapperDataResponse
       )(content)
     }
