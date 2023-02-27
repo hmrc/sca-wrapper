@@ -21,10 +21,12 @@
 @import uk.gov.hmrc.sca.views.html.components.backLink
 @import uk.gov.hmrc.sca.config.AppConfig
 @import uk.gov.hmrc.sca.models.WrapperDataResponse
+@import uk.gov.hmrc.sca.views.html.ChildBenefitBanner
+@import uk.gov.hmrc.sca.views.html.PtaHomeBanner
+
 
 @this(
         hmrcLayout: HmrcLayout,
-        govukLayout: GovukLayout,
         appConfig: AppConfig,
         govukBackLink: GovukBackLink,
         hmrcHead: HmrcHead,
@@ -36,11 +38,15 @@
         hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
         hmrcScripts: HmrcScripts,
         alphaBanner: StandardAlphaBanner,
+        betaBanner: StandardBetaBanner,
         hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
         hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
         hmrcAccountMenu: HmrcAccountMenu,
         ptaScripts: PtaScripts,
-        backLink: backLink)
+        backLink: backLink,
+        childBenefitBanner: ChildBenefitBanner,
+        ptaHomeBanner: PtaHomeBanner,
+        govukPhaseBanner: GovukPhaseBanner)
 
 @(menu: HtmlFormat.Appendable,
         wrapperDataResponse: WrapperDataResponse,
@@ -54,9 +60,13 @@
         backLinkID: Boolean,
         backLinkUrl: String,
         showSignOutInHeader: Boolean,
-        scripts: Option[Html])(contentBlock: Html)(implicit request: Request[_], messages: Messages, hc: HeaderCarrier)
+        scripts: Option[Html],
+        showChildBenefitBanner: Boolean,
+        showUserResearchBanner: Boolean,
+        showAlphaBanner: Boolean,
+        showBetaBanner: Boolean)(contentBlock: Html)(implicit request: Request[_], messages: Messages, hc: HeaderCarrier)
 
-@head = {
+@headBlock = {
 
 @hmrcHead(
  nonce     = CSPNonce.get,
@@ -109,32 +119,36 @@
     @contentBlock
     </div>
    </div>
-
   </main>
  </div>
-
  <div class="govuk-!-margin-top-8">
- @hmrcReportTechnicalIssueHelper()
+  <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
+  @hmrcReportTechnicalIssueHelper()
+  <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
+   @{
+    if(showAlphaBanner) {
+     govukPhaseBanner(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
+    } else {
+     if(showBetaBanner){
+      govukPhaseBanner(betaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
+     }
+    }
+   }
  </div>
 }
 
-
-@govukLayout(
- pageTitle   = pageTitle,
- headBlock   = Some(head),
- headerBlock = Some(hmrcStandardHeader(
-  serviceUrl  = serviceNameUrl,
-  signOutUrl  = if(showSignOutInHeader) Some(signoutUrl) else None,
-  phaseBanner = Some(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl))),
-  serviceName = serviceNameKey.map(messages(_))
- )),
+ @hmrcLayout(
+ serviceName = serviceNameKey.map(messages(_)),
+ pageTitle = pageTitle,
+ signOutUrl = Some(signoutUrl),
+ serviceUrl = serviceNameUrl,
+ accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(appConfig.accessibilityStatementUrl)),
+ backLinkUrl = Some(backLinkUrl),
+ displayHmrcBanner = false,
+ nonce = CSPNonce.get,
+ isWelshTranslationAvailable = true,
+ additionalHeadBlock = Some(headBlock),
  beforeContentBlock = Some(beforeContent),
- footerBlock        = Some(hmrcStandardFooter(
-  accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(appConfig.accessibilityStatementUrl))
- )),
- scriptsBlock       = Some(hmrcScripts(
-  nonce        = CSPNonce.get,
-  scriptsBlock = Some(additionalScripts)
- ))
+ additionalScriptsBlock = Some(additionalScripts),
+ additionalBannersBlock = None //help improve/child benefit/user research banner
 )(content)
-
