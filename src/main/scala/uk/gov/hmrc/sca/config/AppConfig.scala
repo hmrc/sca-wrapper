@@ -21,6 +21,7 @@ import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import uk.gov.hmrc.sca.controllers.routes
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 
 import java.net.URLEncoder
@@ -60,8 +61,7 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
 
   //internal
   final val serviceUrl: String = configuration.get[String]("sca-wrapper.service.url")
-  final val keepAliveAuthenticatedUrl: String = s"${serviceUrl}/keep-alive-authenticated"
-  final val keepAliveUnauthenticatedUrl: String = s"${serviceUrl}/keep-alive-unauthenticated"
+  final val keepAliveUrl: String = routes.KeepAliveController.keepAlive.url
 
   //external url
   final val ggLoginContinueUrl: String = configuration.get[String]("sca-wrapper.service.url")

@@ -57,7 +57,7 @@ class WrapperService @Inject()(
              serviceNameKey: Option[String] = appConfig.serviceNameKey,
              serviceNameUrl: Option[String] = None,
              signoutUrl: String = appConfig.signoutUrl,
-             keepAliveUrl: String = appConfig.keepAliveAuthenticatedUrl,
+             keepAliveUrl: String = appConfig.keepAliveUrl,
              showBackLink: Boolean = false,
              timeout: Boolean = true,
              backLinkID: Boolean = true,
@@ -93,6 +93,5 @@ class WrapperService @Inject()(
     }
   }
 
-  final val keepAliveAuthenticatedUrl: String = appConfig.keepAliveAuthenticatedUrl
-  final val keepAliveUnauthenticatedUrl: String = appConfig.keepAliveAuthenticatedUrl
+  final val keepAliveUrl: String = appConfig.keepAliveUrl
 }

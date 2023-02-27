@@ -18,16 +18,11 @@ package uk.gov.hmrc.sca.controllers
 
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.sca.controllers.actions.AuthAction
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
-class KeepAliveController @Inject()(
-                                     val controllerComponents: MessagesControllerComponents,
-                                     authenticate: AuthAction) extends FrontendBaseController {
+class KeepAliveController @Inject()(val controllerComponents: MessagesControllerComponents) extends FrontendBaseController {
 
-  def keepAliveAuthenticated: Action[AnyContent] = authenticate { implicit request => Ok}
-  def keepAliveUnauthenticated: Action[AnyContent] = Action { implicit request => Ok}
+  def keepAlive: Action[AnyContent] = Action { implicit request => Ok}
 
 }

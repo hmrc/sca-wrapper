@@ -1,3 +1,1 @@
-GET         /unauthorised                                uk.gov.hmrc.sca.controllers.UnauthorisedController.onPageLoad
-GET         /refresh-session-authenticated               uk.gov.hmrc.sca.controllers.KeepAliveController.keepAliveAuthenticated
-GET         /refresh-session-unauthenticated             uk.gov.hmrc.sca.controllers.KeepAliveController.keepAliveUnauthenticated
+GET         /refresh-session                             uk.gov.hmrc.sca.controllers.KeepAliveController.keepAlive

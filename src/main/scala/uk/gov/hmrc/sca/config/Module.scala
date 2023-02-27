@@ -17,7 +17,6 @@
 package uk.gov.hmrc.sca.config
 
 import com.google.inject.AbstractModule
-import uk.gov.hmrc.sca.controllers.actions.{AuthAction, AuthActionImpl}
 
 import java.time.{Clock, ZoneOffset}
 
@@ -25,7 +24,6 @@ class Module extends AbstractModule {
 
   override def configure(): Unit = {
 
-    bind(classOf[AuthAction]).to(classOf[AuthActionImpl]).asEagerSingleton()
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
   }
 }

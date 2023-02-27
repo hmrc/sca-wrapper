@@ -17,50 +17,22 @@
 package controllers
 
 import fixtures.BaseSpec
-import fixtures.RetrievalOps.Ops
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
-import play.api.libs.ws.WSClient
-import play.api.mvc.{AnyContent, Result}
-import play.api.test.Helpers
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
-import uk.gov.hmrc.auth.core.AffinityGroup.Individual
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
-import uk.gov.hmrc.auth.core.{AuthConnector, ConfidenceLevel, CredentialStrength, Enrolments}
-import uk.gov.hmrc.http.{Authorization, HeaderCarrier}
-import uk.gov.hmrc.sca.controllers.actions.{AuthAction, AuthActionImpl}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import play.api.Configuration
-import play.api.libs.ws.WSClient
-import play.api.mvc.{AnyContent, Result}
 import play.api.test.Helpers
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
-import uk.gov.hmrc.auth.core.AffinityGroup.Individual
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
-import uk.gov.hmrc.auth.core.{AuthConnector, ConfidenceLevel, CredentialStrength, Enrolments}
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier}
 import uk.gov.hmrc.sca.controllers.KeepAliveController
-
-import scala.concurrent.Future
 
 class KeepAliveControllerSpec extends BaseSpec {
 
   override implicit val hc = HeaderCarrier(authorization = Some(Authorization("Bearer 123")))
-  lazy val authAction = mock[AuthAction]
 
-  private val controller = new KeepAliveController(Helpers.stubMessagesControllerComponents(), authAction)
-  private val wsClient = app.injector.instanceOf[WSClient]
-  private val baseUrl = "http://localhost:8422/single-customer-account-wrapper-data/wrapper-data/:version"
+  private val controller = new KeepAliveController(Helpers.stubMessagesControllerComponents())
   val nino = "AA999999A"
 
   "KeepAliveController keepAliveUnauthenticated" must {
     "return OK given an unauthenticated request" in {
 
-      val result = controller.keepAliveUnauthenticated()(fakeRequest)
+      val result = controller.keepAlive()(fakeRequest)
       whenReady(result) { res =>
         res.header.status shouldBe 200
       }
