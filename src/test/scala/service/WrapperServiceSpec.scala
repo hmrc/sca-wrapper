@@ -45,7 +45,7 @@ class WrapperServiceSpec extends BaseSpec {
       val result = service.layout(
         content = Html(""),
         serviceNameKey = Some("test.test"),
-          scripts = scripts
+        scripts = scripts
       )
 
       whenReady(result) { res =>
