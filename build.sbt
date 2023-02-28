@@ -28,8 +28,7 @@ lazy val root = (project in file("."))
       "uk.gov.hmrc.play.bootstrap.binders.RedirectUrl"
     ),
     libraryDependencies ++= appDependencies ++ testDependencies,
-    test / coverageEnabled := false,
-    Test / coverageEnabled := false,
+    Test / coverageEnabled := true,
     IntegrationTest / Keys.fork := false,
     inConfig(Test)(testSettings),
     inConfig(IntegrationTest)(itSettings)
