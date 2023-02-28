@@ -63,17 +63,16 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
   final val serviceUrl: String = configuration.get[String]("sca-wrapper.service.url")
   final val keepAliveUrl: String = routes.KeepAliveController.keepAlive.url
 
-  //external url
-  final val ggLoginContinueUrl: String = configuration.get[String]("sca-wrapper.service.url")
-
   //service urls
   val pertaxUrl: String = s"${configuration.get[String]("sca-wrapper.services.pertax-frontend.url")}/personal-account"
   val trackingUrl: String = s"${configuration.get[String]("sca-wrapper.services.tracking-frontend.url")}"
   val feedbackFrontendUrl: String = s"${configuration.get[String]("sca-wrapper.services.feedback-frontend.url")}/feedback"
   val contactFrontendUrl: String = s"${configuration.get[String]("sca-wrapper.services.contact-frontend.url")}/contact/beta-feedback"
   val accessibilityStatementUrl: String = configuration.get[String]("sca-wrapper.services.accessibility-statement-frontend.url")
-  val ggSigninUrl: String = configuration.get[String]("sca-wrapper.services.gg-signin.url")
   val scaWrapperDataUrl = s"${configuration.get[String]("sca-wrapper.services.single-customer-account-wrapper-data.url")}/single-customer-account-wrapper-data"
+
+  val showAlphaBanner: Boolean = configuration.get[Boolean]("sca-wrapper.show-alpha-banner")
+  val showBetaBanner: Boolean = configuration.get[Boolean]("sca-wrapper.show-beta-banner")
 
   //fallback menu config in the event that wrapper data is offline
   private def fallbackMenuConfig(implicit lang: Lang): Seq[MenuItemConfig] = Seq(
