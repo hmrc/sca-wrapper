@@ -70,9 +70,11 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
   val contactFrontendUrl: String = s"${configuration.get[String]("sca-wrapper.services.contact-frontend.url")}/contact/beta-feedback"
   val accessibilityStatementUrl: String = configuration.get[String]("sca-wrapper.services.accessibility-statement-frontend.url")
   val scaWrapperDataUrl = s"${configuration.get[String]("sca-wrapper.services.single-customer-account-wrapper-data.url")}/single-customer-account-wrapper-data"
-
+  val helpImproveBannerUrl: Option[String] = configuration.get[Option[String]]("sca-wrapper.services.help-improve-banner.url")
+  
   val showAlphaBanner: Boolean = configuration.get[Boolean]("sca-wrapper.show-alpha-banner")
   val showBetaBanner: Boolean = configuration.get[Boolean]("sca-wrapper.show-beta-banner")
+  val showHelpImproveBanner: Boolean = configuration.get[Boolean]("sca-wrapper.show-help-improve-banner")
 
   //fallback menu config in the event that wrapper data is offline
   private def fallbackMenuConfig(implicit lang: Lang): Seq[MenuItemConfig] = Seq(

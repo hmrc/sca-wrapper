@@ -11,3 +11,7 @@ sca-wrapper.fallback.menu.signout = Allgofnodi
 sca-wrapper.fallback.menu.bta = Cyfrif treth busnes
 sca-wrapper.fallback.menu.name = Dewislen y cyfrif
 sca-wrapper.fallback.menu.back = Yn ôl
+
+sca-wrapper.banner.feature.heading.cy = Helpwch i wella gov.uk
+sca-wrapper.banner.feature.link.text.cy = Helpwch i wella gwasanaethau digidol drwy ymuno â phanel defnyddwyr CThEM (yn agor ffenestr neu dab newydd)
+sca-wrapper.banner.feature.label.no_thanks.cy = Dim diolch

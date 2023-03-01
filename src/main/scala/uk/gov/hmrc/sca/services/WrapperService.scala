@@ -67,7 +67,8 @@ class WrapperService @Inject()(
              showChildBenefitBanner: Boolean = false,
              showUserResearchBanner: Boolean = false,
              showAlphaBanner: Boolean = false,
-             showBetaBanner: Boolean = false)
+             showBetaBanner: Boolean = false,
+             showHelpImproveBanner: Boolean = false)
             (implicit messages: Messages,
              hc: HeaderCarrier,
              request: Request[AnyContent]): Future[HtmlFormat.Appendable] = {
@@ -89,7 +90,8 @@ class WrapperService @Inject()(
         showChildBenefitBanner = showChildBenefitBanner,
         showUserResearchBanner = showUserResearchBanner,
         showAlphaBanner = showAlphaBanner,
-        showBetaBanner = showBetaBanner
+        showBetaBanner = showBetaBanner,
+        showHelpImproveBanner = showHelpImproveBanner
       )(content)
     }
   }

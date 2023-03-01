@@ -11,3 +11,7 @@ sca-wrapper.fallback.menu.signout = Sign out
 sca-wrapper.fallback.menu.bta = Business tax account
 sca-wrapper.fallback.menu.name = Account menu
 sca-wrapper.fallback.menu.back = Back
+
+sca-wrapper.banner.feature.heading.en = Help improve GOV.UK
+sca-wrapper.banner.feature.link.text.en = Help improve digital services by joining the HMRC user panel (opens in new window)
+sca-wrapper.banner.feature.label.no_thanks.en = No thanks
