@@ -67,18 +67,14 @@
         showBetaBanner: Boolean)(contentBlock: Html)(implicit request: Request[_], messages: Messages, hc: HeaderCarrier)
 
 @headBlock = {
-
-@hmrcHead(
- nonce     = CSPNonce.get,
- headBlock = if(timeout) { Some(
+@{
   hmrcTimeoutDialogHelper(
    timeout             = Some(appConfig.timeout),
    countdown           = Some(appConfig.countdown),
    keepAliveUrl        = Some(keepAliveUrl),
    signOutUrl          = signoutUrl
-  ))
- } else None
-)
+  )
+ }
 }
 
 @additionalScripts = {
@@ -126,11 +122,11 @@
   @hmrcReportTechnicalIssueHelper()
   <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
    @{
-    if(showAlphaBanner) {
-     govukPhaseBanner(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
+    if(showBetaBanner) {
+     govukPhaseBanner(betaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
     } else {
-     if(showBetaBanner){
-      govukPhaseBanner(betaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
+     if(showAlphaBanner){
+      govukPhaseBanner(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
      }
     }
    }
@@ -140,7 +136,7 @@
  @hmrcLayout(
  serviceName = serviceNameKey.map(messages(_)),
  pageTitle = pageTitle,
- signOutUrl = Some(signoutUrl),
+ signOutUrl = if(showSignOutInHeader) Some(signoutUrl) else None,
  serviceUrl = serviceNameUrl,
  accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(appConfig.accessibilityStatementUrl)),
  backLinkUrl = Some(backLinkUrl),

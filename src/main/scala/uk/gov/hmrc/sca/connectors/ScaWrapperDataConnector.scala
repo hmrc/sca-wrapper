@@ -29,7 +29,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class ScaWrapperDataConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Logging {
 
 
-  def wrapperData(signoutUrl: String)(implicit ec: ExecutionContext, hc: HeaderCarrier, request: Request[AnyContent]): Future[WrapperDataResponse] = {
+  def wrapperData(signoutUrl: String)(implicit ec: ExecutionContext, hc: HeaderCarrier,
+                                      request: Request[AnyContent]): Future[WrapperDataResponse] = {
     val lang = request.cookies.get("PLAY_LANG").map(_.value).getOrElse("en")
     http.POST[WrapperDataRequest, WrapperDataResponse](s"${appConfig.scaWrapperDataUrl}/wrapper-data",
       WrapperDataRequest(appConfig.versionNum, lang, signoutUrl)).recover {
