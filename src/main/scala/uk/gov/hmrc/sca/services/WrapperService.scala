@@ -15,6 +15,7 @@
  */
 
 package uk.gov.hmrc.sca.services
+import play.api.{Logger, Logging}
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
 import play.twirl.api.{Html, HtmlFormat}
@@ -36,7 +37,7 @@ class WrapperService @Inject()(
                                 scaLayout: ScaLayout,
                                 scaWrapperDataConnector: ScaWrapperDataConnector,
                                 appConfig: AppConfig)
-                              (implicit ec: ExecutionContext) extends FrontendBaseController {
+                              (implicit ec: ExecutionContext) extends FrontendBaseController with Logging {
 
   private def sortMenuItemConfig(wrapperDataResponse: WrapperDataResponse): PtaMenuConfig = {
     val setSignout = setSigoutUrl(wrapperDataResponse.menuItemConfig)
@@ -66,8 +67,8 @@ class WrapperService @Inject()(
              scripts: Option[Html] = None,
              showChildBenefitBanner: Boolean = false,
              showUserResearchBanner: Boolean = false,
-             showAlphaBanner: Boolean = false,
-             showBetaBanner: Boolean = false)
+             showAlphaBanner: Boolean = appConfig.showAlphaBanner,
+             showBetaBanner: Boolean = appConfig.showBetaBanner)
             (implicit messages: Messages,
              hc: HeaderCarrier,
              request: Request[AnyContent]): Future[HtmlFormat.Appendable] = {
