@@ -21,6 +21,7 @@ import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import uk.gov.hmrc.sca.controllers.routes
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 
 import java.net.URLEncoder
@@ -60,11 +61,7 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
 
   //internal
   final val serviceUrl: String = configuration.get[String]("sca-wrapper.service.url")
-  final val keepAliveAuthenticatedUrl: String = s"${serviceUrl}/keep-alive-authenticated"
-  final val keepAliveUnauthenticatedUrl: String = s"${serviceUrl}/keep-alive-unauthenticated"
-
-  //external url
-  final val ggLoginContinueUrl: String = configuration.get[String]("sca-wrapper.service.url")
+  final val keepAliveUrl: String = routes.KeepAliveController.keepAlive.url
 
   //service urls
   val pertaxUrl: String = s"${configuration.get[String]("sca-wrapper.services.pertax-frontend.url")}/personal-account"
@@ -72,8 +69,10 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
   val feedbackFrontendUrl: String = s"${configuration.get[String]("sca-wrapper.services.feedback-frontend.url")}/feedback"
   val contactFrontendUrl: String = s"${configuration.get[String]("sca-wrapper.services.contact-frontend.url")}/contact/beta-feedback"
   val accessibilityStatementUrl: String = configuration.get[String]("sca-wrapper.services.accessibility-statement-frontend.url")
-  val ggSigninUrl: String = configuration.get[String]("sca-wrapper.services.gg-signin.url")
   val scaWrapperDataUrl = s"${configuration.get[String]("sca-wrapper.services.single-customer-account-wrapper-data.url")}/single-customer-account-wrapper-data"
+
+  val showAlphaBanner: Boolean = configuration.get[Boolean]("sca-wrapper.show-alpha-banner")
+  val showBetaBanner: Boolean = configuration.get[Boolean]("sca-wrapper.show-beta-banner")
 
   //fallback menu config in the event that wrapper data is offline
   private def fallbackMenuConfig(implicit lang: Lang): Seq[MenuItemConfig] = Seq(

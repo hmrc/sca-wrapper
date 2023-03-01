@@ -5,14 +5,14 @@ import play.core.PlayVersion.current
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtTwirl)
-  .disablePlugins(PlayLayoutPlugin)
+  .disablePlugins(PlayLayoutPlugin, JUnitXmlReportPlugin)
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(itSettings): _*)
   .settings(
     scalaVersion := "2.12.15",
     isPublicArtefact := true,
     //TODO tests to check SNAPSHOT is changed back
-    version := "1.0.4",
+    version := "1.0.5",
 //    version := "1.0.0-SNAPSHOT",
     //    publish / skip := true,
     name := "sca-wrapper",
@@ -27,15 +27,23 @@ lazy val root = (project in file("."))
       "models._",
       "uk.gov.hmrc.play.bootstrap.binders.RedirectUrl"
     ),
-    libraryDependencies ++= appDependencies ++ testDependencies
+    libraryDependencies ++= appDependencies ++ testDependencies,
+    Test / coverageEnabled := true,
+    IntegrationTest / Keys.fork := false,
+    inConfig(Test)(testSettings),
+    inConfig(IntegrationTest)(itSettings)
   )
+
+lazy val testSettings = Seq(
+  unmanagedSourceDirectories ++= Seq(
+    baseDirectory.value / "test"
+  ),
+  fork := true
+)
 
 lazy val itSettings = Defaults.itSettings ++ Seq(
   unmanagedSourceDirectories := Seq(
-    baseDirectory.value / "src" / "it"
-  ),
-  unmanagedResourceDirectories := Seq(
-    baseDirectory.value / "it" / "resources"
+    baseDirectory.value / "it"
   ),
   parallelExecution := false,
   fork := true

@@ -57,13 +57,17 @@ class WrapperService @Inject()(
              serviceNameKey: Option[String] = appConfig.serviceNameKey,
              serviceNameUrl: Option[String] = None,
              signoutUrl: String = appConfig.signoutUrl,
-             keepAliveUrl: String = appConfig.keepAliveAuthenticatedUrl,
+             keepAliveUrl: String = appConfig.keepAliveUrl,
              showBackLink: Boolean = false,
              timeout: Boolean = true,
              backLinkID: Boolean = true,
              backLinkUrl: String = "#",
              showSignOutInHeader: Boolean = false,
-             scripts: Option[Html] = None)
+             scripts: Option[Html] = None,
+             showChildBenefitBanner: Boolean = false,
+             showUserResearchBanner: Boolean = false,
+             showAlphaBanner: Boolean = false,
+             showBetaBanner: Boolean = false)
             (implicit messages: Messages,
              hc: HeaderCarrier,
              request: Request[AnyContent]): Future[HtmlFormat.Appendable] = {
@@ -81,7 +85,11 @@ class WrapperService @Inject()(
         backLinkUrl = backLinkUrl,
         showSignOutInHeader = showSignOutInHeader,
         scripts = scripts,
-        wrapperDataResponse = wrapperDataResponse
+        wrapperDataResponse = wrapperDataResponse,
+        showChildBenefitBanner = showChildBenefitBanner,
+        showUserResearchBanner = showUserResearchBanner,
+        showAlphaBanner = showAlphaBanner,
+        showBetaBanner = showBetaBanner
       )(content)
     }
   }
@@ -93,6 +101,5 @@ class WrapperService @Inject()(
     }
   }
 
-  final val keepAliveAuthenticatedUrl: String = appConfig.keepAliveAuthenticatedUrl
-  final val keepAliveUnauthenticatedUrl: String = appConfig.keepAliveAuthenticatedUrl
+  final val keepAliveUrl: String = appConfig.keepAliveUrl
 }
