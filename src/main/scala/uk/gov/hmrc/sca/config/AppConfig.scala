@@ -71,9 +71,7 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
   val accessibilityStatementUrl: String = configuration.get[String]("sca-wrapper.services.accessibility-statement-frontend.url")
   val scaWrapperDataUrl = s"${configuration.get[String]("sca-wrapper.services.single-customer-account-wrapper-data.url")}/single-customer-account-wrapper-data"
   val helpImproveBannerUrl: Option[String] = configuration.get[Option[String]]("sca-wrapper.services.help-improve-banner.url")
-  lazy val childBenefitLinkUrl = Some(
-    "https://docs.google.com/forms/d/e/1FAIpQLSegbiz4ClGW0XkC1pY3B02ltiY1V79V7ha0jZinECIz_FvSyg/viewform"
-  )
+  val childBenefitLinkUrl: Option[String] = configuration.get[Option[String]]("sca-wrapper.services.child-benefit-survey.url")
   val showAlphaBanner: Boolean = configuration.get[Boolean]("sca-wrapper.show-alpha-banner")
   val showBetaBanner: Boolean = configuration.get[Boolean]("sca-wrapper.show-beta-banner")
   val showHelpImproveBanner: Boolean = configuration.get[Boolean]("sca-wrapper.show-help-improve-banner")
