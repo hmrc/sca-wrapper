@@ -23,7 +23,9 @@
 @import uk.gov.hmrc.sca.models.WrapperDataResponse
 @import uk.gov.hmrc.sca.views.html.ChildBenefitBanner
 @import uk.gov.hmrc.sca.views.html.PtaHomeBanner
-
+@import uk.gov.hmrc.ptafrontend.views.html.PtaHead
+@import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+@import uk.gov.hmrc.sca.views.html.AttorneyBanner
 
 @this(
         hmrcLayout: HmrcLayout,
@@ -43,10 +45,12 @@
         hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
         hmrcAccountMenu: HmrcAccountMenu,
         ptaScripts: PtaScripts,
+        ptaHead: PtaHead,
         backLink: backLink,
         childBenefitBanner: ChildBenefitBanner,
         ptaHomeBanner: PtaHomeBanner,
-        govukPhaseBanner: GovukPhaseBanner)
+        govukPhaseBanner: GovukPhaseBanner,
+        banner: AttorneyBanner)
 
 @(menu: HtmlFormat.Appendable,
         wrapperDataResponse: WrapperDataResponse,
@@ -64,47 +68,57 @@
         showChildBenefitBanner: Boolean,
         showUserResearchBanner: Boolean,
         showAlphaBanner: Boolean,
-        showBetaBanner: Boolean)(contentBlock: Html)(implicit request: Request[_], messages: Messages, hc: HeaderCarrier)
+        showBetaBanner: Boolean,
+        optTrustedHelper: Option[TrustedHelper])(contentBlock: Html)(implicit request: Request[_], messages: Messages, hc: HeaderCarrier)
 
 @headBlock = {
-@{
-  hmrcTimeoutDialogHelper(
-   timeout             = Some(appConfig.timeout),
-   countdown           = Some(appConfig.countdown),
-   keepAliveUrl        = Some(keepAliveUrl),
-   signOutUrl          = signoutUrl
-  )
- }
+ @{
+   hmrcTimeoutDialogHelper(
+    timeout             = Some(appConfig.timeout),
+    countdown           = Some(appConfig.countdown),
+    keepAliveUrl        = Some(keepAliveUrl),
+    signOutUrl          = signoutUrl
+   )
+  }
+ @ptaHead()
 }
 
 @additionalScripts = {
  @ptaScripts()
-@scripts
+ @scripts
 }
 
 @beforeContent = {
-@defining(request.uri) { uri =>
- @menu
-}
+ @defining(request.uri) { uri =>
+  @menu
+ }
 
-@defining(appConfig.welshToggle) { welshEnabled =>
- @if(showBackLink) {
-  <div class="govuk-grid-row">
-   <div class="govuk-grid-column-one-half">
-   @backLink(backLinkUrl, backLinkID)
-   </div>
-   <div class="govuk-grid-column-one-half">
-    @if(welshEnabled){
+ @defining(appConfig.welshToggle) { welshEnabled =>
+  @if(showBackLink) {
+   <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+    @backLink(backLinkUrl, backLinkID)
+    </div>
+    <div class="govuk-grid-column-one-half">
+    @if(welshEnabled) {
      @hmrcLanguageSelectHelper()
     }
+    </div>
    </div>
-  </div>
- } else {
-  @if(welshEnabled){
-   @hmrcLanguageSelectHelper()
+  } else {
+   @if(welshEnabled) {
+    @hmrcLanguageSelectHelper()
+   }
   }
  }
+
+ @attorneyBanner
 }
+
+@attorneyBanner = @{
+ optTrustedHelper.map{ helper =>
+  banner(helper)
+ }
 }
 
 @content = {

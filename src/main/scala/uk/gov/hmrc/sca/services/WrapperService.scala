@@ -19,6 +19,7 @@ import play.api.{Logger, Logging}
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
 import play.twirl.api.{Html, HtmlFormat}
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
@@ -68,7 +69,9 @@ class WrapperService @Inject()(
              showChildBenefitBanner: Boolean = false,
              showUserResearchBanner: Boolean = false,
              showAlphaBanner: Boolean = appConfig.showAlphaBanner,
-             showBetaBanner: Boolean = appConfig.showBetaBanner)
+             showBetaBanner: Boolean = appConfig.showBetaBanner,
+             optTrustedHelper: Option[TrustedHelper] = None
+            )
             (implicit messages: Messages,
              hc: HeaderCarrier,
              request: Request[AnyContent]): Future[HtmlFormat.Appendable] = {
@@ -90,7 +93,8 @@ class WrapperService @Inject()(
         showChildBenefitBanner = showChildBenefitBanner,
         showUserResearchBanner = showUserResearchBanner,
         showAlphaBanner = showAlphaBanner,
-        showBetaBanner = showBetaBanner
+        showBetaBanner = showBetaBanner,
+        optTrustedHelper =  optTrustedHelper
       )(content)
     }
   }
