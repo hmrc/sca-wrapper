@@ -66,7 +66,6 @@ class WrapperService @Inject()(
              showSignOutInHeader: Boolean = false,
              scripts: Option[Html] = None,
              showChildBenefitBanner: Boolean = appConfig.showChildBenefitBanner,
-             showUserResearchBanner: Boolean = false,
              showAlphaBanner: Boolean = appConfig.showAlphaBanner,
              showBetaBanner: Boolean = appConfig.showBetaBanner,
              showHelpImproveBanner: Boolean = appConfig.showHelpImproveBanner)
@@ -89,7 +88,6 @@ class WrapperService @Inject()(
         scripts = scripts,
         wrapperDataResponse = wrapperDataResponse,
         showChildBenefitBanner = showChildBenefitBanner,
-        showUserResearchBanner = showUserResearchBanner,
         showAlphaBanner = showAlphaBanner,
         showBetaBanner = showBetaBanner,
         showHelpImproveBanner = showHelpImproveBanner
