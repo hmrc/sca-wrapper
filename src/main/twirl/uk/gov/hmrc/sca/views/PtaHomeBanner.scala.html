@@ -15,8 +15,6 @@
  *@
 
 @import uk.gov.hmrc.sca.config.AppConfig
-@import uk.gov.hmrc.sca.models.PtaMenuConfig
-@import uk.gov.hmrc.sca.views.html._
 
 @this(
         appConfig: AppConfig
@@ -27,14 +25,14 @@
     <div class="hmrc-user-research-banner__container govuk-width-container">
         <div class="hmrc-user-research-banner__text">
             <div class="hmrc-user-research-banner__title govuk-!-font-weight-bold">
-               @messages("sca-wrapper.help.improve.banner.heading")
+                @messages("sca-wrapper.help.improve.banner.heading")
             </div>
             <a class="govuk-link hmrc-user-research-banner__link" rel="noopener noreferrer" href="@appConfig.helpImproveBannerUrl" target="_blank">
-                @messages("sca-wrapper.help.improve.banner.link.text")
+            @messages("sca-wrapper.help.improve.banner.link.text")
             </a>
         </div>
         <button class="govuk-link hmrc-user-research-banner__close">
-            @messages("sca-wrapper.banner.label.no_thanks")
+        @messages("sca-wrapper.banner.label.no_thanks")
         </button>
     </div>
 </div>

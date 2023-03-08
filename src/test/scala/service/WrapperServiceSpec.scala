@@ -22,6 +22,7 @@ import org.mockito.Mockito.when
 import play.api.i18n.Lang
 import play.api.test.Helpers
 import play.twirl.api.Html
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.services.WrapperService
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout}
@@ -36,16 +37,17 @@ class WrapperServiceSpec extends BaseSpec {
 
 
   private val service = new WrapperService(Helpers.stubMessagesControllerComponents(), menu, layout, connector, appConfig)
-  private val scripts: Option[Html]  = Option(Html("<scripts>ptaScript</scripts>"))
+  private val scripts: Option[Html] = Option(Html("<scripts>ptaScript</scripts>"))
   "WrapperService layout" must {
     "return a Wrapper layout in English" in {
       implicit val lang: Lang = Lang("en")
-      when(connector.wrapperData(any())(any(),any(),any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
+      when(connector.wrapperData(any())(any(), any(), any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
 
       val result = service.layout(
         content = Html(""),
         serviceNameKey = Some("test.test"),
-        scripts = scripts
+        scripts = scripts,
+        optTrustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", "principalNino"))
       )
 
       whenReady(result) { res =>
@@ -84,16 +86,19 @@ class WrapperServiceSpec extends BaseSpec {
         res.body mustNot include("alpha")
         res.body mustNot include("beta")
         res.body mustNot include("This is a new service – your <a class=\"govuk-link\" href=\"http://localhost:9250/contact/beta-feedback?service=single-customer-account-frontend&amp;backUrl=http%3A%2F%2Flocalhost%3A9000\">feedback</a> will help us to improve it.")
+        res.body must include("You are using this service for <span class=\"govuk-!-font-weight-bold\">principalName</span>.")
+        res.body must include("<a href=\"returnLinkUrl\" class=\"govuk-link pta-attorney-banner__link\">Return to your account</a>")
       }
     }
 
     "return a Wrapper layout in Welsh" in {
       implicit val lang: Lang = Lang("cy")
-      when(connector.wrapperData(any())(any(),any(),any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
+      when(connector.wrapperData(any())(any(), any(), any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
 
       val result = service.layout(
         content = Html(""),
-        serviceNameKey = Some("test.test")
+        serviceNameKey = Some("test.test"),
+        optTrustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", "principalNino"))
       )(messages = messagesCy, hc = hc, request = fakeRequest)
 
       whenReady(result) { res =>
@@ -129,6 +134,8 @@ class WrapperServiceSpec extends BaseSpec {
         res.body mustNot include("alpha")
         res.body mustNot include("beta")
         res.body mustNot include("Gwasanaeth newydd yw hwn – bydd eich")
+        res.body must include("Rydych yn defnyddio’r gwasanaeth hwn ar gyfer <span class=\"govuk-!-font-weight-bold\">principalName</span>.")
+        res.body must include("<a href=\"returnLinkUrl\" class=\"govuk-link pta-attorney-banner__link\">Yn ôl i’ch cyfrif</a>")
       }
     }
 
@@ -140,7 +147,8 @@ class WrapperServiceSpec extends BaseSpec {
         content = Html(""),
         serviceNameKey = Some("test.test"),
         scripts = scripts,
-        showAlphaBanner = true
+        showAlphaBanner = true,
+        optTrustedHelper = None
       )
 
       whenReady(result) { res =>
@@ -157,13 +165,31 @@ class WrapperServiceSpec extends BaseSpec {
         content = Html(""),
         serviceNameKey = Some("test.test"),
         scripts = scripts,
-        showBetaBanner = true
+        showBetaBanner = true,
+        optTrustedHelper = None
       )
 
       whenReady(result) { res =>
         res.body mustNot include("alpha")
         res.body must include("beta")
         res.body must include("This is a new service – your <a class=\"govuk-link\" href=\"http://localhost:9250/contact/beta-feedback?service=single-customer-account-frontend&amp;backUrl=http%3A%2F%2Flocalhost%3A9000\">feedback</a> will help us to improve it.")
+      }
+    }
+
+    "Don't show the Attorney banner if TrustedHelper not provided" in {
+      implicit val lang: Lang = Lang("en")
+      when(connector.wrapperData(any())(any(), any(), any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
+
+      val result = service.layout(
+        content = Html(""),
+        serviceNameKey = Some("test.test"),
+        scripts = scripts,
+        optTrustedHelper = None
+      )
+
+      whenReady(result) { res =>
+        res.body mustNot include("You are using this service for <span class=\"govuk-!-font-weight-bold\">principalName</span>.")
+        res.body mustNot include("<a href=\"returnLinkUrl\" class=\"govuk-link pta-attorney-banner__link\">Return to your account</a>")
       }
     }
 
