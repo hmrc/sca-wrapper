@@ -14,19 +14,16 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
-@import views.html.helper.CSPNonce
-@import uk.gov.hmrc.ptafrontend.views.html.PtaScripts
 @import uk.gov.hmrc.http.HeaderCarrier
-@import uk.gov.hmrc.sca.views.html.components.backLink
+@import uk.gov.hmrc.ptafrontend.viewmodels.attorneybanner.AttorneyBanner
+@import uk.gov.hmrc.ptafrontend.views.html._
 @import uk.gov.hmrc.sca.config.AppConfig
 @import uk.gov.hmrc.sca.models.WrapperDataResponse
-@import uk.gov.hmrc.sca.views.html.ChildBenefitBanner
-@import uk.gov.hmrc.sca.views.html.PtaHomeBanner
-@import uk.gov.hmrc.ptafrontend.views.html.PtaHead
-@import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-@import uk.gov.hmrc.ptafrontend.views.html._
-@import uk.gov.hmrc.ptafrontend.viewmodels.attorneybanner.AttorneyBanner
+@import uk.gov.hmrc.sca.views.html.{ChildBenefitBanner, PtaHomeBanner}
+@import uk.gov.hmrc.sca.views.html.components.backLink
+@import views.html.helper.CSPNonce
 
 @this(
         hmrcLayout: HmrcLayout,
@@ -73,93 +70,99 @@
         optTrustedHelper: Option[TrustedHelper])(contentBlock: Html)(implicit request: Request[_], messages: Messages, hc: HeaderCarrier)
 
 @headBlock = {
- @{
-   hmrcTimeoutDialogHelper(
-    timeout             = Some(appConfig.timeout),
-    countdown           = Some(appConfig.countdown),
-    keepAliveUrl        = Some(keepAliveUrl),
-    signOutUrl          = signoutUrl
-   )
-  }
- @ptaHead()
+@{
+    hmrcTimeoutDialogHelper(
+        timeout = Some(appConfig.timeout),
+        countdown = Some(appConfig.countdown),
+        keepAliveUrl = Some(keepAliveUrl),
+        signOutUrl = signoutUrl
+    )
+}
+@ptaHead()
 }
 
 @additionalScripts = {
- @ptaScripts()
- @scripts
+@ptaScripts()
+@scripts
 }
 
 @beforeContent = {
- @defining(request.uri) { uri =>
-  @menu
- }
+@defining(request.uri) { uri =>
+    @menu
+}
 
- @defining(appConfig.welshToggle) { welshEnabled =>
-  @if(showBackLink) {
-   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-one-half">
-    @backLink(backLinkUrl, backLinkID)
-    </div>
-    <div class="govuk-grid-column-one-half">
-    @if(welshEnabled) {
-     @hmrcLanguageSelectHelper()
+@defining(appConfig.welshToggle) { welshEnabled =>
+    @if(showBackLink) {
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+            @backLink(backLinkUrl, backLinkID)
+            </div>
+            <div class="govuk-grid-column-one-half">
+            @if(welshEnabled) {
+                @hmrcLanguageSelectHelper()
+            }
+            </div>
+        </div>
+    } else {
+        @if(welshEnabled) {
+            @hmrcLanguageSelectHelper()
+        }
     }
-    </div>
-   </div>
-  } else {
-   @if(welshEnabled) {
-    @hmrcLanguageSelectHelper()
-   }
-  }
- }
+}
 
- @attorneyBanner
+@attorneyBanner
 }
 
 @attorneyBanner = @{
- optTrustedHelper.map{ helper =>
-  ptaAttorneyBanner(AttorneyBanner(name = helper.principalName, classes = "govuk-!-margin-top-2", accountUrl = helper.returnLinkUrl))
- }
+    optTrustedHelper.map { helper =>
+        ptaAttorneyBanner(AttorneyBanner(name = helper.principalName, classes = "govuk-!-margin-top-2", accountUrl = helper.returnLinkUrl))
+    }
 }
 
 @content = {
- <div class="govuk-width-container">
-  <main class="govuk-main-wrapper govuk-main-wrapper--l">
-   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-    @contentBlock
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper govuk-main-wrapper--l">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                @contentBlock
+                </div>
+            </div>
+        </main>
     </div>
-   </div>
-  </main>
- </div>
- <div class="govuk-!-margin-top-8">
-  <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
-  @hmrcReportTechnicalIssueHelper()
-  <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
-   @{
-    if(showBetaBanner) {
-     govukPhaseBanner(betaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
-    } else {
-     if(showAlphaBanner){
-      govukPhaseBanner(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
-     }
-    }
-   }
- </div>
+    <div class="govuk-!-margin-top-8">
+        <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
+        @hmrcReportTechnicalIssueHelper()
+        <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
+        @{
+            if(showBetaBanner) {
+                govukPhaseBanner(betaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
+            } else {
+                if(showAlphaBanner) {
+                    govukPhaseBanner(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
+                }
+            }
+        }
+    </div>
 }
 
- @hmrcLayout(
- serviceName = serviceNameKey.map(messages(_)),
- pageTitle = pageTitle,
- signOutUrl = if(showSignOutInHeader) Some(signoutUrl) else None,
- serviceUrl = serviceNameUrl,
- accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(appConfig.accessibilityStatementUrl)),
- backLinkUrl = Some(backLinkUrl),
- displayHmrcBanner = false,
- nonce = CSPNonce.get,
- isWelshTranslationAvailable = true,
- additionalHeadBlock = Some(headBlock),
- beforeContentBlock = Some(beforeContent),
- additionalScriptsBlock = Some(additionalScripts),
-additionalBannersBlock =if(showChildBenefitBanner){Some(childBenefitBanner.apply())} else if(showHelpImproveBanner) {Some(ptaHomeBanner.apply())} else {None}
+@hmrcLayout(
+    serviceName = serviceNameKey.map(messages(_)),
+    pageTitle = pageTitle,
+    signOutUrl = if(showSignOutInHeader) Some(signoutUrl) else None,
+    serviceUrl = serviceNameUrl,
+    accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(appConfig.accessibilityStatementUrl)),
+    backLinkUrl = Some(backLinkUrl),
+    displayHmrcBanner = false,
+    nonce = CSPNonce.get,
+    isWelshTranslationAvailable = true,
+    additionalHeadBlock = Some(headBlock),
+    beforeContentBlock = Some(beforeContent),
+    additionalScriptsBlock = Some(additionalScripts),
+    additionalBannersBlock = if(showChildBenefitBanner) {
+        Some(childBenefitBanner.apply())
+    } else if(showHelpImproveBanner) {
+        Some(ptaHomeBanner.apply())
+    } else {
+        None
+    }
 )(content)
