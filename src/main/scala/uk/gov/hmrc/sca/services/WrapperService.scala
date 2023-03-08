@@ -15,7 +15,8 @@
  */
 
 package uk.gov.hmrc.sca.services
-import play.api.{Logger, Logging}
+
+import play.api.Logging
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
 import play.twirl.api.{Html, HtmlFormat}

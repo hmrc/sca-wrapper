@@ -17,16 +17,14 @@
 package uk.gov.hmrc.sca.config
 
 import play.api.Configuration
-import play.api.i18n.{Lang, Messages, MessagesApi}
+import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.sca.controllers.routes
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 
 import java.net.URLEncoder
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.duration.Duration
 
 @Singleton
 class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {

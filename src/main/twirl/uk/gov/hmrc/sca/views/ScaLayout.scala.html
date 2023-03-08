@@ -25,7 +25,8 @@
 @import uk.gov.hmrc.sca.views.html.PtaHomeBanner
 @import uk.gov.hmrc.ptafrontend.views.html.PtaHead
 @import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-@import uk.gov.hmrc.sca.views.html.AttorneyBanner
+@import uk.gov.hmrc.ptafrontend.views.html._
+@import uk.gov.hmrc.ptafrontend.viewmodels.attorneybanner.AttorneyBanner
 
 @this(
         hmrcLayout: HmrcLayout,
@@ -50,7 +51,7 @@
         childBenefitBanner: ChildBenefitBanner,
         ptaHomeBanner: PtaHomeBanner,
         govukPhaseBanner: GovukPhaseBanner,
-        banner: AttorneyBanner)
+        ptaAttorneyBanner: PtaAttorneyBanner)
 
 @(menu: HtmlFormat.Appendable,
         wrapperDataResponse: WrapperDataResponse,
@@ -117,7 +118,7 @@
 
 @attorneyBanner = @{
  optTrustedHelper.map{ helper =>
-  banner(helper)
+  ptaAttorneyBanner(AttorneyBanner(name = helper.principalName, classes = "govuk-!-margin-top-2", accountUrl = helper.returnLinkUrl))
  }
 }
 
