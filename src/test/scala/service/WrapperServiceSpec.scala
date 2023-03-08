@@ -37,11 +37,11 @@ class WrapperServiceSpec extends BaseSpec {
 
 
   private val service = new WrapperService(Helpers.stubMessagesControllerComponents(), menu, layout, connector, appConfig)
-  private val scripts: Option[Html]  = Option(Html("<scripts>ptaScript</scripts>"))
+  private val scripts: Option[Html] = Option(Html("<scripts>ptaScript</scripts>"))
   "WrapperService layout" must {
     "return a Wrapper layout in English" in {
       implicit val lang: Lang = Lang("en")
-      when(connector.wrapperData(any())(any(),any(),any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
+      when(connector.wrapperData(any())(any(), any(), any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
 
       val result = service.layout(
         content = Html(""),
@@ -93,7 +93,7 @@ class WrapperServiceSpec extends BaseSpec {
 
     "return a Wrapper layout in Welsh" in {
       implicit val lang: Lang = Lang("cy")
-      when(connector.wrapperData(any())(any(),any(),any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
+      when(connector.wrapperData(any())(any(), any(), any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
 
       val result = service.layout(
         content = Html(""),
@@ -193,5 +193,52 @@ class WrapperServiceSpec extends BaseSpec {
       }
     }
 
+    "show the help improve banner if  selected" in {
+      implicit val lang: Lang = Lang("en")
+      when(connector.wrapperData(any())(any(), any(), any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
+
+      val result = service.layout(
+        content = Html(""),
+        serviceNameKey = Some("test.test"),
+        scripts = scripts,
+        showHelpImproveBanner = true
+      )
+
+      whenReady(result) { res =>
+        res.body must include("Help improve GOV.UK")
+      }
+    }
+
+    "do not show the help improve banner if not selected" in {
+      implicit val lang: Lang = Lang("en")
+      when(connector.wrapperData(any())(any(), any(), any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
+
+      val result = service.layout(
+        content = Html(""),
+        serviceNameKey = Some("test.test"),
+        scripts = scripts,
+        showHelpImproveBanner = false
+      )
+
+      whenReady(result) { res =>
+        res.body mustNot include("Help improve GOV.UK")
+      }
+    }
+
+    "show the child benefit banner if  selected" in {
+      implicit val lang: Lang = Lang("en")
+      when(connector.wrapperData(any())(any(), any(), any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
+
+      val result = service.layout(
+        content = Html(""),
+        serviceNameKey = Some("test.test"),
+        scripts = scripts,
+        showChildBenefitBanner = true
+      )
+
+      whenReady(result) { res =>
+        res.body must include("Help improve the Child Benefit service")
+      }
+    }
   }
 }
