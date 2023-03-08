@@ -62,9 +62,9 @@
         showSignOutInHeader: Boolean,
         scripts: Option[Html],
         showChildBenefitBanner: Boolean,
-        showUserResearchBanner: Boolean,
         showAlphaBanner: Boolean,
-        showBetaBanner: Boolean)(contentBlock: Html)(implicit request: Request[_], messages: Messages, hc: HeaderCarrier)
+        showBetaBanner: Boolean,
+        showHelpImproveBanner: Boolean)(contentBlock: Html)(implicit request: Request[_], messages: Messages, hc: HeaderCarrier)
 
 @headBlock = {
 @{
@@ -146,5 +146,5 @@
  additionalHeadBlock = Some(headBlock),
  beforeContentBlock = Some(beforeContent),
  additionalScriptsBlock = Some(additionalScripts),
- additionalBannersBlock = None //help improve/child benefit/user research banner
+additionalBannersBlock =if(showChildBenefitBanner){Some(childBenefitBanner.apply())} else if(showHelpImproveBanner) {Some(ptaHomeBanner.apply())} else {None}
 )(content)

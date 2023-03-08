@@ -65,10 +65,10 @@ class WrapperService @Inject()(
              backLinkUrl: String = "#",
              showSignOutInHeader: Boolean = false,
              scripts: Option[Html] = None,
-             showChildBenefitBanner: Boolean = false,
-             showUserResearchBanner: Boolean = false,
+             showChildBenefitBanner: Boolean = appConfig.showChildBenefitBanner,
              showAlphaBanner: Boolean = appConfig.showAlphaBanner,
-             showBetaBanner: Boolean = appConfig.showBetaBanner)
+             showBetaBanner: Boolean = appConfig.showBetaBanner,
+             showHelpImproveBanner: Boolean = appConfig.showHelpImproveBanner)
             (implicit messages: Messages,
              hc: HeaderCarrier,
              request: Request[AnyContent]): Future[HtmlFormat.Appendable] = {
@@ -88,9 +88,9 @@ class WrapperService @Inject()(
         scripts = scripts,
         wrapperDataResponse = wrapperDataResponse,
         showChildBenefitBanner = showChildBenefitBanner,
-        showUserResearchBanner = showUserResearchBanner,
         showAlphaBanner = showAlphaBanner,
-        showBetaBanner = showBetaBanner
+        showBetaBanner = showBetaBanner,
+        showHelpImproveBanner = showHelpImproveBanner
       )(content)
     }
   }

@@ -166,5 +166,53 @@ class WrapperServiceSpec extends BaseSpec {
         res.body must include("This is a new service – your <a class=\"govuk-link\" href=\"http://localhost:9250/contact/beta-feedback?service=single-customer-account-frontend&amp;backUrl=http%3A%2F%2Flocalhost%3A9000\">feedback</a> will help us to improve it.")
       }
     }
+
+    "show the help improve banner if  selected" in {
+      implicit val lang: Lang = Lang("en")
+      when(connector.wrapperData(any())(any(), any(), any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
+
+      val result = service.layout(
+        content = Html(""),
+        serviceNameKey = Some("test.test"),
+        scripts = scripts,
+        showHelpImproveBanner = true
+      )
+
+      whenReady(result) { res =>
+        res.body must include("Help improve GOV.UK")
+      }
+    }
+
+    "do not show the help improve banner if not selected" in {
+      implicit val lang: Lang = Lang("en")
+      when(connector.wrapperData(any())(any(), any(), any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
+
+      val result = service.layout(
+        content = Html(""),
+        serviceNameKey = Some("test.test"),
+        scripts = scripts,
+        showHelpImproveBanner = false
+      )
+
+      whenReady(result) { res =>
+        res.body mustNot include("Help improve GOV.UK")
+      }
+    }
+
+    "show the child benefit banner if  selected" in {
+      implicit val lang: Lang = Lang("en")
+      when(connector.wrapperData(any())(any(), any(), any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
+
+      val result = service.layout(
+        content = Html(""),
+        serviceNameKey = Some("test.test"),
+        scripts = scripts,
+        showChildBenefitBanner = true
+      )
+
+      whenReady(result) { res =>
+        res.body must include("Help improve the Child Benefit service")
+      }
+    }
   }
 }
