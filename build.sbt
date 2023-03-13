@@ -9,10 +9,10 @@ lazy val root = (project in file("."))
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(itSettings): _*)
   .settings(
-    scalaVersion := "2.12.15",
+    scalaVersion := "2.13.10",
     isPublicArtefact := true,
     //TODO tests to check SNAPSHOT is changed back
-    version := "1.0.8",
+    version := "1.0.9",
 //    version := "1.0.0-SNAPSHOT",
     //    publish / skip := true,
     name := "sca-wrapper",
@@ -83,8 +83,7 @@ val appDependencies = Seq(
   "uk.gov.hmrc"                 %% "play-language"                    % s"5.3.0-$playVersion",
   "uk.gov.hmrc"                 %% "play-partials"                    % s"8.3.0-$playVersion",
   "uk.gov.hmrc"                 %% "domain"                           % s"8.0.0-$playVersion",
-  "uk.gov.hmrc"                 %% "play-ui"                          % s"9.8.0-$playVersion",
-  "uk.gov.hmrc"                 %% "play-frontend-pta"                % "0.3.0"
+  "uk.gov.hmrc"                 %% "play-frontend-pta"                % "0.4.0"
 )
 
 val testDependencies = Seq(
