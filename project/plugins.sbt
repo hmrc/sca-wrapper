@@ -3,7 +3,7 @@ resolvers += Resolver.url("HMRC-open-artefacts-ivy2", url("https://open.artefact
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "3.7.0")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.3")
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.0")
+//addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.0")
+//TODO fix coverage 2.13 bug
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.16")
-addSbtPlugin("com.typesafe.sbt"  % "sbt-twirl"  % "1.5.1")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.19")

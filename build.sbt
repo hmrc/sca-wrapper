@@ -1,6 +1,6 @@
 import play.sbt.routes.RoutesKeys
 
-import scoverage.ScoverageKeys
+//import scoverage.ScoverageKeys
 import play.core.PlayVersion.current
 
 lazy val root = (project in file("."))
@@ -9,26 +9,26 @@ lazy val root = (project in file("."))
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(itSettings): _*)
   .settings(
-    scalaVersion := "2.12.15",
+    scalaVersion := "2.13.10",
     isPublicArtefact := true,
     //TODO tests to check SNAPSHOT is changed back
-    version := "1.0.8",
+    version := "1.0.9",
 //    version := "1.0.0-SNAPSHOT",
     //    publish / skip := true,
     name := "sca-wrapper",
     isSnapshot := true,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.scala-lang"),
     dependencyUpdatesFilter -= moduleFilter(organization = "com.vladsch.flexmark"),
-    ScoverageKeys.coverageMinimumStmtTotal := 0,
-    ScoverageKeys.coverageFailOnMinimum := true,
-    ScoverageKeys.coverageHighlighting := true,
+//    ScoverageKeys.coverageMinimumStmtTotal := 0,
+//    ScoverageKeys.coverageFailOnMinimum := true,
+//    ScoverageKeys.coverageHighlighting := true,
     TwirlKeys.templateImports := templateImports,
     RoutesKeys.routesImport ++= Seq(
       "models._",
       "uk.gov.hmrc.play.bootstrap.binders.RedirectUrl"
     ),
     libraryDependencies ++= appDependencies ++ testDependencies,
-    Test / coverageEnabled := true,
+//    Test / coverageEnabled := true,
     IntegrationTest / Keys.fork := false,
     inConfig(Test)(testSettings),
     inConfig(IntegrationTest)(itSettings)
@@ -77,24 +77,23 @@ lazy val templateImports: Seq[String] = Seq(
 val playVersion = "play-28"
 
 val appDependencies = Seq(
-  "com.typesafe.play"           %% "play-json"                        % "2.9.3",
-  "uk.gov.hmrc"                 %% "play-frontend-hmrc"               % s"3.22.0-$playVersion",
-  "uk.gov.hmrc"                 %% s"bootstrap-frontend-$playVersion" % "5.24.0",
-  "uk.gov.hmrc"                 %% "play-language"                    % s"5.3.0-$playVersion",
-  "uk.gov.hmrc"                 %% "play-partials"                    % s"8.3.0-$playVersion",
-  "uk.gov.hmrc"                 %% "domain"                           % s"8.0.0-$playVersion",
-  "uk.gov.hmrc"                 %% "play-ui"                          % s"9.8.0-$playVersion",
-  "uk.gov.hmrc"                 %% "play-frontend-pta"                % "0.3.0"
+  "com.typesafe.play"           %% "play-json"                        % "2.9.4",
+  "uk.gov.hmrc"                 %% "play-frontend-hmrc"               % s"3.34.0-$playVersion",
+  "uk.gov.hmrc"                 %% s"bootstrap-frontend-$playVersion" % "5.25.0",
+  "uk.gov.hmrc"                 %% "play-language"                    % s"5.4.0-$playVersion",
+  "uk.gov.hmrc"                 %% "play-partials"                    % s"8.4.0-$playVersion",
+  "uk.gov.hmrc"                 %% "domain"                           % s"8.1.0-$playVersion",
+  "uk.gov.hmrc"                 %% "play-frontend-pta"                % "0.4.0"
 )
 
 val testDependencies = Seq(
-  "org.scalatest"           %% "scalatest"           % "3.2.8",
+  "org.scalatest"           %% "scalatest"           % "3.2.15",
   "com.typesafe.play"       %% "play-test"           % current,
   "org.scalatestplus.play"  %% "scalatestplus-play"  % "4.0.3",
-  "org.scalatestplus"       %% "mockito-3-4"         % "3.2.3.0",
-  "org.mockito"             % "mockito-core"         % "3.6.28",
-  "org.scalacheck"          %% "scalacheck"          % "1.15.1",
+  "org.scalatestplus"       %% "mockito-3-4"         % "3.2.10.0",
+  "org.mockito"             % "mockito-core"         % "3.12.4",
+  "org.scalacheck"          %% "scalacheck"          % "1.17.0",
   "com.github.tomakehurst"  % "wiremock-standalone"  % "2.27.2",
-  "com.vladsch.flexmark"    % "flexmark-all"         % "0.36.8"
+  "com.vladsch.flexmark"    % "flexmark-all"         % "0.62.2"
 ).map(_ % "test,it")
 
