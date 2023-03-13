@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMenuConfig, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMenuConfig, WrapperDataResponse}
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout}
 
 import javax.inject.Inject
@@ -50,10 +50,17 @@ class WrapperService @Inject()(
   }
 
   private def setSigoutUrl(menuItemConfig: Seq[MenuItemConfig]) = {
-    menuItemConfig.find(_.signout).fold(menuItemConfig){ signout =>
+    menuItemConfig.find(_.signout).fold(menuItemConfig) { signout =>
       menuItemConfig.updated(menuItemConfig.indexWhere(_.signout), signout.copy(href = appConfig.signoutUrl))
     }
   }
+
+  private val defaultBannerConfig: BannerConfig = BannerConfig(
+    showChildBenefitBanner = appConfig.showChildBenefitBanner,
+    showAlphaBanner = appConfig.showAlphaBanner,
+    showBetaBanner = appConfig.showBetaBanner,
+    showHelpImproveBanner = appConfig.showHelpImproveBanner
+  )
 
   def layout(content: HtmlFormat.Appendable,
              pageTitle: Option[String] = None,
@@ -66,36 +73,33 @@ class WrapperService @Inject()(
              backLinkID: Boolean = true,
              backLinkUrl: String = "#",
              showSignOutInHeader: Boolean = false,
-             scripts: Option[Html] = None,
-             showChildBenefitBanner: Boolean = appConfig.showChildBenefitBanner,
-             showAlphaBanner: Boolean = appConfig.showAlphaBanner,
-             showBetaBanner: Boolean = appConfig.showBetaBanner,
-             showHelpImproveBanner: Boolean = appConfig.showHelpImproveBanner,
+             scripts: Seq[Html],
+             styleSheets: Seq[Html],
+             bannerConfig: BannerConfig= defaultBannerConfig,
              optTrustedHelper: Option[TrustedHelper] = None
             )
             (implicit messages: Messages,
              hc: HeaderCarrier,
              request: Request[AnyContent]): Future[HtmlFormat.Appendable] = {
+
     scaWrapperDataConnector.wrapperData(signoutUrl).map { wrapperDataResponse =>
       scaLayout(
-        menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse)),
-        serviceNameKey = serviceNameKey,
         pageTitle = pageTitle,
+        serviceNameKey = serviceNameKey,
+        serviceNameUrl = serviceNameUrl,
+        menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse)),
         signoutUrl = signoutUrl,
         keepAliveUrl = keepAliveUrl,
         showBackLink = showBackLink,
         timeout = timeout,
-        serviceNameUrl = serviceNameUrl,
         backLinkID = backLinkID,
         backLinkUrl = backLinkUrl,
         showSignOutInHeader = showSignOutInHeader,
         scripts = scripts,
+        styleSheets = styleSheets,
         wrapperDataResponse = wrapperDataResponse,
-        showChildBenefitBanner = showChildBenefitBanner,
-        showAlphaBanner = showAlphaBanner,
-        showBetaBanner = showBetaBanner,
-        showHelpImproveBanner = showHelpImproveBanner,
-        optTrustedHelper =  optTrustedHelper
+        optTrustedHelper = optTrustedHelper,
+        bannerConfig = bannerConfig,
       )(content)
     }
   }

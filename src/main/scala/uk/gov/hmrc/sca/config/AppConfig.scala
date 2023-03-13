@@ -51,6 +51,7 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
   val timeout: Int = configuration.get[Int]("sca-wrapper.timeout-dialog.timeout")
   val countdown: Int = configuration.get[Int]("sca-wrapper.timeout-dialog.countdown")
   val welshToggle: Boolean = configuration.get[Boolean]("sca-wrapper.welsh-enabled")
+  val disableSessionExpired: Boolean = configuration.get[Boolean]("sca-wrapper.disable-session-expired")
 
   //signout links
   private val signoutBaseUrl: String = configuration.get[String]("sca-wrapper.signout.url")
@@ -70,10 +71,13 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
   val scaWrapperDataUrl = s"${configuration.get[String]("sca-wrapper.services.single-customer-account-wrapper-data.url")}/single-customer-account-wrapper-data"
   val helpImproveBannerUrl: Option[String] = configuration.get[Option[String]]("sca-wrapper.services.help-improve-banner.url")
   val childBenefitLinkUrl: Option[String] = configuration.get[Option[String]]("sca-wrapper.services.child-benefit-survey.url")
-  val showAlphaBanner: Boolean = configuration.get[Boolean]("sca-wrapper.show-alpha-banner")
-  val showBetaBanner: Boolean = configuration.get[Boolean]("sca-wrapper.show-beta-banner")
-  val showHelpImproveBanner: Boolean = configuration.get[Boolean]("sca-wrapper.show-help-improve-banner")
-  val showChildBenefitBanner: Boolean = configuration.get[Boolean]("sca-wrapper.show-child-benefit-banner")
+
+  // banners
+  val showAlphaBanner: Boolean = configuration.get[Boolean]("sca-wrapper.banners.show-alpha")
+  val showBetaBanner: Boolean = configuration.get[Boolean]("sca-wrapper.banners.show-beta")
+  val showHelpImproveBanner: Boolean = configuration.get[Boolean]("sca-wrapper.banners.show-help-improve")
+  val showChildBenefitBanner: Boolean = configuration.get[Boolean]("sca-wrapper.banners.show-child-benefit")
+
   //fallback menu config in the event that wrapper data is offline
   private def fallbackMenuConfig(implicit lang: Lang): Seq[MenuItemConfig] = Seq(
     MenuItemConfig(messages("sca-wrapper.fallback.menu.home"), s"${pertaxUrl}", leftAligned = true, position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None),

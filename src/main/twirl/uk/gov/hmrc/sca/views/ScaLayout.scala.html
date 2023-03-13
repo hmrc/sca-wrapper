@@ -24,6 +24,8 @@
 @import uk.gov.hmrc.sca.views.html.{ChildBenefitBanner, PtaHomeBanner}
 @import uk.gov.hmrc.sca.views.html.components.backLink
 @import views.html.helper.CSPNonce
+@import uk.gov.hmrc.sca.models.BannerConfig
+@import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
 
 @this(
         hmrcLayout: HmrcLayout,
@@ -48,13 +50,18 @@
         childBenefitBanner: ChildBenefitBanner,
         ptaHomeBanner: PtaHomeBanner,
         govukPhaseBanner: GovukPhaseBanner,
-        ptaAttorneyBanner: PtaAttorneyBanner)
+        ptaAttorneyBanner: PtaAttorneyBanner,
+        twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
+        fullWidthMainContent: FullWidthMainContent,
+        twoThirdsMainContent: TwoThirdsMainContent
+)
 
 @(menu: HtmlFormat.Appendable,
         wrapperDataResponse: WrapperDataResponse,
         serviceNameKey: Option[String],
         serviceNameUrl: Option[String],
         pageTitle: Option[String],
+        sidebarContent: Option[Html] = None,
         signoutUrl: String,
         keepAliveUrl: String,
         showBackLink: Boolean,
@@ -62,55 +69,58 @@
         backLinkID: Boolean,
         backLinkUrl: String,
         showSignOutInHeader: Boolean,
-        scripts: Option[Html],
-        showChildBenefitBanner: Boolean,
-        showAlphaBanner: Boolean,
-        showBetaBanner: Boolean,
-        showHelpImproveBanner: Boolean,
+        scripts: Seq[Html],
+        styleSheets: Seq[Html],
+        bannerConfig: BannerConfig,
+        fullWidth: Boolean = false,
         optTrustedHelper: Option[TrustedHelper])(contentBlock: Html)(implicit request: Request[_], messages: Messages, hc: HeaderCarrier)
 
 @headBlock = {
-@{
-    hmrcTimeoutDialogHelper(
-        timeout = Some(appConfig.timeout),
-        countdown = Some(appConfig.countdown),
-        keepAliveUrl = Some(keepAliveUrl),
-        signOutUrl = signoutUrl
-    )
-}
-@ptaHead()
+
+    @styleSheets
+
+    @if(appConfig.disableSessionExpired) {
+        @hmrcTimeoutDialogHelper(
+            timeout = Some(appConfig.timeout),
+            countdown = Some(appConfig.countdown),
+            keepAliveUrl = Some(keepAliveUrl),
+            signOutUrl = signoutUrl
+        )
+    }
+
+    @ptaHead()
 }
 
 @additionalScripts = {
-@ptaScripts()
-@scripts
+    @scripts
+    @ptaScripts()
 }
 
 @beforeContent = {
-@defining(request.uri) { uri =>
-    @menu
-}
+    @defining(request.uri) { uri =>
+        @menu
+    }
 
-@defining(appConfig.welshToggle) { welshEnabled =>
-    @if(showBackLink) {
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-half">
-            @backLink(backLinkUrl, backLinkID)
+    @defining(appConfig.welshToggle) { welshEnabled =>
+        @if(showBackLink) {
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-one-half">
+                @backLink(backLinkUrl, backLinkID)
+                </div>
+                <div class="govuk-grid-column-one-half">
+                @if(welshEnabled) {
+                    @hmrcLanguageSelectHelper()
+                }
+                </div>
             </div>
-            <div class="govuk-grid-column-one-half">
+        } else {
             @if(welshEnabled) {
                 @hmrcLanguageSelectHelper()
             }
-            </div>
-        </div>
-    } else {
-        @if(welshEnabled) {
-            @hmrcLanguageSelectHelper()
         }
     }
-}
 
-@attorneyBanner
+    @attorneyBanner
 }
 
 @attorneyBanner = @{
@@ -134,10 +144,10 @@
         @hmrcReportTechnicalIssueHelper()
         <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
         @{
-            if(showBetaBanner) {
+            if(appConfig.showBetaBanner) {
                 govukPhaseBanner(betaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
             } else {
-                if(showAlphaBanner) {
+                if(appConfig.showAlphaBanner) {
                     govukPhaseBanner(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
                 }
             }
@@ -146,23 +156,32 @@
 }
 
 @hmrcLayout(
-    serviceName = serviceNameKey.map(messages(_)),
     pageTitle = pageTitle,
-    signOutUrl = if(showSignOutInHeader) Some(signoutUrl) else None,
+    serviceName = serviceNameKey.map(messages(_)),
     serviceUrl = serviceNameUrl,
-    accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(appConfig.accessibilityStatementUrl)),
-    backLinkUrl = Some(backLinkUrl),
-    displayHmrcBanner = false,
     nonce = CSPNonce.get,
     isWelshTranslationAvailable = true,
+    accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(appConfig.accessibilityStatementUrl)),
+    displayHmrcBanner = false,
+    signOutUrl = if(showSignOutInHeader) Some(signoutUrl) else None,
+    backLinkUrl = Some(backLinkUrl),
     additionalHeadBlock = Some(headBlock),
     beforeContentBlock = Some(beforeContent),
     additionalScriptsBlock = Some(additionalScripts),
-    additionalBannersBlock = if(showChildBenefitBanner) {
+    additionalBannersBlock = if(bannerConfig.showChildBenefitBanner) {
         Some(childBenefitBanner.apply())
-    } else if(showHelpImproveBanner) {
+    } else if(bannerConfig.showHelpImproveBanner) {
         Some(ptaHomeBanner.apply())
     } else {
         None
-    }
+    },
+    mainContentLayout = Some(sidebarContent match {
+        case Some(sidebarHtml) => twoThirdsOneThirdMainContent(sidebarHtml)
+        case None =>
+            if(fullWidth) {
+                twoThirdsMainContent(_)
+            } else {
+                twoThirdsMainContent(_)
+            }
+    })
 )(content)
