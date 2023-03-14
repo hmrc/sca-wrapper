@@ -48,8 +48,8 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
   val exitSurveyOrigin: Option[String] = configuration.get[Option[String]]("sca-wrapper.exit-survey-origin")
 
   //service config
-  val timeout: Int = configuration.get[Int]("sca-wrapper.timeout-dialog.timeout")
-  val countdown: Int = configuration.get[Int]("sca-wrapper.timeout-dialog.countdown")
+  val timeout: Int = configuration.getOptional[Int]("sca-wrapper.timeout-dialog.timeout").getOrElse(900)
+  val countdown: Int = configuration.getOptional[Int]("sca-wrapper.timeout-dialog.countdown").getOrElse(120)
   val welshToggle: Boolean = configuration.get[Boolean]("sca-wrapper.welsh-enabled")
   val disableSessionExpired: Boolean = configuration.get[Boolean]("sca-wrapper.disable-session-expired")
 

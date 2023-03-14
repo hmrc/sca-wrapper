@@ -55,7 +55,7 @@ class WrapperService @Inject()(
     }
   }
 
-  private val defaultBannerConfig: BannerConfig = BannerConfig(
+  val defaultBannerConfig: BannerConfig = BannerConfig(
     showChildBenefitBanner = appConfig.showChildBenefitBanner,
     showAlphaBanner = appConfig.showAlphaBanner,
     showBetaBanner = appConfig.showBetaBanner,
@@ -73,8 +73,8 @@ class WrapperService @Inject()(
              backLinkID: Boolean = true,
              backLinkUrl: String = "#",
              showSignOutInHeader: Boolean = false,
-             scripts: Seq[Html],
-             styleSheets: Seq[Html],
+             scripts: Seq[HtmlFormat.Appendable] = Seq.empty,
+             styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
              bannerConfig: BannerConfig= defaultBannerConfig,
              optTrustedHelper: Option[TrustedHelper] = None
             )
@@ -104,11 +104,9 @@ class WrapperService @Inject()(
     }
   }
 
-  def safeSignoutUrl(continueUrl: Option[RedirectUrl] = None): Option[String] = {
-    (continueUrl) match {
-      case Some(continue) if continue.getEither(OnlyRelative).isRight => Some(continue.getEither(OnlyRelative).right.get.url)
-      case _ => appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
-    }
+  def safeSignoutUrl(continueUrl: Option[RedirectUrl] = None): Option[String] = continueUrl match {
+    case Some(continue) if continue.getEither(OnlyRelative).isRight => Some(continue.getEither(OnlyRelative).right.get.url)
+    case _ => appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
   }
 
   final val keepAliveUrl: String = appConfig.keepAliveUrl

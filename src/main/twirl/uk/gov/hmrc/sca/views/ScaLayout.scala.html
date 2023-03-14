@@ -69,8 +69,8 @@
         backLinkID: Boolean,
         backLinkUrl: String,
         showSignOutInHeader: Boolean,
-        scripts: Seq[Html],
-        styleSheets: Seq[Html],
+        scripts: Seq[HtmlFormat.Appendable],
+        styleSheets: Seq[HtmlFormat.Appendable],
         bannerConfig: BannerConfig,
         fullWidth: Boolean = false,
         optTrustedHelper: Option[TrustedHelper])(contentBlock: Html)(implicit request: Request[_], messages: Messages, hc: HeaderCarrier)
