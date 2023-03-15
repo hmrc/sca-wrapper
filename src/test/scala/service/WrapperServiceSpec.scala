@@ -176,16 +176,6 @@ class WrapperServiceSpec extends BaseSpec {
       }
     }
 
-    """
-      |This is a new service – your <a class="govuk-link" href="http://localhost:9250/contact/beta-feedback?service=single-customer-account-frontend&amp;backUrl=http%3A%2F%2Flocalhost%3A8420">feedback</a> will help us to improve it.
-      |
-      |""".stripMargin
-
-    """
-      |
-      |This is a new service – your <a class="govuk-link" href="http://localhost:9250/contact/beta-feedback?service=single-customer-account-frontend&amp;backUrl=http%3A%2F%2Flocalhost%3A9000">feedback</a> will help us to improve it."
-      |""".stripMargin
-
     "Don't show the Attorney banner if TrustedHelper not provided" in {
       implicit val lang: Lang = Lang("en")
       when(connector.wrapperData(any())(any(), any(), any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
