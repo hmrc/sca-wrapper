@@ -35,7 +35,7 @@ class ScaWrapperDataConnector @Inject()(http: HttpClient, appConfig: AppConfig) 
     http.POST[WrapperDataRequest, WrapperDataResponse](s"${appConfig.scaWrapperDataUrl}/wrapper-data",
       WrapperDataRequest(appConfig.versionNum, lang, signoutUrl)).recover {
       case ex: Exception =>
-        println("FALLBACK!!!!!!!")
+        logger.error("FALLBACK!!!!!!!")
         appConfig.fallbackWrapperDataResponse(Lang(lang))
     }
   }
