@@ -72,7 +72,7 @@
         scripts: Seq[HtmlFormat.Appendable],
         styleSheets: Seq[HtmlFormat.Appendable],
         bannerConfig: BannerConfig,
-        fullWidth: Boolean = false,
+        fullWidth: Boolean,
         optTrustedHelper: Option[TrustedHelper])(contentBlock: Html)(implicit request: Request[_], messages: Messages, hc: HeaderCarrier)
 
 @headBlock = {

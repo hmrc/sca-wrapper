@@ -76,7 +76,8 @@ class WrapperService @Inject()(
              scripts: Seq[HtmlFormat.Appendable] = Seq.empty,
              styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
              bannerConfig: BannerConfig = defaultBannerConfig,
-             optTrustedHelper: Option[TrustedHelper] = None
+             optTrustedHelper: Option[TrustedHelper] = None,
+             fullWidth: Boolean = false,
             )
             (implicit messages: Messages,
              hc: HeaderCarrier,
@@ -100,6 +101,7 @@ class WrapperService @Inject()(
         wrapperDataResponse = wrapperDataResponse,
         optTrustedHelper = optTrustedHelper,
         bannerConfig = bannerConfig,
+        fullWidth = fullWidth
       )(content)
     }
   }
