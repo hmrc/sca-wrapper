@@ -79,7 +79,7 @@
 
     @styleSheets
 
-    @if(appConfig.disableSessionExpired) {
+    @if(!appConfig.disableSessionExpired) {
         @hmrcTimeoutDialogHelper(
             timeout = Some(appConfig.timeout),
             countdown = Some(appConfig.countdown),
@@ -144,10 +144,10 @@
         @hmrcReportTechnicalIssueHelper()
         <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
         @{
-            if(appConfig.showBetaBanner) {
+            if(bannerConfig.showBetaBanner) {
                 govukPhaseBanner(betaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
             } else {
-                if(appConfig.showAlphaBanner) {
+                if(bannerConfig.showAlphaBanner) {
                     govukPhaseBanner(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
                 }
             }

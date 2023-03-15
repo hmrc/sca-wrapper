@@ -35,9 +35,9 @@ class WrapperServiceSpec extends BaseSpec {
   private val menu = app.injector.instanceOf[PtaMenuBar]
   private val layout = app.injector.instanceOf[ScaLayout]
 
-
   private val service = new WrapperService(Helpers.stubMessagesControllerComponents(), menu, layout, connector, appConfig)
-  private val scripts: Option[Html] = Option(Html("<scripts>ptaScript</scripts>"))
+  private val scripts: Html = Html("<scripts>ptaScript</scripts>")
+
   "WrapperService layout" must {
     "return a Wrapper layout in English" in {
       implicit val lang: Lang = Lang("en")
@@ -46,7 +46,7 @@ class WrapperServiceSpec extends BaseSpec {
       val result = service.layout(
         content = Html(""),
         serviceNameKey = Some("test.test"),
-        scripts = scripts,
+        scripts = Seq(scripts),
         optTrustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", "principalNino"))
       )
 
@@ -83,9 +83,9 @@ class WrapperServiceSpec extends BaseSpec {
         res.body must include("Open Government Licence v3.0</a>, except where otherwise stated")
         res.body must include("Crown copyright")
         res.body must include("ptaScript")
-        res.body mustNot include("alpha")
-        res.body mustNot include("beta")
-        res.body mustNot include("This is a new service – your <a class=\"govuk-link\" href=\"http://localhost:9250/contact/beta-feedback?service=single-customer-account-frontend&amp;backUrl=http%3A%2F%2Flocalhost%3A9000\">feedback</a> will help us to improve it.")
+        res.body must include("<strong class=\"govuk-tag govuk-phase-banner__content__tag\">\n  alpha\n</strong>")
+        res.body mustNot include("<strong class=\"govuk-tag govuk-phase-banner__content__tag\">\n  beta\n</strong>")
+        res.body must include("This is a new service – your <a class=\"govuk-link\" href=\"http://localhost:9250/contact/beta-feedback?service=single-customer-account-frontend&amp;backUrl=http%3A%2F%2Flocalhost%3A8420\">feedback</a> will help us to improve it.")
         res.body must include("You are using this service for <span class=\"govuk-!-font-weight-bold\">principalName</span>.")
         res.body must include("<a href=\"returnLinkUrl\" class=\"govuk-link pta-attorney-banner__link\">Return to your account</a>")
       }
@@ -98,6 +98,7 @@ class WrapperServiceSpec extends BaseSpec {
       val result = service.layout(
         content = Html(""),
         serviceNameKey = Some("test.test"),
+        scripts = Seq(scripts),
         optTrustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", "principalNino"))
       )(messages = messagesCy, hc = hc, request = fakeRequest)
 
@@ -131,9 +132,9 @@ class WrapperServiceSpec extends BaseSpec {
         res.body must include("Mae‘r holl gynnwys ar gael o dan")
         res.body must include("Drwydded Llywodraeth Agored v3.0</a>, oni nodir yn wahanol")
         res.body must include("Hawlfraint y Goron")
-        res.body mustNot include("alpha")
-        res.body mustNot include("beta")
-        res.body mustNot include("Gwasanaeth newydd yw hwn – bydd eich")
+        res.body must include("<strong class=\"govuk-tag govuk-phase-banner__content__tag\">\n  alpha\n</strong>")
+        res.body mustNot include("<strong class=\"govuk-tag govuk-phase-banner__content__tag\">\n  beta\n</strong>")
+        res.body must include("Gwasanaeth newydd yw hwn – bydd eich <a class=\"govuk-link\" href=\"http://localhost:9250/contact/beta-feedback?service=single-customer-account-frontend&amp;backUrl=http%3A%2F%2Flocalhost%3A8420\">adborth</a> yn ein helpu i’w wella.")
         res.body must include("Rydych yn defnyddio’r gwasanaeth hwn ar gyfer <span class=\"govuk-!-font-weight-bold\">principalName</span>.")
         res.body must include("<a href=\"returnLinkUrl\" class=\"govuk-link pta-attorney-banner__link\">Yn ôl i’ch cyfrif</a>")
       }
@@ -146,7 +147,7 @@ class WrapperServiceSpec extends BaseSpec {
       val result = service.layout(
         content = Html(""),
         serviceNameKey = Some("test.test"),
-        scripts = scripts,
+        scripts = Seq(scripts),
         optTrustedHelper = None
       )
 

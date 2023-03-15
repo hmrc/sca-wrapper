@@ -16,13 +16,18 @@
 
 package uk.gov.hmrc.sca.controllers
 
+import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
 
-class KeepAliveController @Inject()(val controllerComponents: MessagesControllerComponents) extends FrontendBaseController {
+class KeepAliveController @Inject()(val controllerComponents: MessagesControllerComponents) extends FrontendBaseController with Logging {
 
-  def keepAlive: Action[AnyContent] = Action { implicit request => Ok}
+  def keepAlive: Action[AnyContent] = Action {
+    implicit request =>
+      logger.info(request.uri)
+      Ok
+  }
 
 }

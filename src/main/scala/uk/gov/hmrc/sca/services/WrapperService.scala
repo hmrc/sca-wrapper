@@ -19,7 +19,7 @@ package uk.gov.hmrc.sca.services
 import play.api.Logging
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
-import play.twirl.api.{Html, HtmlFormat}
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
@@ -75,7 +75,7 @@ class WrapperService @Inject()(
              showSignOutInHeader: Boolean = false,
              scripts: Seq[HtmlFormat.Appendable] = Seq.empty,
              styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
-             bannerConfig: BannerConfig= defaultBannerConfig,
+             bannerConfig: BannerConfig = defaultBannerConfig,
              optTrustedHelper: Option[TrustedHelper] = None
             )
             (implicit messages: Messages,
