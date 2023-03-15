@@ -179,7 +179,7 @@
         case Some(sidebarHtml) => twoThirdsOneThirdMainContent(sidebarHtml)
         case None =>
             if(fullWidth) {
-                twoThirdsMainContent(_)
+                fullWidthMainContent(_)
             } else {
                 twoThirdsMainContent(_)
             }
