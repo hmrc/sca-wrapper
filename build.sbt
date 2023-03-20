@@ -19,7 +19,7 @@ lazy val root = (project in file("."))
     isSnapshot := true,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.scala-lang"),
     dependencyUpdatesFilter -= moduleFilter(organization = "com.vladsch.flexmark"),
-    ScoverageKeys.coverageMinimumStmtTotal := 0,
+    ScoverageKeys.coverageMinimumStmtTotal := 50,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
     TwirlKeys.templateImports := templateImports,
