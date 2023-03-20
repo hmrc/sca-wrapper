@@ -12,7 +12,7 @@ lazy val root = (project in file("."))
     scalaVersion := "2.13.8",
     isPublicArtefact := true,
     //TODO tests to check SNAPSHOT is changed back
-    version := "1.0.14",
+    version := "1.0.15",
 //    version := "1.0.0-SNAPSHOT",
     //    publish / skip := true,
     name := "sca-wrapper",
@@ -87,13 +87,15 @@ val appDependencies = Seq(
 )
 
 val testDependencies = Seq(
-  "org.scalatest"           %% "scalatest"           % "3.2.15",
-  "com.typesafe.play"       %% "play-test"           % current,
-  "org.scalatestplus.play"  %% "scalatestplus-play"  % "4.0.3",
-  "org.scalatestplus"       %% "mockito-3-4"         % "3.2.10.0",
-  "org.mockito"             % "mockito-core"         % "3.12.4",
-  "org.scalacheck"          %% "scalacheck"          % "1.17.0",
-  "com.github.tomakehurst"  % "wiremock-standalone"  % "2.27.2",
-  "com.vladsch.flexmark"    % "flexmark-all"         % "0.62.2"
+  "uk.gov.hmrc"             %% s"bootstrap-test-$playVersion"     % "5.25.0",
+  "org.scalatest"           %% "scalatest"                        % "3.2.15",
+  "com.typesafe.play"       %% "play-test"                        % current,
+  "org.scalatestplus.play"  %% "scalatestplus-play"               % "4.0.3",
+  "org.scalatestplus"       %% "mockito-3-4"                      % "3.2.10.0",
+  "org.mockito"             % "mockito-core"                      % "3.12.4",
+  "org.scalacheck"          %% "scalacheck"                       % "1.17.0",
+  "com.github.tomakehurst"  % "wiremock-standalone"               % "2.27.2",
+  "com.vladsch.flexmark"    % "flexmark-all"                      % "0.62.2",
+
 ).map(_ % "test,it")
 
