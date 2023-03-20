@@ -132,20 +132,18 @@
 
     @contentBlock
 
-    <div class="govuk-!-margin-top-8">
-        <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
-        @hmrcReportTechnicalIssueHelper()
-        <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
-        @{
-            if(bannerConfig.showBetaBanner) {
-                govukPhaseBanner(betaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
-            } else {
-                if(bannerConfig.showAlphaBanner) {
-                    govukPhaseBanner(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
-                }
+    <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
+    @hmrcReportTechnicalIssueHelper()
+    <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
+    @{
+        if(bannerConfig.showBetaBanner) {
+            govukPhaseBanner(betaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
+        } else {
+            if(bannerConfig.showAlphaBanner) {
+                govukPhaseBanner(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
             }
         }
-    </div>
+    }
 }
 
 @hmrcLayout(
