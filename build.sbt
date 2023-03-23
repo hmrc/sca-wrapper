@@ -80,14 +80,13 @@ val appDependencies = Seq(
   "com.typesafe.play"           %% "play-json"                        % "2.9.4",
   "uk.gov.hmrc"                 %% "play-frontend-hmrc"               % s"6.2.0-$playVersion",
   "uk.gov.hmrc"                 %% s"bootstrap-frontend-$playVersion" % "7.13.0",
-  "uk.gov.hmrc"                 %% "play-language"                    % s"6.1.0-$playVersion",
   "uk.gov.hmrc"                 %% "play-partials"                    % s"8.4.0-$playVersion",
   "uk.gov.hmrc"                 %% "domain"                           % s"8.1.0-$playVersion",
   "uk.gov.hmrc"                 %% "play-frontend-pta"                % "0.4.0"
 )
 
 val testDependencies = Seq(
-  "uk.gov.hmrc"             %% s"bootstrap-test-$playVersion"     % "7.15.0",
+  "uk.gov.hmrc"             %% s"bootstrap-test-$playVersion"     % "7.13.0",
   "org.scalatest"           %% "scalatest"                        % "3.2.15",
   "com.typesafe.play"       %% "play-test"                        % current,
   "org.scalatestplus.play"  %% "scalatestplus-play"               % "5.1.0",
