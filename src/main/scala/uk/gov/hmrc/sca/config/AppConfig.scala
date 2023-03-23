@@ -45,8 +45,9 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
   private val accessibilityStatementReferrerUrl = configuration.get[String]("sca-wrapper.accessibility-statement.referrer.url")
   private val accessibilityStatementRedirectUrl = configuration.get[String]("sca-wrapper.accessibility-statement.redirect.url")
 
-  def accessibilityStatementUrl(accessibilityBaseUrl: String) =
-    s"$accessibilityBaseUrl/accessibility-statement/$accessibilityStatementRedirectUrl?referrerUrl=${SafeRedirectUrl(accessibilityBaseUrl + accessibilityStatementReferrerUrl).encodedUrl}"
+  def accessibilityStatementUrl(accessibilityBaseUrl: String): String =
+    s"$accessibilityBaseUrl/accessibility-statement/$accessibilityStatementRedirectUrl?referrerUrl=" +
+      s"${SafeRedirectUrl(accessibilityBaseUrl + accessibilityStatementReferrerUrl).encodedUrl}"
 
   val enc = URLEncoder.encode(_: String, "UTF-8")
   val exitSurveyOrigin: Option[String] = configuration.getOptional[String]("sca-wrapper.exit-survey-origin")
@@ -84,7 +85,8 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
 
   //fallback menu config in the event that wrapper data is offline
   private def fallbackMenuConfig(implicit lang: Lang): Seq[MenuItemConfig] = Seq(
-    MenuItemConfig(messages("sca-wrapper.fallback.menu.home"), s"$pertaxUrl", leftAligned = true, position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None),
+    MenuItemConfig(messages("sca-wrapper.fallback.menu.home"), s"$pertaxUrl", leftAligned = true,
+      position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None),
     MenuItemConfig(messages("sca-wrapper.fallback.menu.messages"), s"$pertaxUrl/messages", leftAligned = false, position = 0, None, None),
     MenuItemConfig(messages("sca-wrapper.fallback.menu.progress"), s"$trackingUrl/track", leftAligned = false, position = 1, None, None),
     MenuItemConfig(messages("sca-wrapper.fallback.menu.profile"), s"$pertaxUrl/profile-and-settings", leftAligned = false, position = 2, None, None),
