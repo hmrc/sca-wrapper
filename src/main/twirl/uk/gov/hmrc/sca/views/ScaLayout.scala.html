@@ -72,6 +72,7 @@
         styleSheets: Seq[HtmlFormat.Appendable],
         bannerConfig: BannerConfig,
         fullWidth: Boolean,
+        hideMenuBar: Boolean,
         optTrustedHelper: Option[TrustedHelper])(contentBlock: Html)(implicit request: Request[_], messages: Messages, hc: HeaderCarrier)
 
 @headBlock = {
@@ -97,7 +98,9 @@
 
 @beforeContent = {
     @defining(request.uri) { uri =>
-        @menu
+        @if(!hideMenuBar) {
+            @menu
+        }
     }
 
     @defining(appConfig.welshToggle) { welshEnabled =>
