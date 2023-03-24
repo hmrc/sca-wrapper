@@ -80,21 +80,20 @@ val appDependencies = Seq(
   "com.typesafe.play"           %% "play-json"                        % "2.9.4",
   "uk.gov.hmrc"                 %% "play-frontend-hmrc"               % s"6.2.0-$playVersion",
   "uk.gov.hmrc"                 %% s"bootstrap-frontend-$playVersion" % "7.13.0",
+  "uk.gov.hmrc"                 %% "play-language"                    % s"6.1.0-$playVersion",
   "uk.gov.hmrc"                 %% "play-partials"                    % s"8.4.0-$playVersion",
   "uk.gov.hmrc"                 %% "domain"                           % s"8.1.0-$playVersion",
   "uk.gov.hmrc"                 %% "play-frontend-pta"                % "0.4.0"
 )
 
 val testDependencies = Seq(
-  "uk.gov.hmrc"             %% s"bootstrap-test-$playVersion"     % "7.13.0",
-  "org.scalatest"           %% "scalatest"                        % "3.2.15",
-  "com.typesafe.play"       %% "play-test"                        % current,
-  "org.scalatestplus.play"  %% "scalatestplus-play"               % "5.1.0",
-  "org.scalatestplus"       %% "mockito-3-4"                      % "3.2.10.0",
-  "org.mockito"             %% "mockito-scala"                    % "1.17.14",
-  "org.scalacheck"          %% "scalacheck"                       % "1.17.0",
-  "com.github.tomakehurst"  % "wiremock-standalone"               % "2.27.2",
-  "com.vladsch.flexmark"    % "flexmark-all"                      % "0.62.2",
-
+  "org.scalatest"           %% "scalatest"           % "3.2.15",
+  "com.typesafe.play"       %% "play-test"           % current,
+  "org.scalatestplus.play"  %% "scalatestplus-play"  % "5.1.0",
+  "org.scalatestplus"       %% "mockito-3-4"         % "3.2.10.0",
+  "org.mockito"             % "mockito-core"         % "3.12.4",
+  "org.scalacheck"          %% "scalacheck"          % "1.17.0",
+  "com.github.tomakehurst"  % "wiremock-standalone"  % "2.27.2",
+  "com.vladsch.flexmark"    % "flexmark-all"         % "0.62.2"
 ).map(_ % "test,it")
 
