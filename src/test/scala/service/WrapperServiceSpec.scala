@@ -157,5 +157,22 @@ class WrapperServiceSpec extends BaseSpec {
       }
     }
 
+    "Don't show the Menu options if hideMenuBar option is true" in {
+      implicit val lang: Lang = Lang("en")
+      when(connector.wrapperData(any())(any(), any(), any())).thenReturn(Future.successful(appConfig.fallbackWrapperDataResponse))
+
+      val result = service.layout(
+        content = Html(""),
+        serviceNameKey = Some("test.test"),
+        scripts = Seq(scripts),
+        hideMenuBar = true,
+        optTrustedHelper = None
+      )
+
+      whenReady(result) { res =>
+        res.body mustNot include("Account home")
+      }
+    }
+
   }
 }

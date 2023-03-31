@@ -76,7 +76,8 @@ class WrapperService @Inject()(
              styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
              bannerConfig: BannerConfig = defaultBannerConfig,
              optTrustedHelper: Option[TrustedHelper] = None,
-             fullWidth: Boolean = false
+             fullWidth: Boolean = false,
+             hideMenuBar: Boolean = false
             )
             (implicit messages: Messages,
              hc: HeaderCarrier,
@@ -99,7 +100,8 @@ class WrapperService @Inject()(
         wrapperDataResponse = wrapperDataResponse,
         optTrustedHelper = optTrustedHelper,
         bannerConfig = bannerConfig,
-        fullWidth = fullWidth
+        fullWidth = fullWidth,
+        hideMenuBar = hideMenuBar
       )(content)
     }
   }
