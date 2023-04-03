@@ -32,6 +32,7 @@ import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 class WrapperService @Inject()(
                                 val controllerComponents: MessagesControllerComponents,
@@ -42,16 +43,23 @@ class WrapperService @Inject()(
                               (implicit ec: ExecutionContext) extends FrontendBaseController with Logging {
 
   private def sortMenuItemConfig(wrapperDataResponse: WrapperDataResponse): PtaMenuConfig = {
-    val setSignout = setSigoutUrl(wrapperDataResponse.menuItemConfig)
+    val setSignout = setSignoutUrl(wrapperDataResponse.menuItemConfig)
     PtaMenuConfig(
       leftAlignedItems = setSignout.filter(_.leftAligned).sortBy(_.position),
       rightAlignedItems = setSignout.filterNot(_.leftAligned).sortBy(_.position),
       ptaMinMenuConfig = wrapperDataResponse.ptaMinMenuConfig)
   }
 
-  private def setSigoutUrl(menuItemConfig: Seq[MenuItemConfig]) = {
-    menuItemConfig.find(_.signout).fold(menuItemConfig) { signout =>
-      menuItemConfig.updated(menuItemConfig.indexWhere(_.signout), signout.copy(href = appConfig.signoutUrl))
+  private def setSignoutUrl(menuItemConfig: Seq[MenuItemConfig]) = {
+    Try {
+      menuItemConfig.find(_.signout).fold(menuItemConfig) { signout =>
+        menuItemConfig.updated(menuItemConfig.indexWhere(_.signout), signout.copy(href = appConfig.signoutUrl))
+      }
+    } match {
+      case Success(config) => config
+      case Failure(exception) =>
+        logger.error(s"[SCA Wrapper Library][WrapperService][setSignoutUrl] Set signout url exception: ${exception.getMessage}")
+        menuItemConfig
     }
   }
 
@@ -82,6 +90,8 @@ class WrapperService @Inject()(
             (implicit messages: Messages,
              hc: HeaderCarrier,
              request: Request[AnyContent]): Future[HtmlFormat.Appendable] = {
+
+    logger.info("[SCA Wrapper Library][WrapperService][layout] Wrapper request received")
 
     scaWrapperDataConnector.wrapperData(signoutUrl).map { wrapperDataResponse =>
       scaLayout(
