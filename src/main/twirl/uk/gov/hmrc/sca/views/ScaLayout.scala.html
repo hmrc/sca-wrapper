@@ -91,7 +91,6 @@
 }
 
 @additionalScripts = {
-<script type="text/javascript" src='@controllers.routes.Assets.versioned("javascripts/app.js")'></script>
     @scripts
     @ptaScripts()
 }
@@ -104,11 +103,7 @@
     }
 
     @defining(appConfig.welshToggle) { welshEnabled =>
-        @if(!(showBackLinkJS && backLinkUrl.isDefined) ) {
-            @if(welshEnabled) {
-            @hmrcLanguageSelectHelper()
-            }
-        } else {
+        @if((showBackLinkJS || backLinkUrl.isDefined) ) {
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-one-half">
                     @backLink(backLinkUrl, showBackLinkJS)
@@ -119,6 +114,10 @@
                     }
                 </div>
             </div>
+        } else {
+            @if(welshEnabled) {
+                @hmrcLanguageSelectHelper()
+            }
         }
     }
 
