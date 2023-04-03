@@ -32,10 +32,11 @@ class ScaWrapperDataConnector @Inject()(http: HttpClient, appConfig: AppConfig) 
   def wrapperData(signoutUrl: String)(implicit ec: ExecutionContext, hc: HeaderCarrier,
                                       request: Request[AnyContent]): Future[WrapperDataResponse] = {
     val lang = request.cookies.get("PLAY_LANG").map(_.value).getOrElse("en")
+    logger.info(s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperData] Requesting menu config from Wrapper Data- lang: $lang")
     http.POST[WrapperDataRequest, WrapperDataResponse](s"${appConfig.scaWrapperDataUrl}/wrapper-data",
       WrapperDataRequest(appConfig.versionNum, lang, signoutUrl)).recover {
       case ex: Exception =>
-        logger.error("FALLBACK!!!!!!!")
+        logger.error(s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperData] Exception while calling Wrapper Data: ${ex.getMessage}")
         appConfig.fallbackWrapperDataResponse(Lang(lang))
     }
   }

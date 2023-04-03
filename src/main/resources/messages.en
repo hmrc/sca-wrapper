@@ -2,6 +2,7 @@ sca-wrapper.timeout.title = You’re about to be signed out
 sca-wrapper.timeout.message = For security reasons, you will be signed out of this service in
 sca-wrapper.timeout.keepAlive = Stay signed in
 sca-wrapper.timeout.signOut = Sign out
+label.back = Back
 
 sca-wrapper.fallback.menu.home = Account home
 sca-wrapper.fallback.menu.messages = Messages

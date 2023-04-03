@@ -18,29 +18,17 @@
 
 @(href: Option[String] = Some("#"), showBackLinkJS: Boolean = true, attrs: Map[String, String] = Map.empty)(implicit messages: Messages)
 
-<script>
-    const backlink = document.getElementById('back-link');
-        if(backlink != null && backlink != 'undefined' ) {
-            backlink.addEventListener('click', function (e) {
-              e.preventDefault();
-              if (
-                window.history &&
-                window.history.back &&
-                typeof window.history.back === 'function' &&
-                docReferrer !== '' &&
-                docReferrer.indexOf(window.location.host) !== -1
-              ) {
-                window.history.back();
-              }
-            });
-        }
-</script>
+
 
 @attrValues = @{
   attrs.map{
     case(key, value) => key + "=" + value
   }
 }
-    <a @if(showBackLinkJS){id="back-link"} href="@href" class="govuk-back-link print-hidden">@messages("label.back")</a>
+@if(showBackLinkJS){
+    <a id="back-link" href="javascript:history.back()" class="govuk-back-link print-hidden">@messages("label.back")</a>
 
+}else{
+    <a href="@href" class="govuk-back-link print-hidden" >@messages("label.back")</a>
+}
 
