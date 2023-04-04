@@ -47,6 +47,7 @@ class WrapperServiceSpec extends BaseSpec {
         content = Html(""),
         serviceNameKey = Some("test.test"),
         scripts = Seq(scripts),
+        showBackLinkJS = true,
         optTrustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", "principalNino"))
       )
 
@@ -166,11 +167,13 @@ class WrapperServiceSpec extends BaseSpec {
         serviceNameKey = Some("test.test"),
         scripts = Seq(scripts),
         hideMenuBar = true,
+        backLinkUrl = Some("#"),
         optTrustedHelper = None
       )
 
       whenReady(result) { res =>
         res.body mustNot include("Account home")
+        res.body must include("Back")
       }
     }
 
