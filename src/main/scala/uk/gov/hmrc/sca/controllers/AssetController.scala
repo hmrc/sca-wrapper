@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,23 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this()
+package uk.gov.hmrc.sca.controllers
 
-@(href: Option[String] = None, showBackLinkJS: Boolean = true, attrs: Map[String, String] = Map.empty)(implicit messages: Messages)
+import controllers.{AssetsBuilder, AssetsMetadata}
+import javax.inject.{Inject, Singleton}
+import play.api.http.HttpErrorHandler
 
-
-
-@attrValues = @{
-  attrs.map{
-    case(key, value) => key + "=" + value
-  }
-}
-@if(showBackLinkJS){
-    <a id="back-link" href="javascript:history.back()" class="govuk-back-link print-hidden">@messages("label.back")</a>
-
-}else{
-    <a href="@href" class="govuk-back-link print-hidden" >@messages("label.back")</a>
-}
-
+/*
+ * Without this we get
+ * [RuntimeException: java.lang.NoSuchMethodError: controllers.ReverseAssets.versioned(Ljava/lang/String;)Lplay/api/mvc/Call;]
+ * when using Assets.
+ */
+@Singleton
+class Assets @Inject() (errorHandler: HttpErrorHandler, meta: AssetsMetadata) extends AssetsBuilder(errorHandler, meta)

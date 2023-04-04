@@ -2,6 +2,7 @@ sca-wrapper.timeout.title = Rydych ar fin cael eich allgofnodi
 sca-wrapper.timeout.message = Am resymau diogelwch, byddwch yn cael eich allgofnodi ymhen
 sca-wrapper.timeout.keepAlive = Parhau i fod wedi’ch mewngofnodi
 sca-wrapper.timeout.signOut = Allgofnodi nawr
+label.back = Yn ôl
 
 sca-wrapper.fallback.menu.home = Hafan y cyfrif
 sca-wrapper.fallback.menu.messages = Negeseuon
