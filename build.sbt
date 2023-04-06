@@ -46,7 +46,7 @@ lazy val itSettings = Defaults.itSettings ++ Seq(
   unmanagedSourceDirectories := Seq(
     baseDirectory.value / "it"
   ),
-  parallelExecution := false,
+  parallelExecution := true,
   fork := true
 )
 
