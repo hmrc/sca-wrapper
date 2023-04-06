@@ -105,7 +105,6 @@ class WrapperService @Inject()(
         showSignOutInHeader = showSignOutInHeader,
         scripts = scripts,
         styleSheets = styleSheets,
-        wrapperDataResponse = wrapperDataResponse,
         optTrustedHelper = optTrustedHelper,
         bannerConfig = bannerConfig,
         fullWidth = fullWidth,

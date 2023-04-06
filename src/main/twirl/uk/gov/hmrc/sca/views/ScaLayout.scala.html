@@ -20,10 +20,8 @@
 @import uk.gov.hmrc.ptafrontend.viewmodels.attorneybanner.AttorneyBanner
 @import uk.gov.hmrc.ptafrontend.views.html._
 @import uk.gov.hmrc.sca.config.AppConfig
-@import uk.gov.hmrc.sca.models.WrapperDataResponse
 @import uk.gov.hmrc.sca.views.html.{ChildBenefitBanner, PtaHomeBanner}
 @import uk.gov.hmrc.sca.views.html.components.backLink
-@import views.html.helper.CSPNonce
 @import uk.gov.hmrc.sca.models.BannerConfig
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
 
@@ -57,7 +55,6 @@
 )
 
 @(menu: HtmlFormat.Appendable,
-        wrapperDataResponse: WrapperDataResponse,
         serviceNameKey: Option[String],
         serviceNameUrl: Option[String],
         pageTitle: Option[String],
