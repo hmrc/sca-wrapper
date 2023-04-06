@@ -69,13 +69,14 @@
         bannerConfig: BannerConfig,
         fullWidth: Boolean,
         hideMenuBar: Boolean,
+        disableSessionExpired: Boolean,
         optTrustedHelper: Option[TrustedHelper])(contentBlock: Html)(implicit request: Request[_], messages: Messages, hc: HeaderCarrier)
 
 @headBlock = {
 
     @styleSheets
 
-    @if(!appConfig.disableSessionExpired) {
+    @if(!disableSessionExpired) {
         @hmrcTimeoutDialogHelper(
             timeout = Some(appConfig.timeout),
             countdown = Some(appConfig.countdown),

@@ -42,27 +42,6 @@ class WrapperService @Inject()(
                                 appConfig: AppConfig)
                               (implicit ec: ExecutionContext) extends FrontendBaseController with Logging {
 
-  private def sortMenuItemConfig(wrapperDataResponse: WrapperDataResponse): PtaMenuConfig = {
-    val setSignout = setSignoutUrl(wrapperDataResponse.menuItemConfig)
-    PtaMenuConfig(
-      leftAlignedItems = setSignout.filter(_.leftAligned).sortBy(_.position),
-      rightAlignedItems = setSignout.filterNot(_.leftAligned).sortBy(_.position),
-      ptaMinMenuConfig = wrapperDataResponse.ptaMinMenuConfig)
-  }
-
-  private def setSignoutUrl(menuItemConfig: Seq[MenuItemConfig]) = {
-    Try {
-      menuItemConfig.find(_.signout).fold(menuItemConfig) { signout =>
-        menuItemConfig.updated(menuItemConfig.indexWhere(_.signout), signout.copy(href = appConfig.signoutUrl))
-      }
-    } match {
-      case Success(config) => config
-      case Failure(exception) =>
-        logger.error(s"[SCA Wrapper Library][WrapperService][setSignoutUrl] Set signout url exception: ${exception.getMessage}")
-        menuItemConfig
-    }
-  }
-
   val defaultBannerConfig: BannerConfig = BannerConfig(
     showChildBenefitBanner = appConfig.showChildBenefitBanner,
     showAlphaBanner = appConfig.showAlphaBanner,
@@ -84,7 +63,8 @@ class WrapperService @Inject()(
              bannerConfig: BannerConfig = defaultBannerConfig,
              optTrustedHelper: Option[TrustedHelper] = None,
              fullWidth: Boolean = false,
-             hideMenuBar: Boolean = false
+             hideMenuBar: Boolean = false,
+             disableSessionExpired: Boolean = appConfig.disableSessionExpired
             )
             (implicit messages: Messages,
              hc: HeaderCarrier,
@@ -94,10 +74,10 @@ class WrapperService @Inject()(
 
     scaWrapperDataConnector.wrapperData(signoutUrl).map { wrapperDataResponse =>
       scaLayout(
-        pageTitle = pageTitle,
+        menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse)),
         serviceNameKey = serviceNameKey,
         serviceNameUrl = serviceNameUrl,
-        menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse)),
+        pageTitle = pageTitle,
         signoutUrl = signoutUrl,
         keepAliveUrl = keepAliveUrl,
         showBackLinkJS = showBackLinkJS,
@@ -105,10 +85,11 @@ class WrapperService @Inject()(
         showSignOutInHeader = showSignOutInHeader,
         scripts = scripts,
         styleSheets = styleSheets,
-        optTrustedHelper = optTrustedHelper,
         bannerConfig = bannerConfig,
         fullWidth = fullWidth,
-        hideMenuBar = hideMenuBar
+        hideMenuBar = hideMenuBar,
+        disableSessionExpired = disableSessionExpired,
+        optTrustedHelper = optTrustedHelper
       )(content)
     }
   }
@@ -118,5 +99,24 @@ class WrapperService @Inject()(
     case _ => appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
   }
 
-  final val keepAliveUrl: String = appConfig.keepAliveUrl
+  private def sortMenuItemConfig(wrapperDataResponse: WrapperDataResponse): PtaMenuConfig = {
+    val setSignout = setSignoutUrl(wrapperDataResponse.menuItemConfig)
+    PtaMenuConfig(
+      leftAlignedItems = setSignout.filter(_.leftAligned).sortBy(_.position),
+      rightAlignedItems = setSignout.filterNot(_.leftAligned).sortBy(_.position),
+      ptaMinMenuConfig = wrapperDataResponse.ptaMinMenuConfig)
+  }
+
+  private def setSignoutUrl(menuItemConfig: Seq[MenuItemConfig]) = {
+    Try {
+      menuItemConfig.find(_.signout).fold(menuItemConfig) { signout =>
+        menuItemConfig.updated(menuItemConfig.indexWhere(_.signout), signout.copy(href = appConfig.signoutUrl))
+      }
+    } match {
+      case Success(config) => config
+      case Failure(exception) =>
+        logger.error(s"[SCA Wrapper Library][WrapperService][setSignoutUrl] Set signout url exception: ${exception.getMessage}")
+        menuItemConfig
+    }
+  }
 }

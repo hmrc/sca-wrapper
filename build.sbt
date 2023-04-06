@@ -13,7 +13,7 @@ lazy val root = (project in file("."))
     isPublicArtefact := true,
     //TODO tests to check SNAPSHOT is changed back
 
-    version := "1.0.22",
+    version := "1.0.23",
     //version := "1.0.0-SNAPSHOT",
     //    publish / skip := true,
     name := "sca-wrapper",
