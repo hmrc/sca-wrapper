@@ -13,8 +13,8 @@ lazy val root = (project in file("."))
     isPublicArtefact := true,
     //TODO tests to check SNAPSHOT is changed back
 
-    version := "1.0.20",
-//    version := "1.0.0-SNAPSHOT",
+    version := "1.0.21",
+    //version := "1.0.0-SNAPSHOT",
     //    publish / skip := true,
     name := "sca-wrapper",
     isSnapshot := true,
@@ -79,11 +79,11 @@ val playVersion = "play-28"
 
 val appDependencies = Seq(
   "com.typesafe.play"           %% "play-json"                        % "2.9.4",
-  "uk.gov.hmrc"                 %% "play-frontend-hmrc"               % s"6.2.0-$playVersion",
-  "uk.gov.hmrc"                 %% s"bootstrap-frontend-$playVersion" % "7.13.0",
+  "uk.gov.hmrc"                 %% "play-frontend-hmrc"               % s"7.3.0-$playVersion",
+  "uk.gov.hmrc"                 %% s"bootstrap-frontend-$playVersion" % "7.15.0",
   "uk.gov.hmrc"                 %% "play-language"                    % s"6.1.0-$playVersion",
   "uk.gov.hmrc"                 %% "play-partials"                    % s"8.4.0-$playVersion",
-  "uk.gov.hmrc"                 %% "domain"                           % s"8.1.0-$playVersion",
+  "uk.gov.hmrc"                 %% "domain"                           % s"8.2.0-$playVersion",
   "uk.gov.hmrc"                 %% "play-frontend-pta"                % "0.4.0"
 )
 
