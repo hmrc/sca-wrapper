@@ -148,11 +148,11 @@
     }
 }
 
+
 @hmrcLayout(
     pageTitle = pageTitle,
     serviceName = serviceNameKey.map(messages(_)),
     serviceUrl = serviceNameUrl,
-    nonce = CSPNonce.get,
     isWelshTranslationAvailable = true,
     accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(appConfig.accessibilityStatementUrl)),
     displayHmrcBanner = false,
