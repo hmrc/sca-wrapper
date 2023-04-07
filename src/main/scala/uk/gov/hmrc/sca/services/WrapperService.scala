@@ -18,13 +18,12 @@ package uk.gov.hmrc.sca.services
 
 import play.api.Logging
 import play.api.i18n.Messages
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
-import play.twirl.api.HtmlFormat
+import play.api.mvc.{AnyContent, Request}
+import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMenuConfig, WrapperDataResponse}
@@ -34,15 +33,13 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class WrapperService @Inject()(
-                                val controllerComponents: MessagesControllerComponents,
-                                ptaMenuBar: PtaMenuBar,
-                                scaLayout: ScaLayout,
-                                scaWrapperDataConnector: ScaWrapperDataConnector,
-                                appConfig: AppConfig)
-                              (implicit ec: ExecutionContext) extends FrontendBaseController with Logging {
+class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
+                               scaLayout: ScaLayout,
+                               scaWrapperDataConnector: ScaWrapperDataConnector,
+                               appConfig: AppConfig)
+                              (implicit ec: ExecutionContext) extends Logging {
 
-  val defaultBannerConfig: BannerConfig = BannerConfig(
+  lazy val defaultBannerConfig: BannerConfig = BannerConfig(
     showChildBenefitBanner = appConfig.showChildBenefitBanner,
     showAlphaBanner = appConfig.showAlphaBanner,
     showBetaBanner = appConfig.showBetaBanner,
@@ -53,6 +50,7 @@ class WrapperService @Inject()(
              pageTitle: Option[String] = None,
              serviceNameKey: Option[String] = appConfig.serviceNameKey,
              serviceNameUrl: Option[String] = None,
+             sidebarContent: Option[Html] = None,
              signoutUrl: String = appConfig.signoutUrl,
              keepAliveUrl: String = appConfig.keepAliveUrl,
              showBackLinkJS: Boolean = false,
@@ -78,6 +76,7 @@ class WrapperService @Inject()(
         serviceNameKey = serviceNameKey,
         serviceNameUrl = serviceNameUrl,
         pageTitle = pageTitle,
+        sidebarContent = sidebarContent,
         signoutUrl = signoutUrl,
         keepAliveUrl = keepAliveUrl,
         showBackLinkJS = showBackLinkJS,
