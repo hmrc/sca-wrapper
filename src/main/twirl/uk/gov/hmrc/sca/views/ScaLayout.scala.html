@@ -101,7 +101,7 @@
     }
 
     @defining(appConfig.welshToggle) { welshEnabled =>
-        @if((showBackLinkJS || backLinkUrl.isDefined) ) {
+        @if(showBackLinkJS || backLinkUrl.isDefined ) {
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-one-half">
                     @backLink(backLinkUrl, showBackLinkJS)
