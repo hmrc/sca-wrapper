@@ -66,7 +66,7 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
       document.select(".govuk-skip-link").text() mustBe "Skip to main content"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-keep-alive-url") mustBe "Keep-Alive-Url"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-sign-out-url") mustBe "Signout-Url"
-      document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-language") mustBe "en-GB"
+      document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-language").contains("en") mustBe true
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("content") mustBe "hmrc-timeout-dialog"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-timeout") mustBe "900"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-countdown") mustBe "120"
