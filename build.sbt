@@ -13,14 +13,14 @@ lazy val root = (project in file("."))
     isPublicArtefact := true,
     //TODO tests to check SNAPSHOT is changed back
 
-    version := "1.0.22",
+    version := "1.0.23",
     //version := "1.0.0-SNAPSHOT",
     //    publish / skip := true,
     name := "sca-wrapper",
     isSnapshot := true,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.scala-lang"),
     dependencyUpdatesFilter -= moduleFilter(organization = "com.vladsch.flexmark"),
-    ScoverageKeys.coverageMinimumStmtTotal := 50,
+    ScoverageKeys.coverageMinimumStmtTotal := 70,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
     TwirlKeys.templateImports := templateImports,
@@ -46,7 +46,7 @@ lazy val itSettings = Defaults.itSettings ++ Seq(
   unmanagedSourceDirectories := Seq(
     baseDirectory.value / "it"
   ),
-  parallelExecution := false,
+  parallelExecution := true,
   fork := true
 )
 

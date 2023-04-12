@@ -58,7 +58,7 @@
         serviceNameKey: Option[String],
         serviceNameUrl: Option[String],
         pageTitle: Option[String],
-        sidebarContent: Option[Html] = None,
+        sidebarContent: Option[Html],
         signoutUrl: String,
         keepAliveUrl: String,
         showBackLinkJS: Boolean,
@@ -69,13 +69,14 @@
         bannerConfig: BannerConfig,
         fullWidth: Boolean,
         hideMenuBar: Boolean,
+        disableSessionExpired: Boolean,
         optTrustedHelper: Option[TrustedHelper])(contentBlock: Html)(implicit request: Request[_], messages: Messages, hc: HeaderCarrier)
 
 @headBlock = {
 
     @styleSheets
 
-    @if(!appConfig.disableSessionExpired) {
+    @if(!disableSessionExpired) {
         @hmrcTimeoutDialogHelper(
             timeout = Some(appConfig.timeout),
             countdown = Some(appConfig.countdown),
@@ -100,7 +101,7 @@
     }
 
     @defining(appConfig.welshToggle) { welshEnabled =>
-        @if((showBackLinkJS || backLinkUrl.isDefined) ) {
+        @if(showBackLinkJS || backLinkUrl.isDefined ) {
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-one-half">
                     @backLink(backLinkUrl, showBackLinkJS)
