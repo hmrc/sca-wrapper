@@ -60,7 +60,7 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
              styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
              bannerConfig: BannerConfig = defaultBannerConfig,
              optTrustedHelper: Option[TrustedHelper] = None,
-             fullWidth: Boolean = false,
+             fullWidth: Boolean = true,
              hideMenuBar: Boolean = false,
              disableSessionExpired: Boolean = appConfig.disableSessionExpired
             )
