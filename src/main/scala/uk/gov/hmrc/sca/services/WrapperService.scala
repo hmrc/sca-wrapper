@@ -18,13 +18,12 @@ package uk.gov.hmrc.sca.services
 
 import play.api.Logging
 import play.api.i18n.Messages
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
-import play.twirl.api.HtmlFormat
+import play.api.mvc.{AnyContent, Request}
+import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMenuConfig, WrapperDataResponse}
@@ -34,13 +33,70 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class WrapperService @Inject()(
-                                val controllerComponents: MessagesControllerComponents,
-                                ptaMenuBar: PtaMenuBar,
-                                scaLayout: ScaLayout,
-                                scaWrapperDataConnector: ScaWrapperDataConnector,
-                                appConfig: AppConfig)
-                              (implicit ec: ExecutionContext) extends FrontendBaseController with Logging {
+class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
+                               scaLayout: ScaLayout,
+                               scaWrapperDataConnector: ScaWrapperDataConnector,
+                               appConfig: AppConfig)
+                              (implicit ec: ExecutionContext) extends Logging {
+
+  lazy val defaultBannerConfig: BannerConfig = BannerConfig(
+    showChildBenefitBanner = appConfig.showChildBenefitBanner,
+    showAlphaBanner = appConfig.showAlphaBanner,
+    showBetaBanner = appConfig.showBetaBanner,
+    showHelpImproveBanner = appConfig.showHelpImproveBanner
+  )
+
+  def layout(content: HtmlFormat.Appendable,
+             pageTitle: Option[String] = None,
+             serviceNameKey: Option[String] = appConfig.serviceNameKey,
+             serviceNameUrl: Option[String] = None,
+             sidebarContent: Option[Html] = None,
+             signoutUrl: String = appConfig.signoutUrl,
+             keepAliveUrl: String = appConfig.keepAliveUrl,
+             showBackLinkJS: Boolean = false,
+             backLinkUrl: Option[String] = None,
+             showSignOutInHeader: Boolean = false,
+             scripts: Seq[HtmlFormat.Appendable] = Seq.empty,
+             styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
+             bannerConfig: BannerConfig = defaultBannerConfig,
+             optTrustedHelper: Option[TrustedHelper] = None,
+             fullWidth: Boolean = true,
+             hideMenuBar: Boolean = false,
+             disableSessionExpired: Boolean = appConfig.disableSessionExpired
+            )
+            (implicit messages: Messages,
+             hc: HeaderCarrier,
+             request: Request[AnyContent]): Future[HtmlFormat.Appendable] = {
+
+    logger.info("[SCA Wrapper Library][WrapperService][layout] Wrapper request received")
+
+    scaWrapperDataConnector.wrapperData(signoutUrl).map { wrapperDataResponse =>
+      scaLayout(
+        menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse)),
+        serviceNameKey = serviceNameKey,
+        serviceNameUrl = serviceNameUrl,
+        pageTitle = pageTitle,
+        sidebarContent = sidebarContent,
+        signoutUrl = signoutUrl,
+        keepAliveUrl = keepAliveUrl,
+        showBackLinkJS = showBackLinkJS,
+        backLinkUrl = backLinkUrl,
+        showSignOutInHeader = showSignOutInHeader,
+        scripts = scripts,
+        styleSheets = styleSheets,
+        bannerConfig = bannerConfig,
+        fullWidth = fullWidth,
+        hideMenuBar = hideMenuBar,
+        disableSessionExpired = disableSessionExpired,
+        optTrustedHelper = optTrustedHelper
+      )(content)
+    }
+  }
+
+  def safeSignoutUrl(continueUrl: Option[RedirectUrl] = None): Option[String] = continueUrl match {
+    case Some(continue) if continue.getEither(OnlyRelative).isRight => Some(continue.getEither(OnlyRelative).toOption.get.url)
+    case _ => appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
+  }
 
   private def sortMenuItemConfig(wrapperDataResponse: WrapperDataResponse): PtaMenuConfig = {
     val setSignout = setSignoutUrl(wrapperDataResponse.menuItemConfig)
@@ -62,61 +118,4 @@ class WrapperService @Inject()(
         menuItemConfig
     }
   }
-
-  val defaultBannerConfig: BannerConfig = BannerConfig(
-    showChildBenefitBanner = appConfig.showChildBenefitBanner,
-    showAlphaBanner = appConfig.showAlphaBanner,
-    showBetaBanner = appConfig.showBetaBanner,
-    showHelpImproveBanner = appConfig.showHelpImproveBanner
-  )
-
-  def layout(content: HtmlFormat.Appendable,
-             pageTitle: Option[String] = None,
-             serviceNameKey: Option[String] = appConfig.serviceNameKey,
-             serviceNameUrl: Option[String] = None,
-             signoutUrl: String = appConfig.signoutUrl,
-             keepAliveUrl: String = appConfig.keepAliveUrl,
-             showBackLinkJS: Boolean = false,
-             backLinkUrl: Option[String] = None,
-             showSignOutInHeader: Boolean = false,
-             scripts: Seq[HtmlFormat.Appendable] = Seq.empty,
-             styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
-             bannerConfig: BannerConfig = defaultBannerConfig,
-             optTrustedHelper: Option[TrustedHelper] = None,
-             fullWidth: Boolean = true,
-             hideMenuBar: Boolean = false
-            )
-            (implicit messages: Messages,
-             hc: HeaderCarrier,
-             request: Request[AnyContent]): Future[HtmlFormat.Appendable] = {
-
-    logger.info("[SCA Wrapper Library][WrapperService][layout] Wrapper request received")
-
-    scaWrapperDataConnector.wrapperData(signoutUrl).map { wrapperDataResponse =>
-      scaLayout(
-        pageTitle = pageTitle,
-        serviceNameKey = serviceNameKey,
-        serviceNameUrl = serviceNameUrl,
-        menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse)),
-        signoutUrl = signoutUrl,
-        keepAliveUrl = keepAliveUrl,
-        showBackLinkJS = showBackLinkJS,
-        backLinkUrl = backLinkUrl,
-        showSignOutInHeader = showSignOutInHeader,
-        scripts = scripts,
-        styleSheets = styleSheets,
-        optTrustedHelper = optTrustedHelper,
-        bannerConfig = bannerConfig,
-        fullWidth = fullWidth,
-        hideMenuBar = hideMenuBar
-      )(content)
-    }
-  }
-
-  def safeSignoutUrl(continueUrl: Option[RedirectUrl] = None): Option[String] = continueUrl match {
-    case Some(continue) if continue.getEither(OnlyRelative).isRight => Some(continue.getEither(OnlyRelative).toOption.get.url)
-    case _ => appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
-  }
-
-  final val keepAliveUrl: String = appConfig.keepAliveUrl
 }

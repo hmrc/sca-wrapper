@@ -30,7 +30,7 @@ import javax.inject.{Inject, Singleton}
 class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
 
   //library manual update, MAJOR.MINOR.PATCH
-  final val versionNum: String = "1.0.3" //TODO read from build.sbt
+  val versionNum: String = "1.0.3" //TODO read from build.sbt
 
   //config for service name in black bar
   val serviceNameKey: Option[String] = configuration.getOptional[String]("sca-wrapper.service-name.messages-key")
@@ -61,11 +61,11 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
   //signout links
   private val signoutBaseUrl: String = configuration.get[String]("sca-wrapper.signout.url")
   private val signoutBaseUrlAlt: Option[String] = configuration.getOptional[String]("sca-wrapper.signout.alternative-url")
-  final val signoutUrl: String = signoutBaseUrlAlt.getOrElse(signoutBaseUrl)
+  val signoutUrl: String = signoutBaseUrlAlt.getOrElse(signoutBaseUrl)
 
   //internal
-  final val serviceUrl: String = configuration.get[String]("sca-wrapper.service.url")
-  final val keepAliveUrl: String = routes.KeepAliveController.keepAlive.url
+  val serviceUrl: String = configuration.get[String]("sca-wrapper.service.url")
+  val keepAliveUrl: String = routes.KeepAliveController.keepAlive.url
 
   //service urls
   val pertaxUrl: String = s"${configuration.get[String]("sca-wrapper.services.pertax-frontend.url")}/personal-account"

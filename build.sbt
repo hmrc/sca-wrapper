@@ -20,7 +20,7 @@ lazy val root = (project in file("."))
     isSnapshot := true,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.scala-lang"),
     dependencyUpdatesFilter -= moduleFilter(organization = "com.vladsch.flexmark"),
-    ScoverageKeys.coverageMinimumStmtTotal := 50,
+    ScoverageKeys.coverageMinimumStmtTotal := 70,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
     TwirlKeys.templateImports := templateImports,
@@ -46,7 +46,7 @@ lazy val itSettings = Defaults.itSettings ++ Seq(
   unmanagedSourceDirectories := Seq(
     baseDirectory.value / "it"
   ),
-  parallelExecution := false,
+  parallelExecution := true,
   fork := true
 )
 
