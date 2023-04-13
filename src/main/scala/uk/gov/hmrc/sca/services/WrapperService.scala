@@ -46,31 +46,28 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
     showHelpImproveBanner = appConfig.showHelpImproveBanner
   )
 
-  def layout(content: HtmlFormat.Appendable,
-             pageTitle: Option[String] = None,
-             serviceNameKey: Option[String] = appConfig.serviceNameKey,
-             serviceNameUrl: Option[String] = None,
-             sidebarContent: Option[Html] = None,
-             signoutUrl: String = appConfig.signoutUrl,
-             keepAliveUrl: String = appConfig.keepAliveUrl,
-             showBackLinkJS: Boolean = false,
-             backLinkUrl: Option[String] = None,
-             showSignOutInHeader: Boolean = false,
-             scripts: Seq[HtmlFormat.Appendable] = Seq.empty,
-             styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
-             bannerConfig: BannerConfig = defaultBannerConfig,
-             optTrustedHelper: Option[TrustedHelper] = None,
-             fullWidth: Boolean = true,
-             hideMenuBar: Boolean = false,
-             disableSessionExpired: Boolean = appConfig.disableSessionExpired
+  def layoutWithData(wrapperDataResponse:WrapperDataResponse)(
+    content: HtmlFormat.Appendable,
+    pageTitle: Option[String] = None,
+    serviceNameKey: Option[String] = appConfig.serviceNameKey,
+    serviceNameUrl: Option[String] = None,
+    sidebarContent: Option[Html] = None,
+    signoutUrl: String = appConfig.signoutUrl,
+    keepAliveUrl: String = appConfig.keepAliveUrl,
+    showBackLinkJS: Boolean = false,
+    backLinkUrl: Option[String] = None,
+    showSignOutInHeader: Boolean = false,
+    scripts: Seq[HtmlFormat.Appendable] = Seq.empty,
+    styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
+    bannerConfig: BannerConfig = defaultBannerConfig,
+    optTrustedHelper: Option[TrustedHelper] = None,
+    fullWidth: Boolean = true,
+    hideMenuBar: Boolean = false,
+    disableSessionExpired: Boolean = appConfig.disableSessionExpired
             )
             (implicit messages: Messages,
              hc: HeaderCarrier,
-             request: Request[AnyContent]): Future[HtmlFormat.Appendable] = {
-
-    logger.info("[SCA Wrapper Library][WrapperService][layout] Wrapper request received")
-
-    scaWrapperDataConnector.wrapperData(signoutUrl).map { wrapperDataResponse =>
+             request: Request[_]): HtmlFormat.Appendable = {
       scaLayout(
         menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse)),
         serviceNameKey = serviceNameKey,
@@ -91,6 +88,51 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
         optTrustedHelper = optTrustedHelper
       )(content)
     }
+
+
+  def layout(content: HtmlFormat.Appendable,
+             pageTitle: Option[String] = None,
+             serviceNameKey: Option[String] = appConfig.serviceNameKey,
+             serviceNameUrl: Option[String] = None,
+             sidebarContent: Option[Html] = None,
+             signoutUrl: String = appConfig.signoutUrl,
+             keepAliveUrl: String = appConfig.keepAliveUrl,
+             showBackLinkJS: Boolean = false,
+             backLinkUrl: Option[String] = None,
+             showSignOutInHeader: Boolean = false,
+             scripts: Seq[HtmlFormat.Appendable] = Seq.empty,
+             styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
+             bannerConfig: BannerConfig = defaultBannerConfig,
+             optTrustedHelper: Option[TrustedHelper] = None,
+             fullWidth: Boolean = true,
+             hideMenuBar: Boolean = false,
+             disableSessionExpired: Boolean = appConfig.disableSessionExpired
+            )
+            (implicit messages: Messages,
+             hc: HeaderCarrier,
+             request: Request[_]): Future[HtmlFormat.Appendable] = {
+
+    logger.info("[SCA Wrapper Library][WrapperService][layout] Wrapper request received")
+
+    scaWrapperDataConnector.wrapperData(signoutUrl).map(layoutWithData).map(_.apply(
+      content,
+      pageTitle,
+      serviceNameKey,
+      serviceNameUrl,
+      sidebarContent,
+      signoutUrl,
+      keepAliveUrl,
+      showBackLinkJS,
+      backLinkUrl,
+      showSignOutInHeader,
+      scripts,
+      styleSheets,
+      bannerConfig,
+      optTrustedHelper,
+      fullWidth,
+      hideMenuBar,
+      disableSessionExpired
+    ))
   }
 
   def safeSignoutUrl(continueUrl: Option[RedirectUrl] = None): Option[String] = continueUrl match {
