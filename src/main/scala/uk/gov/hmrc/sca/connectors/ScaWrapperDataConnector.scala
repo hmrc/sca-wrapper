@@ -30,7 +30,7 @@ class ScaWrapperDataConnector @Inject()(http: HttpClient, appConfig: AppConfig) 
 
 
   def wrapperData(signoutUrl: String)(implicit ec: ExecutionContext, hc: HeaderCarrier,
-                                      request: Request[AnyContent]): Future[WrapperDataResponse] = {
+                                      request: Request[_]): Future[WrapperDataResponse] = {
     val lang = request.cookies.get("PLAY_LANG").map(_.value).getOrElse("en")
     logger.info(s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperData] Requesting menu config from Wrapper Data- lang: $lang")
     http.POST[WrapperDataRequest, WrapperDataResponse](s"${appConfig.scaWrapperDataUrl}/wrapper-data",

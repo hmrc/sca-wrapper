@@ -18,7 +18,7 @@ package uk.gov.hmrc.sca.services
 
 import play.api.Logging
 import play.api.i18n.Messages
-import play.api.mvc.{AnyContent, Request}
+import play.api.mvc.Request
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
@@ -46,6 +46,50 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
     showHelpImproveBanner = appConfig.showHelpImproveBanner
   )
 
+  def layoutWithData(wrapperDataResponse: WrapperDataResponse)(
+    content: HtmlFormat.Appendable,
+    pageTitle: Option[String] = None,
+    serviceNameKey: Option[String] = appConfig.serviceNameKey,
+    serviceNameUrl: Option[String] = None,
+    sidebarContent: Option[Html] = None,
+    signoutUrl: String = appConfig.signoutUrl,
+    keepAliveUrl: String = appConfig.keepAliveUrl,
+    showBackLinkJS: Boolean = false,
+    backLinkUrl: Option[String] = None,
+    showSignOutInHeader: Boolean = false,
+    scripts: Seq[HtmlFormat.Appendable] = Seq.empty,
+    styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
+    bannerConfig: BannerConfig = defaultBannerConfig,
+    optTrustedHelper: Option[TrustedHelper] = None,
+    fullWidth: Boolean = true,
+    hideMenuBar: Boolean = false,
+    disableSessionExpired: Boolean = appConfig.disableSessionExpired
+  )
+                    (implicit messages: Messages,
+                     hc: HeaderCarrier,
+                     request: Request[_]): HtmlFormat.Appendable = {
+    scaLayout(
+      menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse)),
+      serviceNameKey = serviceNameKey,
+      serviceNameUrl = serviceNameUrl,
+      pageTitle = pageTitle,
+      sidebarContent = sidebarContent,
+      signoutUrl = signoutUrl,
+      keepAliveUrl = keepAliveUrl,
+      showBackLinkJS = showBackLinkJS,
+      backLinkUrl = backLinkUrl,
+      showSignOutInHeader = showSignOutInHeader,
+      scripts = scripts,
+      styleSheets = styleSheets,
+      bannerConfig = bannerConfig,
+      fullWidth = fullWidth,
+      hideMenuBar = hideMenuBar,
+      disableSessionExpired = disableSessionExpired,
+      optTrustedHelper = optTrustedHelper
+    )(content)
+  }
+
+
   def layout(content: HtmlFormat.Appendable,
              pageTitle: Option[String] = None,
              serviceNameKey: Option[String] = appConfig.serviceNameKey,
@@ -66,31 +110,29 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
             )
             (implicit messages: Messages,
              hc: HeaderCarrier,
-             request: Request[AnyContent]): Future[HtmlFormat.Appendable] = {
+             request: Request[_]): Future[HtmlFormat.Appendable] = {
 
     logger.info("[SCA Wrapper Library][WrapperService][layout] Wrapper request received")
 
-    scaWrapperDataConnector.wrapperData(signoutUrl).map { wrapperDataResponse =>
-      scaLayout(
-        menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse)),
-        serviceNameKey = serviceNameKey,
-        serviceNameUrl = serviceNameUrl,
-        pageTitle = pageTitle,
-        sidebarContent = sidebarContent,
-        signoutUrl = signoutUrl,
-        keepAliveUrl = keepAliveUrl,
-        showBackLinkJS = showBackLinkJS,
-        backLinkUrl = backLinkUrl,
-        showSignOutInHeader = showSignOutInHeader,
-        scripts = scripts,
-        styleSheets = styleSheets,
-        bannerConfig = bannerConfig,
-        fullWidth = fullWidth,
-        hideMenuBar = hideMenuBar,
-        disableSessionExpired = disableSessionExpired,
-        optTrustedHelper = optTrustedHelper
-      )(content)
-    }
+    scaWrapperDataConnector.wrapperData(signoutUrl).map(layoutWithData).map(_.apply(
+      content,
+      pageTitle,
+      serviceNameKey,
+      serviceNameUrl,
+      sidebarContent,
+      signoutUrl,
+      keepAliveUrl,
+      showBackLinkJS,
+      backLinkUrl,
+      showSignOutInHeader,
+      scripts,
+      styleSheets,
+      bannerConfig,
+      optTrustedHelper,
+      fullWidth,
+      hideMenuBar,
+      disableSessionExpired
+    ))
   }
 
   def safeSignoutUrl(continueUrl: Option[RedirectUrl] = None): Option[String] = continueUrl match {
