@@ -18,7 +18,7 @@ package uk.gov.hmrc.sca.services
 
 import play.api.Logging
 import play.api.i18n.Messages
-import play.api.mvc.{AnyContent, Request}
+import play.api.mvc.Request
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
@@ -46,7 +46,7 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
     showHelpImproveBanner = appConfig.showHelpImproveBanner
   )
 
-  def layoutWithData(wrapperDataResponse:WrapperDataResponse)(
+  def layoutWithData(wrapperDataResponse: WrapperDataResponse)(
     content: HtmlFormat.Appendable,
     pageTitle: Option[String] = None,
     serviceNameKey: Option[String] = appConfig.serviceNameKey,
@@ -64,30 +64,30 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
     fullWidth: Boolean = true,
     hideMenuBar: Boolean = false,
     disableSessionExpired: Boolean = appConfig.disableSessionExpired
-            )
-            (implicit messages: Messages,
-             hc: HeaderCarrier,
-             request: Request[_]): HtmlFormat.Appendable = {
-      scaLayout(
-        menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse)),
-        serviceNameKey = serviceNameKey,
-        serviceNameUrl = serviceNameUrl,
-        pageTitle = pageTitle,
-        sidebarContent = sidebarContent,
-        signoutUrl = signoutUrl,
-        keepAliveUrl = keepAliveUrl,
-        showBackLinkJS = showBackLinkJS,
-        backLinkUrl = backLinkUrl,
-        showSignOutInHeader = showSignOutInHeader,
-        scripts = scripts,
-        styleSheets = styleSheets,
-        bannerConfig = bannerConfig,
-        fullWidth = fullWidth,
-        hideMenuBar = hideMenuBar,
-        disableSessionExpired = disableSessionExpired,
-        optTrustedHelper = optTrustedHelper
-      )(content)
-    }
+  )
+                    (implicit messages: Messages,
+                     hc: HeaderCarrier,
+                     request: Request[_]): HtmlFormat.Appendable = {
+    scaLayout(
+      menu = ptaMenuBar(sortMenuItemConfig(wrapperDataResponse)),
+      serviceNameKey = serviceNameKey,
+      serviceNameUrl = serviceNameUrl,
+      pageTitle = pageTitle,
+      sidebarContent = sidebarContent,
+      signoutUrl = signoutUrl,
+      keepAliveUrl = keepAliveUrl,
+      showBackLinkJS = showBackLinkJS,
+      backLinkUrl = backLinkUrl,
+      showSignOutInHeader = showSignOutInHeader,
+      scripts = scripts,
+      styleSheets = styleSheets,
+      bannerConfig = bannerConfig,
+      fullWidth = fullWidth,
+      hideMenuBar = hideMenuBar,
+      disableSessionExpired = disableSessionExpired,
+      optTrustedHelper = optTrustedHelper
+    )(content)
+  }
 
 
   def layout(content: HtmlFormat.Appendable,
