@@ -19,7 +19,7 @@ package uk.gov.hmrc.sca.connectors
 import com.google.inject.Inject
 import play.api.Logging
 import play.api.i18n.Lang
-import play.api.mvc.{AnyContent, Request}
+import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models.{WrapperDataRequest, WrapperDataResponse}
@@ -30,7 +30,7 @@ class ScaWrapperDataConnector @Inject()(http: HttpClient, appConfig: AppConfig) 
 
 
   def wrapperData(signoutUrl: String)(implicit ec: ExecutionContext, hc: HeaderCarrier,
-                                      request: Request[_]): Future[WrapperDataResponse] = {
+                                      request: RequestHeader): Future[WrapperDataResponse] = {
     val lang = request.cookies.get("PLAY_LANG").map(_.value).getOrElse("en")
     logger.info(s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperData] Requesting menu config from Wrapper Data- lang: $lang")
     http.POST[WrapperDataRequest, WrapperDataResponse](s"${appConfig.scaWrapperDataUrl}/wrapper-data",
