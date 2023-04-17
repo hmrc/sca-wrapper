@@ -18,9 +18,12 @@
 
 @this(hmrcNotificationBadge: HmrcNotificationBadge)
 
-@(accountMenuConfig: MenuItemConfig)
+@(accountMenuConfig: MenuItemConfig)(implicit request: Request[_])
 
-<a href="@accountMenuConfig.href" class="hmrc-account-menu__link hmrc-account-menu__link--home @if(1==2){ hmrc-account-menu__link--active}" id="menu.left.@accountMenuConfig.position">
+<a href="@accountMenuConfig.href"
+   class="hmrc-account-menu__link hmrc-account-menu__link--home
+   @if((accountMenuConfig.href.contains(request.uri.split('/').last)) || (!request.uri.contains("/messages") || !request.uri.contains("/track") ||
+   !request.uri.contains("/profile-and-settings"))){ hmrc-account-menu__link--active}" id="menu.left.@accountMenuConfig.position">
  @defining(accountMenuConfig.icon.getOrElse("")) { iconClass =>
  <span class="@iconClass">
  @accountMenuConfig.text
