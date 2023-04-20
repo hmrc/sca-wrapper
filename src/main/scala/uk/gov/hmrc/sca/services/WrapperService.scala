@@ -114,7 +114,7 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
 
     logger.info("[SCA Wrapper Library][WrapperService][layout] Wrapper request received")
 
-    scaWrapperDataConnector.wrapperData(signoutUrl).map(layoutWithData).map(_.apply(
+    scaWrapperDataConnector.wrapperData().map(layoutWithData).map(_.apply(
       content,
       pageTitle,
       serviceNameKey,

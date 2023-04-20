@@ -70,7 +70,7 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
     reset(mockScaWrapperDataConnector)
     reset(mockAppConfig)
 
-    when(mockScaWrapperDataConnector.wrapperData(any())(any(), any(), any()))
+    when(mockScaWrapperDataConnector.wrapperData()(any(), any(), any()))
       .thenReturn(Future.successful(WrapperDataResponse(Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5), ptaMenuConfig)))
 
   }
@@ -107,7 +107,7 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
         verify(mockAppConfig, times(1)).signoutUrl
         verify(mockAppConfig, times(1)).keepAliveUrl
         verify(mockAppConfig, times(1)).disableSessionExpired
-        verify(mockScaWrapperDataConnector, times(1)).wrapperData(anyString())(any(), any(), any())
+        verify(mockScaWrapperDataConnector, times(1)).wrapperData()(any(), any(), any())
 
         menuCaptor.getValue mustBe menu
         serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
@@ -172,7 +172,7 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
         verify(mockAppConfig, never).signoutUrl
         verify(mockAppConfig, never).keepAliveUrl
         verify(mockAppConfig, never).disableSessionExpired
-        verify(mockScaWrapperDataConnector, times(1)).wrapperData(anyString())(any(), any(), any())
+        verify(mockScaWrapperDataConnector, times(1)).wrapperData()(any(), any(), any())
 
         menuCaptor.getValue mustBe menu
         serviceNameKeyCaptor.getValue mustBe serviceNameKey

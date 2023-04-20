@@ -29,12 +29,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class ScaWrapperDataConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Logging {
 
 
-  def wrapperData(signoutUrl: String)(implicit ec: ExecutionContext, hc: HeaderCarrier,
-                                      request: RequestHeader): Future[WrapperDataResponse] = {
+  def wrapperData()(implicit ec: ExecutionContext, hc: HeaderCarrier,
+                    request: RequestHeader): Future[WrapperDataResponse] = {
     val lang = request.cookies.get("PLAY_LANG").map(_.value).getOrElse("en")
     logger.info(s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperData] Requesting menu config from Wrapper Data- lang: $lang")
     http.POST[WrapperDataRequest, WrapperDataResponse](s"${appConfig.scaWrapperDataUrl}/wrapper-data",
-      WrapperDataRequest(appConfig.versionNum, lang, signoutUrl)).recover {
+      WrapperDataRequest(appConfig.versionNum, lang)).recover {
       case ex: Exception =>
         logger.error(s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperData] Exception while calling Wrapper Data: ${ex.getMessage}")
         appConfig.fallbackWrapperDataResponse(Lang(lang))
