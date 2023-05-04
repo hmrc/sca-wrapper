@@ -22,7 +22,7 @@ import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.sca.config.AppConfig
-import uk.gov.hmrc.sca.models.{WrapperDataRequest, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.WrapperDataResponse
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -33,8 +33,7 @@ class ScaWrapperDataConnector @Inject()(http: HttpClient, appConfig: AppConfig) 
                     request: RequestHeader): Future[WrapperDataResponse] = {
     val lang = request.cookies.get("PLAY_LANG").map(_.value).getOrElse("en")
     logger.info(s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperData] Requesting menu config from Wrapper Data- lang: $lang")
-    http.POST[WrapperDataRequest, WrapperDataResponse](s"${appConfig.scaWrapperDataUrl}/wrapper-data",
-      WrapperDataRequest(appConfig.versionNum, lang)).recover {
+    http.GET[WrapperDataResponse](s"${appConfig.scaWrapperDataUrl}/wrapper-data?lang=$lang&version=${appConfig.versionNum}").recover {
       case ex: Exception =>
         logger.error(s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperData] Exception while calling Wrapper Data: ${ex.getMessage}")
         appConfig.fallbackWrapperDataResponse(Lang(lang))
