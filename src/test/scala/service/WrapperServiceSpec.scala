@@ -91,7 +91,7 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
         verify(mockScaLayout, times(1)).apply(menu = menuCaptor.capture(), serviceNameKey = serviceNameKeyCaptor.capture(),
           serviceNameUrl = serviceNameUrlCaptor.capture(), pageTitle = pageTitleCaptor.capture(),
           sidebarContent = sideBarContentCaptor.capture(), signoutUrl = signoutUrlCaptor.capture(),
-          keepAliveUrl = keepAliveUrlCaptor.capture(), showBackLinkJS = showBackLinkJSCaptor.capture(),
+          timeOutUrl = timeOutUrlCaptor.capture(), keepAliveUrl = keepAliveUrlCaptor.capture(), showBackLinkJS = showBackLinkJSCaptor.capture(),
           backLinkUrl = backLinkUrlCaptor.capture(), showSignOutInHeader = showSignOutInHeaderCaptor.capture(),
           scripts = scriptsCaptor.capture(), styleSheets = styleSheetsCaptor.capture(), bannerConfig = bannerConfigCaptor.capture(),
           fullWidth = fullWidthCaptor.capture(), hideMenuBar = hideMenuBarCaptor.capture(),
@@ -138,6 +138,7 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       val serviceNameUrl = Some("Service-Name-Url")
       val sidebarContent = Some(Html("Sidebar-Content"))
       val signoutUrl = "Signout-Url"
+      val timeOutUrl = Some("Timeout-Url")
       val keepAliveUrl = "Keep-Alive-Url"
       val showBackLinkJS = true
       val backLinkUrl = Some("Backlink-Url")
@@ -151,11 +152,11 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       val disableSessionExpired = true
 
       wrapperService.layout(content, pageTitle, serviceNameKey, serviceNameUrl, sidebarContent,
-        signoutUrl, keepAliveUrl, showBackLinkJS, backLinkUrl, showSignOutInHeader,
+        signoutUrl, timeOutUrl ,keepAliveUrl, showBackLinkJS, backLinkUrl, showSignOutInHeader,
         scripts, styleSheets, bannerConfig, optTrustedHelper, fullWidth, hideMenuBar, disableSessionExpired).map { _ =>
         verify(mockScaLayout, times(1)).apply(menu = menuCaptor.capture(), serviceNameKey = serviceNameKeyCaptor.capture(),
           serviceNameUrl = serviceNameUrlCaptor.capture(), pageTitle = pageTitleCaptor.capture(),
-          sidebarContent = sideBarContentCaptor.capture(), signoutUrl = signoutUrlCaptor.capture(),
+          sidebarContent = sideBarContentCaptor.capture(), signoutUrl = signoutUrlCaptor.capture(), timeOutUrl = timeOutUrlCaptor.capture(),
           keepAliveUrl = keepAliveUrlCaptor.capture(), showBackLinkJS = showBackLinkJSCaptor.capture(),
           backLinkUrl = backLinkUrlCaptor.capture(), showSignOutInHeader = showSignOutInHeaderCaptor.capture(),
           scripts = scriptsCaptor.capture(), styleSheets = styleSheetsCaptor.capture(), bannerConfig = bannerConfigCaptor.capture(),
@@ -180,6 +181,7 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
         pageTitleCaptor.getValue mustBe pageTitle
         sideBarContentCaptor.getValue mustBe sidebarContent
         signoutUrlCaptor.getValue mustBe signoutUrl
+        timeOutUrlCaptor.getValue mustBe timeOutUrl
         keepAliveUrlCaptor.getValue mustBe keepAliveUrl
         showBackLinkJSCaptor.getValue mustBe showBackLinkJS
         backLinkUrlCaptor.getValue mustBe backLinkUrl
@@ -212,6 +214,7 @@ object WrapperServiceSpec {
   val pageTitleCaptor = ArgumentCaptor.forClass(classOf[Option[String]])
   val sideBarContentCaptor = ArgumentCaptor.forClass(classOf[Option[Html]])
   val signoutUrlCaptor = ArgumentCaptor.forClass(classOf[String])
+  val timeOutUrlCaptor = ArgumentCaptor.forClass(classOf[Option[String]])
   val keepAliveUrlCaptor = ArgumentCaptor.forClass(classOf[String])
   val showBackLinkJSCaptor = ArgumentCaptor.forClass(classOf[Boolean])
   val backLinkUrlCaptor = ArgumentCaptor.forClass(classOf[Option[String]])
