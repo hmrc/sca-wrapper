@@ -36,7 +36,7 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
                          fullWidth: Boolean = false, hideMenuBar: Boolean = false, disableSessionExpired: Boolean = false, optTrustedHelper: Option[TrustedHelper] = None)(implicit messages: Messages): Html = {
 
     scaLayout(menu, Some("Service-Name-Key"), Some("Service-Name_Url"), Some("Page-Title"),
-      sidebarContent, "Signout-Url", "Keep-Alive-Url", showBackLinkJS, backLinkUrl, showSignOutInHeader,
+      sidebarContent, "Signout-Url", Some("TimeOut-Url"), "Keep-Alive-Url", showBackLinkJS, backLinkUrl, showSignOutInHeader,
       Seq(Html("<script src=/customscript.js></script>")), Seq(Html("<link href=/customStylesheet rel=stylesheet/>")), bannerConfig,
       fullWidth, hideMenuBar, disableSessionExpired, optTrustedHelper)(
       Html("Content-Block"))(fakeRequest, messages, hc)

@@ -62,6 +62,8 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
   private val signoutBaseUrl: String = configuration.get[String]("sca-wrapper.signout.url")
   private val signoutBaseUrlAlt: Option[String] = configuration.getOptional[String]("sca-wrapper.signout.alternative-url")
   val signoutUrl: String = signoutBaseUrlAlt.getOrElse(signoutBaseUrl)
+  val timeOutUrl: Option[String] = configuration.getOptional[String]("sca-wrapper.signin.url")
+
 
   //internal
   val serviceUrl: String = configuration.get[String]("sca-wrapper.service.url")

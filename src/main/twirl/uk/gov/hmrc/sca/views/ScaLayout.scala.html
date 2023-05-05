@@ -60,6 +60,7 @@
         pageTitle: Option[String],
         sidebarContent: Option[Html],
         signoutUrl: String,
+        timeOutUrl: Option[String],
         keepAliveUrl: String,
         showBackLinkJS: Boolean,
         backLinkUrl: Option[String],
@@ -81,7 +82,9 @@
             timeout = Some(appConfig.timeout),
             countdown = Some(appConfig.countdown),
             keepAliveUrl = Some(keepAliveUrl),
-            signOutUrl = signoutUrl
+            signOutUrl = signoutUrl,
+            timeoutUrl = timeOutUrl
+
         )
     }
 
@@ -131,19 +134,10 @@
 @content = {
 
     @contentBlock
-
+<div class="govuk-!-margin-top-8">
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
     @hmrcReportTechnicalIssueHelper()
-    <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
-    @{
-        if(bannerConfig.showBetaBanner) {
-            govukPhaseBanner(betaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
-        } else {
-            if(bannerConfig.showAlphaBanner) {
-                govukPhaseBanner(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
-            }
-        }
-    }
+</div>
 }
 
 
@@ -154,6 +148,7 @@
     isWelshTranslationAvailable = true,
     accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(appConfig.accessibilityStatementUrl)),
     displayHmrcBanner = false,
+   phaseBanner = if(bannerConfig.showBetaBanner) Some(betaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl))) else Some(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl))),
     signOutUrl = if(showSignOutInHeader) Some(signoutUrl) else None,
     backLinkUrl = backLinkUrl,
     additionalHeadBlock = Some(headBlock),
