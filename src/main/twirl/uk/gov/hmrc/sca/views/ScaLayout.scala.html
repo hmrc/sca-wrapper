@@ -148,7 +148,13 @@
     isWelshTranslationAvailable = true,
     accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(appConfig.accessibilityStatementUrl)),
     displayHmrcBanner = false,
-   phaseBanner = if(bannerConfig.showBetaBanner) Some(betaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl))) else Some(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl))),
+    phaseBanner = if(bannerConfig.showBetaBanner) {
+            Some(betaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
+        } else if(bannerConfig.showAlphaBanner) {
+            Some(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
+        } else {
+            None
+        },
     signOutUrl = if(showSignOutInHeader) Some(signoutUrl) else None,
     backLinkUrl = backLinkUrl,
     additionalHeadBlock = Some(headBlock),
