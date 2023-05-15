@@ -87,12 +87,12 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
 
   //fallback menu config in the event that wrapper data is offline
   private def fallbackMenuConfig(implicit lang: Lang): Seq[MenuItemConfig] = Seq(
-    MenuItemConfig(messages("sca-wrapper.fallback.menu.home"), s"$pertaxUrl", leftAligned = true,
+    MenuItemConfig("home", messages("sca-wrapper.fallback.menu.home"), s"$pertaxUrl", leftAligned = true,
       position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None),
-    MenuItemConfig(messages("sca-wrapper.fallback.menu.messages"), s"$pertaxUrl/messages", leftAligned = false, position = 0, None, None),
-    MenuItemConfig(messages("sca-wrapper.fallback.menu.progress"), s"$trackingUrl/track", leftAligned = false, position = 1, None, None),
-    MenuItemConfig(messages("sca-wrapper.fallback.menu.profile"), s"$pertaxUrl/profile-and-settings", leftAligned = false, position = 2, None, None),
-    MenuItemConfig(messages("sca-wrapper.fallback.menu.signout"), s"$pertaxUrl/signout/feedback/PERTAX", leftAligned = false, position = 3, None, None)
+    MenuItemConfig("messages", messages("sca-wrapper.fallback.menu.messages"), s"$pertaxUrl/messages", leftAligned = false, position = 0, None, None),
+    MenuItemConfig("progress", messages("sca-wrapper.fallback.menu.progress"), s"$trackingUrl/track", leftAligned = false, position = 1, None, None),
+    MenuItemConfig("profile", messages("sca-wrapper.fallback.menu.profile"), s"$pertaxUrl/profile-and-settings", leftAligned = false, position = 2, None, None),
+    MenuItemConfig("signout", messages("sca-wrapper.fallback.menu.signout"), s"$pertaxUrl/signout/feedback/PERTAX", leftAligned = false, position = 3, None, None)
   )
 
   //fallback wrapper data response in the event that wrapper data is offline

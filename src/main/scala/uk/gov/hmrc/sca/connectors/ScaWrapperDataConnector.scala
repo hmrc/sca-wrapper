@@ -20,6 +20,7 @@ import com.google.inject.Inject
 import play.api.Logging
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models.WrapperDataResponse
@@ -37,6 +38,15 @@ class ScaWrapperDataConnector @Inject()(http: HttpClient, appConfig: AppConfig) 
       case ex: Exception =>
         logger.error(s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperData] Exception while calling Wrapper Data: ${ex.getMessage}")
         appConfig.fallbackWrapperDataResponse(Lang(lang))
+    }
+  }
+
+  def messageData()(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[Int]] = {
+    logger.info(s"[SCA Wrapper Library][ScaWrapperDataConnector][messageData] Requesting unread message count from Wrapper Data")
+    http.GET[Option[Int]](s"${appConfig.scaWrapperDataUrl}/message-data").recover {
+      case ex: Exception =>
+        logger.error(s"[SCA Wrapper Library][ScaWrapperDataConnector][messageData] Exception while calling Wrapper Data: ${ex.getMessage}")
+        None
     }
   }
 
