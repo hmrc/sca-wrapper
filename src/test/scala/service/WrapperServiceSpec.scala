@@ -49,7 +49,6 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
   private implicit val messages: Messages = stubMessages()
 
   private implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-    .withCookies(Cookie("PLAY_LANG", "en"))
     .withAttrs(TypedMap(
       Keys.wrapperDataKey -> wrapperDataResponse,
       Keys.messageDataKey -> Some(2),
