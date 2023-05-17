@@ -1,6 +1,5 @@
 import play.sbt.routes.RoutesKeys
 
-import scoverage.ScoverageKeys
 import play.core.PlayVersion.current
 
 lazy val root = (project in file("."))
@@ -12,27 +11,24 @@ lazy val root = (project in file("."))
     scalaVersion := "2.13.8",
     isPublicArtefact := true,
     //TODO tests to check SNAPSHOT is changed back
-    version := "1.0.31",
+    version := "1.0.32",
 //    version := "1.0.0-SNAPSHOT",
     //    publish / skip := true,
     name := "sca-wrapper",
     isSnapshot := true,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.scala-lang"),
     dependencyUpdatesFilter -= moduleFilter(organization = "com.vladsch.flexmark"),
-    ScoverageKeys.coverageMinimumStmtTotal := 70,
-    ScoverageKeys.coverageFailOnMinimum := true,
-    ScoverageKeys.coverageHighlighting := true,
     TwirlKeys.templateImports := templateImports,
     RoutesKeys.routesImport ++= Seq(
       "models._",
       "uk.gov.hmrc.play.bootstrap.binders.RedirectUrl"
     ),
     libraryDependencies ++= appDependencies ++ testDependencies,
-    Test / coverageEnabled := true,
     IntegrationTest / Keys.fork := false,
     inConfig(Test)(testSettings),
     inConfig(IntegrationTest)(itSettings)
   )
+  .settings(CodeCoverageSettings.settings: _*)
 
 lazy val testSettings = Seq(
   unmanagedSourceDirectories ++= Seq(

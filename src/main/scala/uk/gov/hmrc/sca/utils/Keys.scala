@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.sca.models
+package uk.gov.hmrc.sca.utils
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.typedmap.TypedKey
+import uk.gov.hmrc.sca.models.WrapperDataResponse
 
-case class MenuItemConfig(id: String, text: String, href: String, leftAligned: Boolean,
-                          position: Int, icon: Option[String], notificationBadge: Option[Int])
-
-object MenuItemConfig {
-  implicit val format: OFormat[MenuItemConfig] = Json.format[MenuItemConfig]
+object Keys {
+  lazy val wrapperDataKey = TypedKey[WrapperDataResponse]
+  lazy val messageDataKey = TypedKey[Option[Int]]
 }
