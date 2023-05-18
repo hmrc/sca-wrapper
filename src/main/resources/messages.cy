@@ -14,7 +14,7 @@ sca-wrapper.fallback.menu.name = Dewislen y cyfrif
 sca-wrapper.fallback.menu.back = Yn ôl
 
 sca-wrapper.help.improve.banner.heading = Helpwch i wella gov.uk
-sca-wrapper.help.improve.banner.link.text = Helpwch i wella gwasanaethau digidol drwy ymuno â phanel defnyddwyr CThEM (yn agor ffenestr neu dab newydd)
+sca-wrapper.help.improve.banner.link.text = Helpwch i wella gwasanaethau digidol drwy ymuno â phanel defnyddwyr CThEF (yn agor ffenestr neu dab newydd)
 sca-wrapper.banner.label.no_thanks = Dim diolch
 
 sca-wrapper.child.benefit.banner.heading = Helpu i wella’r gwasanaeth Budd-dal Plant
