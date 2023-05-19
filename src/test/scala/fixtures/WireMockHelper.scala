@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fixtures
+package utils
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
@@ -26,11 +26,11 @@ import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 trait WireMockHelper extends BeforeAndAfterAll with BeforeAndAfterEach {
   this: Suite =>
 
-  val server: WireMockServer = new WireMockServer(wireMockConfig().port(8080))
+  protected val server: WireMockServer = new WireMockServer(wireMockConfig().dynamicPort())
 
   protected def portConfigKeys: String
 
-  lazy val app: Application = {
+  protected lazy val app: Application = {
     val keyValueConfig = portConfigKeys.split(",").map(_ -> server.port().toString) ++ Seq("auditing.enabled" -> false, "metrics.enabled" -> false)
     new GuiceApplicationBuilder()
       .configure(keyValueConfig.toSeq: _*)
@@ -44,10 +44,12 @@ trait WireMockHelper extends BeforeAndAfterAll with BeforeAndAfterEach {
 
   override def beforeAll(): Unit = {
     server.start()
+    app
     super.beforeAll()
   }
 
   override def beforeEach(): Unit = {
+    server.resetAll()
     super.beforeEach()
   }
 
