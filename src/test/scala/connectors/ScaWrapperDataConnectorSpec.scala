@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.i18n.Lang
 import play.api.inject
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.RequestHeader
@@ -40,6 +41,7 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with Matchers with WireM
   override protected def urlConfigKeys: String = "sca-wrapper.services.single-customer-account-wrapper-data.url"
 
   val url = s"/single-customer-account-wrapper-data/wrapper-data?lang=en&version=1.0.3"
+  val urlMessageData = "/single-customer-account-wrapper-data/message-data"
 
   private lazy val scaWrapperDataConnector: ScaWrapperDataConnector = injector.instanceOf[ScaWrapperDataConnector]
 
@@ -49,7 +51,7 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with Matchers with WireM
     )
 
   "ScaWrapperDataConnector" must {
-    "return correct response from Wrapper data" in {
+    "return a succesful response when wrapperData() is called" in {
       val ptaMenuConfig: PtaMinMenuConfig = PtaMinMenuConfig(menuName = "Account menu", backName = "Back")
       val menuItemConfig1: MenuItemConfig = MenuItemConfig("home", "Account home", "http://localhost:9232/personal-account", leftAligned = true, position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None)
 
@@ -88,43 +90,129 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with Matchers with WireM
       }
     }
 
-    //    "return the fallback wrapper data response when an exception occurs" in {
-    ////      val menuItem: MenuItemConfig = MenuItemConfig("text", "href", true, 1, None, None)
-    //
-    //      val pertaxUrl: String = "sca-wrapper.services.pertax-frontend.url/personal-account"
-    //      val trackingUrl = "sca-wrapper.services.tracking-frontend.url"
-    //      def fallbackMenuConfig(implicit lang: Lang): Seq[MenuItemConfig] = Seq(
-    //        MenuItemConfig(messages("sca-wrapper.fallback.menu.home"), s"$pertaxUrl", leftAligned = true,
-    //          position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None),
-    //        MenuItemConfig(messages("sca-wrapper.fallback.menu.messages"), s"$pertaxUrl/messages", leftAligned = false, position = 0, None, None),
-    //        MenuItemConfig(messages("sca-wrapper.fallback.menu.progress"), s"$trackingUrl/track", leftAligned = false, position = 1, None, None),
-    //        MenuItemConfig(messages("sca-wrapper.fallback.menu.profile"), s"$pertaxUrl/profile-and-settings", leftAligned = false, position = 2, None, None),
-    //        MenuItemConfig(messages("sca-wrapper.fallback.menu.signout"), s"$pertaxUrl/signout/feedback/PERTAX", leftAligned = false, position = 3, None, None)
-    //      )
-    //      val ptaMinMenuConfig: PtaMinMenuConfig = PtaMinMenuConfig("menuName", "backName")
-    //      val expectedFallbackResponse = WrapperDataResponse(fallbackMenuConfig(any()), ptaMinMenuConfig)
-    //
-    //      // Mock the behavior of HttpClient to throw an exception
-    //      server.stubFor(
-    //        WireMock.get(urlEqualTo(url))
-    //          .willReturn(
-    //            notFound()
-    //          )
-    //      )
-    //      // Mock the behavior of AppConfig
-    ////      when(mockAppConfig.fallbackWrapperDataResponse(any[Lang])).thenReturn(expectedFallbackResponse)
-    //
-    //      // Call the method being tested
-    //      val result = mockConnector.wrapperData()(ec, hc, rh)
-    //
-    //      // Verify the response
-    //      result.map { response =>
-    //        assert(response == expectedFallbackResponse)
-    //      }
-    //    }
+    "return the fallback wrapper data response when wrapperData() is called but wrapper data is not available" in {
 
+      def fallbackMenuConfig(implicit lang: Lang): Seq[MenuItemConfig] = Seq(
+        MenuItemConfig("home", "Account home", s"http://localhost:9232/personal-account", leftAligned = true,
+          position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None),
+        MenuItemConfig("messages", "Messages", s"http://localhost:9232/personal-account/messages", leftAligned = false, position = 0, None, None),
+        MenuItemConfig("progress", "Check progress", s"http://localhost:9100/track", leftAligned = false, position = 1, None, None),
+        MenuItemConfig("profile", "Profile and settings", s"http://localhost:9232/personal-account/profile-and-settings", leftAligned = false, position = 2, None, None),
+        MenuItemConfig("signout", "Sign out", s"http://localhost:9232/personal-account/signout/feedback/PERTAX", leftAligned = false, position = 3, None, None)
+      )
+
+      def fallbackWrapperDataResponse(implicit lang: Lang): WrapperDataResponse = WrapperDataResponse(
+        fallbackMenuConfig, PtaMinMenuConfig(menuName = "Account menu", backName = "Back")
+      )
+
+      val fallbackWrapperDataJSONResponse =
+        """
+          |{
+          |    "menuItemConfig": [
+          |        {
+          |            "id": "home",
+          |            "text": "Account home",
+          |            "href": "http://localhost:9232/personal-account",
+          |            "leftAligned": true,
+          |            "position": 0,
+          |            "icon": "hmrc-account-icon hmrc-account-icon--home"
+          |        }
+          |    ],
+          |    "menuItemConfig": [
+          |        {
+          |            "id": "messages",
+          |            "text": "Messages",
+          |            "href": "http://localhost:9232/personal-account/messages",
+          |            "leftAligned": true,
+          |            "position": 0
+          |        }
+          |    ],
+          |    "menuItemConfig": [
+          |        {
+          |            "id": "progress",
+          |            "text": "Check progress",
+          |            "href": "http://localhost:9100/track",
+          |            "leftAligned": true,
+          |            "position": 1
+          |        }
+          |    ],
+          |    "menuItemConfig": [
+          |        {
+          |            "id": "profile",
+          |            "text": "Profile and settings",
+          |            "href": "http://localhost:9232/personal-account/profile-and-settings",
+          |            "leftAligned": true,
+          |            "position": 2
+          |        }
+          |    ],
+          |    "menuItemConfig": [
+          |        {
+          |            "id": "signout",
+          |            "text": "Sign out",
+          |            "href": "http://localhost:9232/personal-account/signout/feedback/PERTAX",
+          |            "leftAligned": true,
+          |            "position": 3
+          |        }
+          |    ],
+          |    "ptaMinMenuConfig": {
+          |        "menuName": "Account menu",
+          |        "backName": "Back"
+          |    }
+          |}
+          |""".stripMargin
+
+      val lang = Lang("en")
+
+      server.stubFor(
+        get(urlEqualTo(url))
+          .willReturn(
+            badRequest()
+              .withHeader("Content-Type", "application/json")
+              .withBody(fallbackWrapperDataJSONResponse)
+          )
+      )
+
+      scaWrapperDataConnector.wrapperData().map { response =>
+        response mustBe fallbackWrapperDataResponse(lang)
+      }
+    }
+
+    "return a successful response when messageData() is called" in {
+
+      val messageDataResponse = Some(1)
+      val messageDataNumResponse = 1
+
+      server.stubFor(
+        get(urlEqualTo(urlMessageData))
+          .willReturn(
+            ok
+              .withHeader("Content-Type", "application/json")
+              .withBody(messageDataNumResponse.toString)
+          )
+      )
+
+      scaWrapperDataConnector.messageData().map { response =>
+        response mustBe messageDataResponse
+      }
+    }
+
+    "return None when messageData() is called but an exception occurs" in {
+
+      val messageDataResponse = None
+
+      server.stubFor(
+        get(urlEqualTo(urlMessageData))
+          .willReturn(
+            badRequest()
+              .withHeader("Content-Type", "application/json")
+              .withBody("invalid body")
+          )
+      )
+
+      scaWrapperDataConnector.messageData().map { response =>
+        response mustBe messageDataResponse
+      }
+    }
   }
-
-
 }
 
