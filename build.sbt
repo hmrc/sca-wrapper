@@ -83,14 +83,11 @@ val appDependencies = Seq(
 )
 
 val testDependencies = Seq(
-  "uk.gov.hmrc"             %% s"bootstrap-test-$playVersion"     % "7.13.0",
-  "org.scalatest"           %% "scalatest"           % "3.2.15",
-  "com.typesafe.play"       %% "play-test"           % current,
-  "org.scalatestplus.play"  %% "scalatestplus-play"  % "5.1.0",
-  "org.scalatestplus"       %% "mockito-3-4"         % "3.2.10.0",
-  "org.mockito"             % "mockito-core"         % "3.12.4",
-  "org.scalacheck"          %% "scalacheck"          % "1.17.0",
-  "com.github.tomakehurst"  % "wiremock-standalone"  % "2.27.2",
-  "com.vladsch.flexmark"    % "flexmark-all"         % "0.62.2"
+  "uk.gov.hmrc"                   %% s"bootstrap-test-$playVersion"     % "7.13.0",
+  "org.scalatest"                 %% "scalatest"                        % "3.2.15",
+  "org.scalatestplus"             %% "mockito-4-6"                      % "3.2.15.0",
+  "com.github.tomakehurst"        %  "wiremock-jre8"                    % "2.35.0",
+  "com.vladsch.flexmark"          % "flexmark-all"                      % "0.62.2",
+  "com.fasterxml.jackson.module"  %% "jackson-module-scala"             % "2.14.2"
 ).map(_ % "test,it")
 

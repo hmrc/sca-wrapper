@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fixtures
+package utils
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer

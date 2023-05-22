@@ -28,10 +28,10 @@ trait WireMockHelper extends BeforeAndAfterAll with BeforeAndAfterEach {
 
   protected val server: WireMockServer = new WireMockServer(wireMockConfig().dynamicPort())
 
-  protected def portConfigKeys: String
+  protected def urlConfigKeys: String
 
   protected lazy val app: Application = {
-    val keyValueConfig = portConfigKeys.split(",").map(_ -> server.port().toString) ++ Seq("auditing.enabled" -> false, "metrics.enabled" -> false)
+    val keyValueConfig = urlConfigKeys.split(",").map(_ -> s"http://localhost:${server.port().toString}") ++ Seq("auditing.enabled" -> false, "metrics.enabled" -> false)
     new GuiceApplicationBuilder()
       .configure(keyValueConfig.toSeq: _*)
       .overrides(bindings: _*)
