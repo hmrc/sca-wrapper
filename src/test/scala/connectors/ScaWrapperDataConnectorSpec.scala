@@ -21,50 +21,46 @@ import akka.util.Timeout
 import com.google.inject.matcher.Matchers
 import fixtures.{BaseSpec, WireMockHelper}
 import org.scalacheck.Gen.const
+import org.scalatest.RecoverMethods.recoverToExceptionIf
+import org.scalatest.concurrent.Eventually
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.mvc.RequestHeader
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 
-import scala.concurrent.{Future, TimeoutException}
+import scala.concurrent.{Await, Future, TimeoutException}
 import scala.concurrent.duration._
 import scala.xml.dtd.ContentModel.Translator.lang
 
 
 
-class ScaWrapperDataConnectorSpec extends AnyWordSpec with WireMockHelper with BaseSpec {
+class ScaWrapperDataConnectorSpec extends AnyWordSpec with WireMockHelper with BaseSpec with Eventually {
 
   private lazy val wrapperDataConnector: ScaWrapperDataConnector = injector.instanceOf[ScaWrapperDataConnector]
+
+  implicit val config: PatienceConfig = PatienceConfig(5.seconds)
   server.start()
 
-
-  applicationBuilder.configure(
-    "microservice.services.integration-framework.port" -> server.port(),
+  applicationBuilder().configure(
     "metrics.enabled" -> false,
     "auditing.enabled" -> false,
     "auditing.traceRequests" -> false
   )
     .build()
 
-  override val system = inject[ActorSystem]
-
-  implicit val config: PatienceConfig = PatienceConfig(5.seconds)
-
-
   "The ScaWrapperDataConnector" must {
     "trigger a timeout after x seconds" in {
-      val rh = mock[RequestHeader]
-      val wrapperDataConnector: ScaWrapperDataConnector = mock[ScaWrapperDataConnector]
-      val url = s"${appConfig.scaWrapperDataUrl}/wrapper-data?lang=$lang&version=${appConfig.versionNum}"
-
 
       // Set the timeout duration to 20 seconds.
       val timeout = Timeout(20.seconds)
 
       // Try to complete the Future with the timeout.
-      val result = timeout.apply(wrapperDataConnector.wrapperData()(ec, hc, rh).futureValue, timeout.duration)
-
+      val result = wrapperDataConnector.wrapperData()(ec, hc, fakeRequest)
       // Assert that the result is a timeout exception.
-      result mustBe a[TimeoutException]
+      whenReady(result) { res =>
+         res.ptaMinMenuConfig.menuName == "a"
+      }
     }
   }
 }

@@ -52,9 +52,8 @@ trait BaseSpec
     with MockitoSugar
     with GuiceOneAppPerSuite
     with BeforeAndAfterEach {
-  override implicit lazy val app: Application = applicationBuilder().build()
 
-  // override lazy val app: Application = applicationBuilder().build()
+  override implicit lazy val app: Application = applicationBuilder().build()
   implicit val system: ActorSystem = ActorSystem("Test")
   implicit val materializer: Materializer = Materializer(system)
   lazy val injector: Injector = app.injector
