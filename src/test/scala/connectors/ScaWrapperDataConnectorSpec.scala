@@ -21,7 +21,6 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.i18n.Lang
 import play.api.inject
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.RequestHeader
@@ -40,7 +39,7 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with Matchers with WireM
 
   override protected def urlConfigKeys: String = "sca-wrapper.services.single-customer-account-wrapper-data.url"
 
-  val url = s"/single-customer-account-wrapper-data/wrapper-data?lang=en&version=1.0.3"
+  val urlWrapperDataResponse = s"/single-customer-account-wrapper-data/wrapper-data?lang=en&version=1.0.3"
   val urlMessageData = "/single-customer-account-wrapper-data/message-data"
 
   private lazy val scaWrapperDataConnector: ScaWrapperDataConnector = injector.instanceOf[ScaWrapperDataConnector]
@@ -53,9 +52,10 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with Matchers with WireM
   "ScaWrapperDataConnector" must {
     "return a succesful response when wrapperData() is called" in {
       val ptaMenuConfig: PtaMinMenuConfig = PtaMinMenuConfig(menuName = "Account menu", backName = "Back")
-      val menuItemConfig1: MenuItemConfig = MenuItemConfig("home", "Account home", "http://localhost:9232/personal-account", leftAligned = true, position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None)
+      val menuItemConfig: MenuItemConfig = MenuItemConfig("home", "Account home", "http://localhost:9232/personal-account",
+        leftAligned = true, position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None)
 
-      val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(Seq(menuItemConfig1), ptaMenuConfig)
+      val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(Seq(menuItemConfig), ptaMenuConfig)
       val wrapperDataJsonResponse =
         """
           |{
@@ -77,7 +77,7 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with Matchers with WireM
           |""".stripMargin
 
       server.stubFor(
-        get(urlEqualTo(url))
+        get(urlEqualTo(urlWrapperDataResponse))
           .willReturn(
             ok
               .withHeader("Content-Type", "application/json")
@@ -92,7 +92,7 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with Matchers with WireM
 
     "return the fallback wrapper data response when wrapperData() is called but wrapper data is not available" in {
 
-      def fallbackMenuConfig(implicit lang: Lang): Seq[MenuItemConfig] = Seq(
+      def fallbackMenuConfig: Seq[MenuItemConfig] = Seq(
         MenuItemConfig("home", "Account home", s"http://localhost:9232/personal-account", leftAligned = true,
           position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None),
         MenuItemConfig("messages", "Messages", s"http://localhost:9232/personal-account/messages", leftAligned = false, position = 0, None, None),
@@ -101,86 +101,27 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with Matchers with WireM
         MenuItemConfig("signout", "Sign out", s"http://localhost:9232/personal-account/signout/feedback/PERTAX", leftAligned = false, position = 3, None, None)
       )
 
-      def fallbackWrapperDataResponse(implicit lang: Lang): WrapperDataResponse = WrapperDataResponse(
+      def fallbackWrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
         fallbackMenuConfig, PtaMinMenuConfig(menuName = "Account menu", backName = "Back")
       )
 
-      val fallbackWrapperDataJSONResponse =
-        """
-          |{
-          |    "menuItemConfig": [
-          |        {
-          |            "id": "home",
-          |            "text": "Account home",
-          |            "href": "http://localhost:9232/personal-account",
-          |            "leftAligned": true,
-          |            "position": 0,
-          |            "icon": "hmrc-account-icon hmrc-account-icon--home"
-          |        }
-          |    ],
-          |    "menuItemConfig": [
-          |        {
-          |            "id": "messages",
-          |            "text": "Messages",
-          |            "href": "http://localhost:9232/personal-account/messages",
-          |            "leftAligned": true,
-          |            "position": 0
-          |        }
-          |    ],
-          |    "menuItemConfig": [
-          |        {
-          |            "id": "progress",
-          |            "text": "Check progress",
-          |            "href": "http://localhost:9100/track",
-          |            "leftAligned": true,
-          |            "position": 1
-          |        }
-          |    ],
-          |    "menuItemConfig": [
-          |        {
-          |            "id": "profile",
-          |            "text": "Profile and settings",
-          |            "href": "http://localhost:9232/personal-account/profile-and-settings",
-          |            "leftAligned": true,
-          |            "position": 2
-          |        }
-          |    ],
-          |    "menuItemConfig": [
-          |        {
-          |            "id": "signout",
-          |            "text": "Sign out",
-          |            "href": "http://localhost:9232/personal-account/signout/feedback/PERTAX",
-          |            "leftAligned": true,
-          |            "position": 3
-          |        }
-          |    ],
-          |    "ptaMinMenuConfig": {
-          |        "menuName": "Account menu",
-          |        "backName": "Back"
-          |    }
-          |}
-          |""".stripMargin
-
-      val lang = Lang("en")
-
       server.stubFor(
-        get(urlEqualTo(url))
+        get(urlEqualTo(urlWrapperDataResponse))
           .willReturn(
             badRequest()
               .withHeader("Content-Type", "application/json")
-              .withBody(fallbackWrapperDataJSONResponse)
           )
       )
 
       scaWrapperDataConnector.wrapperData().map { response =>
-        response mustBe fallbackWrapperDataResponse(lang)
+        response mustBe fallbackWrapperDataResponse
       }
     }
 
     "return a successful response when messageData() is called" in {
 
-      val messageDataResponse = Some(1)
       val messageDataNumResponse = 1
+      val messageDataResponse = Some(messageDataNumResponse)
 
       server.stubFor(
         get(urlEqualTo(urlMessageData))
