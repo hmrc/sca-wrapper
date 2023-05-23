@@ -16,34 +16,55 @@
 
 package connectors
 
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
+import akka.actor.ActorSystem
+import akka.util.Timeout
 import com.google.inject.matcher.Matchers
+import fixtures.{BaseSpec, WireMockHelper}
+import org.scalacheck.Gen.const
 import org.scalatest.wordspec.AnyWordSpec
+import play.api.mvc.RequestHeader
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{Future, TimeoutException}
 import scala.concurrent.duration._
-import scala.util.{Failure, Success}
+import scala.xml.dtd.ContentModel.Translator.lang
 
 
 
+class ScaWrapperDataConnectorSpec extends AnyWordSpec with WireMockHelper with BaseSpec {
 
-class ScaWrapperDataConnectorTimeoutSpec extends AnyWordSpec with Matchers {
+  private lazy val wrapperDataConnector: ScaWrapperDataConnector = injector.instanceOf[ScaWrapperDataConnector]
+  server.start()
+
+
+  applicationBuilder.configure(
+    "microservice.services.integration-framework.port" -> server.port(),
+    "metrics.enabled" -> false,
+    "auditing.enabled" -> false,
+    "auditing.traceRequests" -> false
+  )
+    .build()
+
+  override val system = inject[ActorSystem]
+
+  implicit val config: PatienceConfig = PatienceConfig(5.seconds)
+
 
   "The ScaWrapperDataConnector" must {
-    "timeout after x seconds when calling the wrapper data service" in {
-      val connector = new ScaWrapperDataConnector(Http(), AppConfig())
-      val request = HttpRequest(uri = s"${connector.appConfig.scaWrapperDataUrl}/wrapper-data?lang=en&version=1")
-      val responseFuture: Future[HttpResponse] = connector.wrapperData(request, RequestTimeout(1.second))
+    "trigger a timeout after x seconds" in {
+      val rh = mock[RequestHeader]
+      val wrapperDataConnector: ScaWrapperDataConnector = mock[ScaWrapperDataConnector]
+      val url = s"${appConfig.scaWrapperDataUrl}/wrapper-data?lang=$lang&version=${appConfig.versionNum}"
 
-      responseFuture.onComplete {
-        case Success(response) =>
-          fail("Expected a timeout")
-        case Failure(_: TimeoutException) =>
-          succeed
-      }
+
+      // Set the timeout duration to 20 seconds.
+      val timeout = Timeout(20.seconds)
+
+      // Try to complete the Future with the timeout.
+      val result = timeout.apply(wrapperDataConnector.wrapperData()(ec, hc, rh).futureValue, timeout.duration)
+
+      // Assert that the result is a timeout exception.
+      result mustBe a[TimeoutException]
     }
   }
 }

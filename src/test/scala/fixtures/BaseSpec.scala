@@ -44,6 +44,7 @@ import scala.reflect.ClassTag
 
 trait BaseSpec
   extends AnyWordSpec
+    with Timeout
     with Matchers
     with ScalaFutures
     with PatienceConfiguration
