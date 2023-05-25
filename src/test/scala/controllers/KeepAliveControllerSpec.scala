@@ -17,21 +17,23 @@
 package controllers
 
 import fixtures.BaseSpec
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import play.api.test.Helpers
+import org.scalatest.wordspec.AnyWordSpec
+import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier}
 import uk.gov.hmrc.sca.controllers.KeepAliveController
 
-class KeepAliveControllerSpec extends BaseSpec {
+class KeepAliveControllerSpec extends AnyWordSpec with ScalaFutures {
 
-  override implicit val hc = HeaderCarrier(authorization = Some(Authorization("Bearer 123")))
+  implicit val hc = HeaderCarrier(authorization = Some(Authorization("Bearer 123")))
 
   private val controller = new KeepAliveController(Helpers.stubMessagesControllerComponents())
   val nino = "AA999999A"
 
   "KeepAliveController keepAliveUnauthenticated" must {
     "return OK given an unauthenticated request" in {
-
+      val fakeRequest = FakeRequest()
       val result = controller.keepAlive()(fakeRequest)
       whenReady(result) { res =>
         res.header.status shouldBe 200

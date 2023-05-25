@@ -16,50 +16,59 @@
 
 package connectors
 
-import akka.actor.ActorSystem
-import akka.util.Timeout
-import com.google.inject.matcher.Matchers
-import fixtures.{BaseSpec, WireMockHelper}
-import org.scalacheck.Gen.const
-import org.scalatest.RecoverMethods.recoverToExceptionIf
-import org.scalatest.concurrent.Eventually
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+
+import com.github.tomakehurst.wiremock.client.WireMock._
+import com.google.common.base.Stopwatch
+import fixtures.WireMockHelper
+import org.scalactic.source.Position
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.matchers.must
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.mvc.RequestHeader
-import uk.gov.hmrc.http.HttpClient
+import play.api.http.Status.OK
+import play.api.i18n.Lang
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.test.FakeRequest
+import play.api.test.Helpers.running
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 
-import scala.concurrent.{Await, Future, TimeoutException}
-import scala.concurrent.duration._
-import scala.xml.dtd.ContentModel.Translator.lang
+import java.net.http.HttpTimeoutException
+import scala.concurrent.duration.DurationInt
+import scala.language.postfixOps
 
 
 
-class ScaWrapperDataConnectorSpec extends AnyWordSpec with WireMockHelper with BaseSpec with Eventually {
 
-  private lazy val wrapperDataConnector: ScaWrapperDataConnector = injector.instanceOf[ScaWrapperDataConnector]
 
-  implicit val config: PatienceConfig = PatienceConfig(5.seconds)
-  server.start()
+class ScaWrapperDataConnectorSpec extends AnyWordSpec with WireMockHelper with ScalaFutures with must.Matchers {
 
-  applicationBuilder().configure(
-    "metrics.enabled" -> false,
-    "auditing.enabled" -> false,
-    "auditing.traceRequests" -> false
-  )
-    .build()
+  "The ScaWrapperDataConnector with default settings" must {
+    "trigger a timeout if the request for wrapper data takes more than 1 second" in {
 
-  "The ScaWrapperDataConnector" must {
-    "trigger a timeout after x seconds" in {
+      server.stubFor(
+        get(anyUrl()).willReturn(
+          aResponse()
+            .withStatus(OK)
+            .withBody("You haven't seen me, right!")
+            .withFixedDelay(2000)
+        )
+      )
 
-      // Set the timeout duration to 20 seconds.
-      val timeout = Timeout(20.seconds)
+      val app = GuiceApplicationBuilder().configure(
+        "sca-wrapper.services.single-customer-account-wrapper-data.url" -> s"http://localhost:${server.port}"
+      ).build()
 
-      // Try to complete the Future with the timeout.
-      val result = wrapperDataConnector.wrapperData()(ec, hc, fakeRequest)
-      // Assert that the result is a timeout exception.
-      whenReady(result) { res =>
-         res.ptaMinMenuConfig.menuName == "a"
+      running(app) {
+        val SUT: ScaWrapperDataConnector = app.injector.instanceOf(classOf[ScaWrapperDataConnector])
+        val config = app.injector.instanceOf(classOf[AppConfig])
+
+        val result = SUT.wrapperData()(scala.concurrent.ExecutionContext.global, HeaderCarrier(), FakeRequest())
+
+        result.isReadyWithin(1 second) mustBe true
+        result.futureValue mustBe config.fallbackWrapperDataResponse(Lang.apply("en"))
+
+        server.verify(getRequestedFor(urlPathMatching("/single-customer-account-wrapper-data/wrapper-data.*")))
       }
     }
   }
