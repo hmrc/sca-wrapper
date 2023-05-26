@@ -37,12 +37,11 @@ import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.sca.config.AppConfig
-import uk.gov.hmrc.sca.views.html.PtaMenuBar
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 import uk.gov.hmrc.sca.services.WrapperService
 import uk.gov.hmrc.sca.utils.Keys
-import uk.gov.hmrc.sca.views.html.ScaLayout
+import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout}
 
 class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
@@ -213,13 +212,13 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
 
     "return the exitSurveyOrigin if the continueUrl is None" in {
       val continueUrl = None
-      implicit val appConfg: AppConfig = injector.instanceOf[AppConfig]
+      val appConfig: AppConfig = injector.instanceOf[AppConfig]
 
-      val expectedUrl = appConfg.exitSurveyOrigin.map(origin => appConfg.feedbackFrontendUrl + "/" + appConfg.enc(origin))
+      val expectedUrl = appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
 
-      val x = new WrapperService(mockPtaMenuBar,mockScaLayout,appConfg).safeSignoutUrl(continueUrl)
+      val response = new WrapperService(mockPtaMenuBar, mockScaLayout, appConfig).safeSignoutUrl(continueUrl)
 
-      x mustBe expectedUrl
+      response mustBe expectedUrl
     }
 
   }
