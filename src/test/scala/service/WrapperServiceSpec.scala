@@ -16,7 +16,6 @@
 
 package service
 
-import com.typesafe.config.Config
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
@@ -28,23 +27,17 @@ import play.api.i18n.Messages
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.libs.typedmap.TypedMap
 import play.api.mvc.request.{Cell, RequestAttrKey}
-import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies, RequestHeader, Result}
+import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.baseApplicationBuilder.injector
 import play.api.test.Helpers.stubMessages
-import play.api.{Application, Configuration, inject}
-import play.mvc.Http
+import play.api.{Application, inject}
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
-import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.views.html.PtaMenuBar
-
-import javax.inject.Inject
-//import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 import uk.gov.hmrc.sca.services.WrapperService
