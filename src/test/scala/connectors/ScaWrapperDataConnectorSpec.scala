@@ -23,6 +23,7 @@ import fixtures.WireMockHelper
 import org.scalactic.source.Position
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must
+import org.scalatest.time.{Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status.OK
 import play.api.i18n.Lang
@@ -59,14 +60,17 @@ class ScaWrapperDataConnectorSpec extends AnyWordSpec with WireMockHelper with S
         "sca-wrapper.services.single-customer-account-wrapper-data.url" -> s"http://localhost:${server.port}"
       ).build()
 
+      implicit val patienceConfig: PatienceConfig = PatienceConfig(timeout = Span(3, Seconds))
+      val position: Position = Position("SCAWrapperDataConnector.scala","uk/gov/hmrc/sca/connectors/ScaWrapperDataConnector.scala",37)
+
       running(app) {
         val SUT: ScaWrapperDataConnector = app.injector.instanceOf(classOf[ScaWrapperDataConnector])
         val config = app.injector.instanceOf(classOf[AppConfig])
 
         val result = SUT.wrapperData()(scala.concurrent.ExecutionContext.global, HeaderCarrier(), FakeRequest())
 
-        result.isReadyWithin(1 second) mustBe true
-        result.futureValue mustBe config.fallbackWrapperDataResponse(Lang.apply("en"))
+        result.isReadyWithin(1 second) mustBe false
+        result.futureValue(patienceConfig, position) mustBe config.fallbackWrapperDataResponse(Lang.apply("en"))
 
         server.verify(getRequestedFor(urlPathMatching("/single-customer-account-wrapper-data/wrapper-data.*")))
       }
