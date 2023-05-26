@@ -18,7 +18,6 @@ package connectors
 
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import com.google.common.base.Stopwatch
 import fixtures.WireMockHelper
 import org.scalactic.source.Position
 import org.scalatest.concurrent.ScalaFutures
@@ -34,7 +33,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 
-import java.net.http.HttpTimeoutException
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
@@ -60,7 +58,7 @@ class ScaWrapperDataConnectorSpec extends AnyWordSpec with WireMockHelper with S
         "sca-wrapper.services.single-customer-account-wrapper-data.url" -> s"http://localhost:${server.port}"
       ).build()
 
-      implicit val patienceConfig: PatienceConfig = PatienceConfig(timeout = Span(3, Seconds))
+      implicit val patienceConfig: PatienceConfig = PatienceConfig(timeout = Span(2, Seconds))
       val position: Position = Position("SCAWrapperDataConnector.scala","uk/gov/hmrc/sca/connectors/ScaWrapperDataConnector.scala",37)
 
       running(app) {
