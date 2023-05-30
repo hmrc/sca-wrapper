@@ -16,11 +16,11 @@
 
 package controllers
 
-import fixtures.BaseSpec
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.test.Helpers
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier}
 import uk.gov.hmrc.sca.controllers.KeepAliveController
+import utils.BaseSpec
 
 class KeepAliveControllerSpec extends BaseSpec {
 

@@ -29,17 +29,19 @@ import play.api.libs.typedmap.TypedMap
 import play.api.mvc.request.{Cell, RequestAttrKey}
 import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies}
 import play.api.test.FakeRequest
+import play.api.test.Helpers.baseApplicationBuilder.injector
 import play.api.test.Helpers.stubMessages
 import play.api.{Application, inject}
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 import uk.gov.hmrc.sca.services.WrapperService
 import uk.gov.hmrc.sca.utils.Keys
-import uk.gov.hmrc.sca.views.html.ScaLayout
+import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout}
 
 class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
@@ -58,6 +60,7 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
   private val mockScaLayout = mock[ScaLayout]
   private val mockScaWrapperDataConnector = mock[ScaWrapperDataConnector]
   private val mockAppConfig = mock[AppConfig]
+  private val mockPtaMenuBar = mock[PtaMenuBar]
 
   val modules: Seq[GuiceableModule] =
     Seq(
@@ -197,6 +200,25 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       disableSessionExpiredCaptor.getValue mustBe disableSessionExpired
       contentCaptor.getValue mustBe content
     }
+
+    "return the continueUrl if it is a valid relative URL" in {
+      val continueUrl = Some(RedirectUrl("/url"))
+
+      val actualUrl = wrapperService.safeSignoutUrl(continueUrl)
+
+      actualUrl mustBe Some("/url")
+    }
+
+    "return the exitSurveyOrigin if the continueUrl is None" in {
+      val appConfig: AppConfig = injector.instanceOf[AppConfig]
+
+      val expectedUrl = appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
+
+      val response = new WrapperService(mockPtaMenuBar, mockScaLayout, appConfig).safeSignoutUrl(None)
+
+      response mustBe expectedUrl
+    }
+
   }
 }
 
