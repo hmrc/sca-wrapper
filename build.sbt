@@ -1,7 +1,5 @@
 import play.sbt.routes.RoutesKeys
 
-import play.core.PlayVersion.current
-
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, SbtTwirl)
   .disablePlugins(PlayLayoutPlugin, JUnitXmlReportPlugin)
@@ -11,7 +9,7 @@ lazy val root = (project in file("."))
     scalaVersion := "2.13.8",
     isPublicArtefact := true,
     //TODO tests to check SNAPSHOT is changed back
-    version := "1.0.33",
+    version := "1.0.34",
 //    version := "1.0.0-SNAPSHOT",
     //    publish / skip := true,
     name := "sca-wrapper",
