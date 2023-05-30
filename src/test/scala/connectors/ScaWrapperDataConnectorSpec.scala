@@ -50,7 +50,7 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with Matchers with WireM
     )
 
   "ScaWrapperDataConnector" must {
-    "return a succesful response when wrapperData() is called" in {
+    "return a successful response when wrapperData() is called" in {
       val ptaMenuConfig: PtaMinMenuConfig = PtaMinMenuConfig(menuName = "Account menu", backName = "Back")
       val menuItemConfig: MenuItemConfig = MenuItemConfig("home", "Account home", "http://localhost:9232/personal-account",
         leftAligned = true, position = 0, Some("hmrc-account-icon hmrc-account-icon--home"), None)
@@ -120,26 +120,21 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with Matchers with WireM
 
     "return a successful response when messageData() is called" in {
 
-      val messageDataNumResponse = 1
-      val messageDataResponse = Some(messageDataNumResponse)
-
       server.stubFor(
         get(urlEqualTo(urlMessageData))
           .willReturn(
             ok
               .withHeader("Content-Type", "application/json")
-              .withBody(messageDataNumResponse.toString)
+              .withBody(1.toString)
           )
       )
 
       scaWrapperDataConnector.messageData().map { response =>
-        response mustBe messageDataResponse
+        response mustBe Some(1)
       }
     }
 
     "return None when messageData() is called but an exception occurs" in {
-
-      val messageDataResponse = None
 
       server.stubFor(
         get(urlEqualTo(urlMessageData))
@@ -151,7 +146,7 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with Matchers with WireM
       )
 
       scaWrapperDataConnector.messageData().map { response =>
-        response mustBe messageDataResponse
+        response mustBe None
       }
     }
   }

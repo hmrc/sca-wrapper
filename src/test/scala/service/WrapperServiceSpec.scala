@@ -203,20 +203,18 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
 
     "return the continueUrl if it is a valid relative URL" in {
       val continueUrl = Some(RedirectUrl("/url"))
-      val expectedUrl = "/url"
 
       val actualUrl = wrapperService.safeSignoutUrl(continueUrl)
 
-      actualUrl mustBe Some(expectedUrl)
+      actualUrl mustBe Some("/url")
     }
 
     "return the exitSurveyOrigin if the continueUrl is None" in {
-      val continueUrl = None
       val appConfig: AppConfig = injector.instanceOf[AppConfig]
 
       val expectedUrl = appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
 
-      val response = new WrapperService(mockPtaMenuBar, mockScaLayout, appConfig).safeSignoutUrl(continueUrl)
+      val response = new WrapperService(mockPtaMenuBar, mockScaLayout, appConfig).safeSignoutUrl(None)
 
       response mustBe expectedUrl
     }
