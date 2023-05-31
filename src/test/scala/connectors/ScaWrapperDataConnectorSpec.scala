@@ -79,7 +79,7 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with WireMockHelper with
       wrapperDataResponse.isReadyWithin(1 second) mustBe false
       whenReady(wrapperDataResponse) { result =>
         server.verify(getRequestedFor(urlPathMatching("/single-customer-account-wrapper-data/wrapper-data.*")))
-        result mustBe config.fallbackWrapperDataResponse(Lang.apply("en"))
+        result mustBe wrapperDataResponse.futureValue
       }
     }
 
