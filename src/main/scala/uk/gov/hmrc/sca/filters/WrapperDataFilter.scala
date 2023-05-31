@@ -17,16 +17,18 @@
 package uk.gov.hmrc.sca.filters
 
 import akka.stream.Materializer
-import play.api.mvc.{Filter, RequestHeader, Result}
+import play.api.mvc.{Call, Filter, RequestHeader, Result}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpVerbs.GET
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.utils.Keys
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class WrapperDataFilter @Inject()(scaWrapperDataConnector: ScaWrapperDataConnector)
+class WrapperDataFilter @Inject()(scaWrapperDataConnector: ScaWrapperDataConnector, appConfig: AppConfig)
                                  (implicit val executionContext: ExecutionContext, val mat: Materializer) extends Filter {
 
   override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {
@@ -34,15 +36,30 @@ class WrapperDataFilter @Inject()(scaWrapperDataConnector: ScaWrapperDataConnect
     implicit val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(rh, rh.session)
     implicit val head: RequestHeader = rh
 
-    for {
-      wrapperDataResponse <- scaWrapperDataConnector.wrapperData()
-      messageDataResponse <- scaWrapperDataConnector.messageData()
-      result <- f(
-        rh.addAttr(Keys.wrapperDataKey, wrapperDataResponse)
-          .addAttr(Keys.messageDataKey, messageDataResponse)
-      )
-    } yield {
-      result
+    if (excludedPaths.contains(toCall(rh))) {
+      f(rh)
+    } else {
+      for {
+        wrapperDataResponse <- scaWrapperDataConnector.wrapperData()
+        messageDataResponse <- scaWrapperDataConnector.messageData()
+        result <- f(
+          rh.addAttr(Keys.wrapperDataKey, wrapperDataResponse)
+            .addAttr(Keys.messageDataKey, messageDataResponse)
+        )
+      } yield {
+        result
+      }
     }
+
   }
+
+  private def excludedPaths: Seq[Call] =
+    appConfig.excludedPaths
+      .split(",")
+      .toSeq
+      .map(path => Call(GET, path.trim))
+
+  private def toCall(rh: RequestHeader): Call =
+    Call(rh.method, rh.uri)
+
 }

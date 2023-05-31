@@ -35,6 +35,8 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
   //config for service name in black bar
   val serviceNameKey: Option[String] = configuration.getOptional[String]("sca-wrapper.service-name.messages-key")
 
+  val excludedPaths: String = "/assets"
+
   //service name config for links
   val feedbackServiceName: String = configuration.get[String]("sca-wrapper.feedback-service-name")
   private val host: String = configuration.get[String]("sca-wrapper.host")
