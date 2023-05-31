@@ -16,13 +16,14 @@
 
 package controllers
 
-import fixtures.BaseSpec
+
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier}
 import uk.gov.hmrc.sca.controllers.KeepAliveController
+import utils.BaseSpec
 
 class KeepAliveControllerSpec extends AnyWordSpec with ScalaFutures {
 

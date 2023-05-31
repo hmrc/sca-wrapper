@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package fixtures
+package utils
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.typesafe.config.ConfigFactory
+import fixtures.Timeout
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.matchers.must.Matchers

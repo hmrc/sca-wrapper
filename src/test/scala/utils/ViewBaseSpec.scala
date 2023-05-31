@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fixtures
+package utils
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
