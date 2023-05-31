@@ -18,7 +18,6 @@ package connectors
 
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.scalactic.source.Position
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.time.{Seconds, Span}
@@ -71,17 +70,17 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with WireMockHelper with
         )
       )
 
-
       implicit val patienceConfig: PatienceConfig = PatienceConfig(timeout = Span(2, Seconds))
-      val position: Position = Position("SCAWrapperDataConnector.scala", "uk/gov/hmrc/sca/connectors/ScaWrapperDataConnector.scala", 37)
 
       val config = app.injector.instanceOf(classOf[AppConfig])
 
-      val result = scaWrapperDataConnector.wrapperData()(scala.concurrent.ExecutionContext.global, HeaderCarrier(), FakeRequest())
+      val wrapperDataResponse = scaWrapperDataConnector.wrapperData()(scala.concurrent.ExecutionContext.global, hc, rh)
 
-      result.isReadyWithin(1 second) mustBe false
-      server.verify(getRequestedFor(urlPathMatching("/single-customer-account-wrapper-data/wrapper-data.*")))
-      result.futureValue(patienceConfig, position) mustBe config.fallbackWrapperDataResponse(Lang.apply("en"))
+      wrapperDataResponse.isReadyWithin(1 second) mustBe false
+      whenReady(wrapperDataResponse) { result =>
+        server.verify(getRequestedFor(urlPathMatching("/single-customer-account-wrapper-data/wrapper-data.*")))
+        result mustBe config.fallbackWrapperDataResponse(Lang.apply("en"))
+      }
     }
 
     "return a successful response when wrapperData() is called" in {
