@@ -20,19 +20,18 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalactic.source.Position
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.matchers.must
+import org.scalatest.matchers.must.Matchers
 import org.scalatest.time.{Seconds, Span}
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status.OK
 import play.api.i18n.Lang
 import play.api.inject
-import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
+import play.api.inject.guice.GuiceableModule
 import play.api.mvc.RequestHeader
 import play.api.test.FakeRequest
-import play.api.test.Helpers.running
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.http.test.HttpClientSupport
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
@@ -42,43 +41,7 @@ import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
 
-
-
-
-class ScaWrapperDataConnectorSpec extends AsyncWordSpec with WireMockHelper with ScalaFutures with must.Matchers with HttpClientSupport with MockitoSugar {
-
-  "The ScaWrapperDataConnector with default settings" must {
-    "trigger a timeout if the request for wrapper data takes more than 1 second" in {
-
-      server.stubFor(
-        get(anyUrl()).willReturn(
-          aResponse()
-            .withStatus(OK)
-            .withBody("You haven't seen me, right!")
-            .withFixedDelay(2000)
-        )
-      )
-
-      val app = GuiceApplicationBuilder().configure(
-        "sca-wrapper.services.single-customer-account-wrapper-data.url" -> s"http://localhost:${server.port}"
-      ).build()
-
-      implicit val patienceConfig: PatienceConfig = PatienceConfig(timeout = Span(2, Seconds))
-      val position: Position = Position("SCAWrapperDataConnector.scala","uk/gov/hmrc/sca/connectors/ScaWrapperDataConnector.scala",37)
-
-      running(app) {
-        val SUT: ScaWrapperDataConnector = app.injector.instanceOf(classOf[ScaWrapperDataConnector])
-        val config = app.injector.instanceOf(classOf[AppConfig])
-
-        val result = SUT.wrapperData()(scala.concurrent.ExecutionContext.global, HeaderCarrier(), FakeRequest())
-
-        result.isReadyWithin(1 second) mustBe false
-        result.futureValue(patienceConfig, position) mustBe config.fallbackWrapperDataResponse(Lang.apply("en"))
-
-//        server.verify(getRequestedFor(urlPathMatching("/single-customer-account-wrapper-data/wrapper-data.*")))
-      }
-    }
-  }
+class ScaWrapperDataConnectorSpec extends AsyncWordSpec with WireMockHelper with ScalaFutures with Matchers with HttpClientSupport with MockitoSugar {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
   implicit val rh: RequestHeader = FakeRequest("", "")
@@ -96,6 +59,31 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with WireMockHelper with
     )
 
   "ScaWrapperDataConnector" must {
+
+    "trigger a timeout if the request for wrapper data takes more than 1 second" in {
+
+      server.stubFor(
+        get(anyUrl()).willReturn(
+          aResponse()
+            .withStatus(OK)
+            .withBody("You haven't seen me, right!")
+            .withFixedDelay(2000)
+        )
+      )
+
+
+      implicit val patienceConfig: PatienceConfig = PatienceConfig(timeout = Span(2, Seconds))
+      val position: Position = Position("SCAWrapperDataConnector.scala", "uk/gov/hmrc/sca/connectors/ScaWrapperDataConnector.scala", 37)
+
+      val config = app.injector.instanceOf(classOf[AppConfig])
+
+      val result = scaWrapperDataConnector.wrapperData()(scala.concurrent.ExecutionContext.global, HeaderCarrier(), FakeRequest())
+
+      result.isReadyWithin(1 second) mustBe false
+      server.verify(getRequestedFor(urlPathMatching("/single-customer-account-wrapper-data/wrapper-data.*")))
+      result.futureValue(patienceConfig, position) mustBe config.fallbackWrapperDataResponse(Lang.apply("en"))
+    }
+
     "return a successful response when wrapperData() is called" in {
       val ptaMenuConfig: PtaMinMenuConfig = PtaMinMenuConfig(menuName = "Account menu", backName = "Back")
       val menuItemConfig: MenuItemConfig = MenuItemConfig("home", "Account home", "http://localhost:9232/personal-account",

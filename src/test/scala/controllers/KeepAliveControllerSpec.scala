@@ -23,7 +23,6 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier}
 import uk.gov.hmrc.sca.controllers.KeepAliveController
-import utils.BaseSpec
 
 class KeepAliveControllerSpec extends AnyWordSpec with ScalaFutures {
 
