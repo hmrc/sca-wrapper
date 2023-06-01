@@ -43,8 +43,6 @@ import scala.concurrent.Future
 
 class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
-  private implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-
   private val mockScaWrapperDataConnector = mock[ScaWrapperDataConnector]
 
   val modules: Seq[GuiceableModule] =
@@ -66,15 +64,20 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
 
   "WrapperDataFilter" must {
 
-    "return the request with api responses" in {
+    "return the request with api responses when request path is not excluded" in {
 
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/non-excluded-path")
       implicit val materializer: Materializer = mock[Materializer]
 
       val f: RequestHeader => Future[Result] = r => {
-        Future.successful(Ok(Json.obj(
-          "wrapperData" -> r.attrs.get(Keys.wrapperDataKey),
-          "messageData" -> r.attrs.get(Keys.messageDataKey)
-        )))
+        Future.successful(
+          Ok(
+            Json.obj(
+              "wrapperData" -> r.attrs.get(Keys.wrapperDataKey),
+              "messageData" -> r.attrs.get(Keys.messageDataKey)
+            )
+          )
+        )
       }
 
       val result = wrapperDataFilter.apply(f)(request)
@@ -89,6 +92,38 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
         "messageData" -> Some(2)
       )
 
+    }
+
+    wrapperDataFilter.excludedPaths.foreach { path =>
+      s"return the request without calling the external api when request path contains $path" in {
+
+        implicit val materializer: Materializer = mock[Materializer]
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", path)
+
+        val f: RequestHeader => Future[Result] = r => {
+          Future.successful(
+            Ok(
+              Json.obj(
+                "wrapperData" -> r.attrs.get(Keys.wrapperDataKey),
+                "messageData" -> r.attrs.get(Keys.messageDataKey)
+              )
+            )
+          )
+        }
+
+        val result = wrapperDataFilter.apply(f)(request)
+
+        status(result) mustBe OK
+
+        verify(mockScaWrapperDataConnector, never()).wrapperData()(any(), any(), any())
+        verify(mockScaWrapperDataConnector, never()).messageData()(any(), any())
+
+        contentAsJson(result) mustBe Json.obj(
+          "wrapperData" -> None,
+          "messageData" -> None
+        )
+
+      }
     }
   }
 }

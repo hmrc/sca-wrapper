@@ -29,20 +29,27 @@ import scala.concurrent.{ExecutionContext, Future}
 class WrapperDataFilter @Inject()(scaWrapperDataConnector: ScaWrapperDataConnector)
                                  (implicit val executionContext: ExecutionContext, val mat: Materializer) extends Filter {
 
+  val excludedPaths = Seq("/assets", "/ping/ping")
+
   override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {
 
     implicit val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(rh, rh.session)
     implicit val head: RequestHeader = rh
 
-    for {
-      wrapperDataResponse <- scaWrapperDataConnector.wrapperData()
-      messageDataResponse <- scaWrapperDataConnector.messageData()
-      result <- f(
-        rh.addAttr(Keys.wrapperDataKey, wrapperDataResponse)
-          .addAttr(Keys.messageDataKey, messageDataResponse)
-      )
-    } yield {
-      result
+    if (excludedPaths.exists(excludedPath => rh.path.contains(excludedPath))) {
+      f(rh)
+    } else {
+      for {
+        wrapperDataResponse <- scaWrapperDataConnector.wrapperData()
+        messageDataResponse <- scaWrapperDataConnector.messageData()
+        result <- f(
+          rh.addAttr(Keys.wrapperDataKey, wrapperDataResponse)
+            .addAttr(Keys.messageDataKey, messageDataResponse)
+        )
+      } yield {
+        result
+      }
     }
   }
+
 }
