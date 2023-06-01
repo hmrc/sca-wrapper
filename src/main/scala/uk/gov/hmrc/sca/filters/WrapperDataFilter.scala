@@ -17,26 +17,26 @@
 package uk.gov.hmrc.sca.filters
 
 import akka.stream.Materializer
-import play.api.mvc.{Call, Filter, RequestHeader, Result}
+import play.api.mvc.{Filter, RequestHeader, Result}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpVerbs.GET
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.utils.Keys
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class WrapperDataFilter @Inject()(scaWrapperDataConnector: ScaWrapperDataConnector, appConfig: AppConfig)
+class WrapperDataFilter @Inject()(scaWrapperDataConnector: ScaWrapperDataConnector)
                                  (implicit val executionContext: ExecutionContext, val mat: Materializer) extends Filter {
+
+  val excludedPaths = Seq("/assets", "/ping/ping")
 
   override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {
 
     implicit val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(rh, rh.session)
     implicit val head: RequestHeader = rh
 
-    if (excludedPaths.contains(toCall(rh))) {
+    if (excludedPaths.exists(excludedPath => rh.path.contains(excludedPath))) {
       f(rh)
     } else {
       for {
@@ -50,16 +50,6 @@ class WrapperDataFilter @Inject()(scaWrapperDataConnector: ScaWrapperDataConnect
         result
       }
     }
-
   }
-
-  private def excludedPaths: Seq[Call] =
-    appConfig.excludedPaths
-      .split(",")
-      .toSeq
-      .map(path => Call(GET, path.trim))
-
-  private def toCall(rh: RequestHeader): Call =
-    Call(rh.method, rh.uri)
 
 }
