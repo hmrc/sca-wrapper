@@ -134,6 +134,36 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with Matchers with WireM
       }
     }
 
+    "return a None when messageData() is called and no data is returned" in {
+
+      server.stubFor(
+        get(urlEqualTo(urlMessageData))
+          .willReturn(
+            noContent()
+              .withHeader("Content-Type", "application/json")
+          )
+      )
+
+      scaWrapperDataConnector.messageData().map { response =>
+        response mustBe None
+      }
+    }
+
+    "return a None when messageData() is called and an unexpected response is returned" in {
+
+      server.stubFor(
+        get(urlEqualTo(urlMessageData))
+          .willReturn(
+            serverError()
+              .withHeader("Content-Type", "application/json")
+          )
+      )
+
+      scaWrapperDataConnector.messageData().map { response =>
+        response mustBe None
+      }
+    }
+
     "return None when messageData() is called but an exception occurs" in {
 
       server.stubFor(
