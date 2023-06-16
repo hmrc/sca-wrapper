@@ -18,10 +18,11 @@ package uk.gov.hmrc.sca.connectors
 
 import com.google.inject.Inject
 import play.api.Logging
+import play.api.http.Status.{NO_CONTENT, OK}
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models.WrapperDataResponse
 
@@ -43,7 +44,14 @@ class ScaWrapperDataConnector @Inject()(http: HttpClient, appConfig: AppConfig) 
 
   def messageData()(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[Int]] = {
     logger.info(s"[SCA Wrapper Library][ScaWrapperDataConnector][messageData] Requesting unread message count from Wrapper Data")
-    http.GET[Option[Int]](s"${appConfig.scaWrapperDataUrl}/message-data").recover {
+    http.GET[HttpResponse](s"${appConfig.scaWrapperDataUrl}/message-data").map { response =>
+      response.status match {
+        case OK => Some(response.body.toInt)
+        case NO_CONTENT => None
+        case status => logger.error(s"[SCA Wrapper Library][ScaWrapperDataConnector][messageData] Unexpected status: ${status}")
+          None
+      }
+    }.recover {
       case ex: Exception =>
         logger.error(s"[SCA Wrapper Library][ScaWrapperDataConnector][messageData] Exception while calling Wrapper Data: ${ex.getMessage}")
         None
