@@ -36,7 +36,7 @@ class WrapperDataFilter @Inject()(scaWrapperDataConnector: ScaWrapperDataConnect
     implicit val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(rh, rh.session)
     implicit val head: RequestHeader = rh
 
-    if (excludedPaths.exists(excludedPath => rh.path.contains(excludedPath))) {
+    if (rh.session.get("authToken").isEmpty || excludedPaths.exists(excludedPath => rh.path.contains(excludedPath))) {
       f(rh)
     } else {
       for {
