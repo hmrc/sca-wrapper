@@ -67,6 +67,38 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
     "return the request with api responses when request path is not excluded" in {
 
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/non-excluded-path")
+
+      implicit val materializer: Materializer = mock[Materializer]
+
+      val f: RequestHeader => Future[Result] = r => {
+        Future.successful(
+          Ok(
+            Json.obj(
+              "wrapperData" -> r.attrs.get(Keys.wrapperDataKey),
+              "messageData" -> r.attrs.get(Keys.messageDataKey)
+            )
+          )
+        )
+      }
+
+      val result = wrapperDataFilter.apply(f)(request.withSession("authToken" -> "123abc"))
+
+      status(result) mustBe OK
+
+      verify(mockScaWrapperDataConnector, times(1)).wrapperData()(any(), any(), any())
+      verify(mockScaWrapperDataConnector, times(1)).messageData()(any(), any())
+
+      contentAsJson(result) mustBe Json.obj(
+        "wrapperData" -> Some(wrapperDataResponse),
+        "messageData" -> Some(2)
+      )
+
+    }
+
+    "return the request without API responses when request path is not excluded and auth token is not present" in {
+
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/non-excluded-path")
+
       implicit val materializer: Materializer = mock[Materializer]
 
       val f: RequestHeader => Future[Result] = r => {
@@ -84,12 +116,12 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
 
       status(result) mustBe OK
 
-      verify(mockScaWrapperDataConnector, times(1)).wrapperData()(any(), any(), any())
-      verify(mockScaWrapperDataConnector, times(1)).messageData()(any(), any())
+      verify(mockScaWrapperDataConnector, never()).wrapperData()(any(), any(), any())
+      verify(mockScaWrapperDataConnector, never()).messageData()(any(), any())
 
       contentAsJson(result) mustBe Json.obj(
-        "wrapperData" -> Some(wrapperDataResponse),
-        "messageData" -> Some(2)
+        "wrapperData" -> None,
+        "messageData" -> None
       )
 
     }
