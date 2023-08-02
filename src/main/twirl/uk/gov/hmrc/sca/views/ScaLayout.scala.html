@@ -21,7 +21,6 @@
 @import uk.gov.hmrc.ptafrontend.views.html._
 @import uk.gov.hmrc.sca.config.AppConfig
 @import uk.gov.hmrc.sca.views.html.{ChildBenefitBanner, PtaHomeBanner}
-@import uk.gov.hmrc.sca.views.html.components.backLink
 @import uk.gov.hmrc.sca.models.BannerConfig
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
 
@@ -44,7 +43,6 @@
         hmrcAccountMenu: HmrcAccountMenu,
         ptaScripts: PtaScripts,
         ptaHead: PtaHead,
-        backLink: backLink,
         childBenefitBanner: ChildBenefitBanner,
         ptaHomeBanner: PtaHomeBanner,
         govukPhaseBanner: GovukPhaseBanner,
@@ -106,9 +104,15 @@
     @defining(appConfig.welshToggle) { welshEnabled =>
         @if(showBackLinkJS || backLinkUrl.isDefined ) {
             <div class="govuk-grid-row">
-                <div class="govuk-grid-column-one-half">
-                    @backLink(backLinkUrl, showBackLinkJS)
-                </div>
+                @if(showBackLinkJS){
+                    <div class="govuk-grid-column-one-half">
+                        @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
+                    </div>
+                }else{
+                    <div class="govuk-grid-column-one-half">
+                        @govukBackLink(BackLink.withDefaultText(backLinkUrl.getOrElse("#")))
+                    </div>
+                }
                 <div class="govuk-grid-column-one-half">
                     @if(welshEnabled) {
                     @hmrcLanguageSelectHelper()

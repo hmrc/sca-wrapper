@@ -92,7 +92,7 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
     MenuItemConfig("messages", messages("sca-wrapper.fallback.menu.messages"), s"$pertaxUrl/messages", leftAligned = false, position = 0, None, None),
     MenuItemConfig("progress", messages("sca-wrapper.fallback.menu.progress"), s"$trackingUrl/track", leftAligned = false, position = 1, None, None),
     MenuItemConfig("profile", messages("sca-wrapper.fallback.menu.profile"), s"$pertaxUrl/profile-and-settings", leftAligned = false, position = 2, None, None),
-    MenuItemConfig("signout", messages("sca-wrapper.fallback.menu.signout"), s"$pertaxUrl/signout/feedback/PERTAX", leftAligned = false, position = 3, None, None)
+    MenuItemConfig("signout", messages("sca-wrapper.fallback.menu.signout"), s"$signoutUrl", leftAligned = false, position = 3, None, None)
   )
 
   //fallback wrapper data response in the event that wrapper data is offline

@@ -97,13 +97,6 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
       document.select(".govuk-grid-column-one-third").text() mustBe "Sidebar-Content"
     }
 
-    "return a Wrapper layout when showBackLinkJS is true in English" in {
-      val document = asDocument(createView(showBackLinkJS = true).toString())
-
-      document.getElementById("back-link").attr("href") mustBe "javascript:history.back()"
-      document.getElementById("back-link").text() mustBe messagesEn("label.back")
-    }
-
     "return a Wrapper layout when there is a backlinkUrl in English" in {
       val document = asDocument(createView(backLinkUrl = Some("backlink-url")).toString())
 

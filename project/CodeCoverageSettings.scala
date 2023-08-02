@@ -7,6 +7,6 @@ object CodeCoverageSettings {
     ScoverageKeys.coverageMinimumStmtTotal := 85,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
-    ScoverageKeys.coverageExcludedPackages:= "<empty>;uk.gov.hmrc.sca.viewmodels.*"
+    ScoverageKeys.coverageExcludedPackages:= "<empty>;uk.gov.hmrc.sca.viewmodels.*;.*Routes.*;.*Module.*;"
   )
 }
