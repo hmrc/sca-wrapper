@@ -27,6 +27,7 @@ import play.api.mvc.RequestHeader
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.test.HttpClientSupport
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 import utils.WireMockHelper
@@ -43,7 +44,7 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with Matchers with WireM
   val urlMessageData = "/single-customer-account-wrapper-data/message-data"
 
   private lazy val scaWrapperDataConnector: ScaWrapperDataConnector = injector.instanceOf[ScaWrapperDataConnector]
-
+  private lazy val appConfig: AppConfig = injector.instanceOf[AppConfig]
   override def bindings: Seq[GuiceableModule] =
     Seq(
       inject.bind[HttpClient].toInstance(httpClient)
@@ -98,7 +99,7 @@ class ScaWrapperDataConnectorSpec extends AsyncWordSpec with Matchers with WireM
         MenuItemConfig("messages", "Messages", s"http://localhost:9232/personal-account/messages", leftAligned = false, position = 0, None, None),
         MenuItemConfig("progress", "Check progress", s"http://localhost:9100/track", leftAligned = false, position = 1, None, None),
         MenuItemConfig("profile", "Profile and settings", s"http://localhost:9232/personal-account/profile-and-settings", leftAligned = false, position = 2, None, None),
-        MenuItemConfig("signout", "Sign out", s"http://localhost:9232/personal-account/signout/feedback/PERTAX", leftAligned = false, position = 3, None, None)
+        MenuItemConfig("signout", "Sign out", s"${appConfig.signoutUrl}", leftAligned = false, position = 3, None, None)
       )
 
       def fallbackWrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
