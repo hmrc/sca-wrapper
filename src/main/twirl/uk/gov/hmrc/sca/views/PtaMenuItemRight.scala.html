@@ -20,8 +20,9 @@
 @(accountMenuConfig: MenuItemConfig)(implicit request: Request[_])
 
 <li>
- <a href="@accountMenuConfig.href" class="hmrc-account-menu__link @if(request.uri != "/" && (accountMenuConfig.href.split('/').last == (request.uri.split('/').last) &&
- !accountMenuConfig.href.contains("/sign-out")) || (accountMenuConfig.href.contains("/profile-and-settings") && request.uri.contains("/your-address"))
+ <a href="@accountMenuConfig.href" class="hmrc-account-menu__link @if(request.uri != "/"
+ && (accountMenuConfig.href.split('/').last == (request.uri.split('/').last) && !accountMenuConfig.href.contains("/sign-out"))
+ || (accountMenuConfig.href.contains("/profile-and-settings") && (request.uri.contains("/your-address") || request.uri.contains("/update-your-details")))
  || (accountMenuConfig.href.contains("/messages") && request.uri.contains("/messages"))){ hmrc-account-menu__link--active}" id="menu.right.@accountMenuConfig.position">
  @defining(accountMenuConfig.icon.getOrElse("")) { iconClass =>
   <span class="@iconClass">
