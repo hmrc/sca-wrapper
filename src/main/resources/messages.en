@@ -12,10 +12,3 @@ sca-wrapper.fallback.menu.signout = Sign out
 sca-wrapper.fallback.menu.bta = Business tax account
 sca-wrapper.fallback.menu.name = Account menu
 sca-wrapper.fallback.menu.back = Back
-
-sca-wrapper.help.improve.banner.heading = Help improve GOV.UK
-sca-wrapper.help.improve.banner.link.text = Help improve digital services by joining the HMRC user panel (opens in new window)
-sca-wrapper.banner.label.no_thanks = No thanks
-
-sca-wrapper.child.benefit.banner.heading = Help improve the Child Benefit service
-sca-wrapper.child.benefit.banner.link.text = Help make the Child Benefit service better by taking part in a survey (opens in a new tab). It should take around 5 minutes.

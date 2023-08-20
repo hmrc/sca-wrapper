@@ -117,24 +117,6 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
       document.select(".govuk-phase-banner__content").asScala.exists(x => x.text().equals("beta This is a new service – your feedback will help us to improve it.")) mustBe true
     }
 
-    "return a Wrapper layout when showChildBenefitBanner is true in English" in {
-      val document = asDocument(createView(bannerConfig = BannerConfig(showChildBenefitBanner = true, showAlphaBanner = false, showBetaBanner = false, showHelpImproveBanner = false)).toString())
-
-      document.select(".hmrc-user-research-banner__title").text() mustBe messagesEn("sca-wrapper.child.benefit.banner.heading")
-      document.select(".hmrc-user-research-banner__link").text() mustBe messagesEn("sca-wrapper.child.benefit.banner.link.text")
-      document.select(".hmrc-user-research-banner__close").text() mustBe messagesEn("sca-wrapper.banner.label.no_thanks")
-
-    }
-
-    "return a Wrapper layout when showHelpImproveBanner is true in English" in {
-      val document = asDocument(createView(bannerConfig = BannerConfig(showChildBenefitBanner = false, showAlphaBanner = false, showBetaBanner = false, showHelpImproveBanner = true)).toString())
-
-      document.select(".hmrc-user-research-banner__title").text() mustBe messagesEn("sca-wrapper.help.improve.banner.heading")
-      document.select(".hmrc-user-research-banner__link").text() mustBe messagesEn("sca-wrapper.help.improve.banner.link.text")
-      document.select(".hmrc-user-research-banner__close").text() mustBe messagesEn("sca-wrapper.banner.label.no_thanks")
-
-    }
-
     "return a Wrapper layout when fullWidth is true in English" in {
       val document = asDocument(createView(fullWidth = true).toString())
       document.select(".govuk-grid-column-full").asScala.nonEmpty mustBe true
