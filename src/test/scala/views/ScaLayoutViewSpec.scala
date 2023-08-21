@@ -32,7 +32,7 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
   private val scaLayout = inject[ScaLayout]
 
   private def createView(sidebarContent: Option[Html] = None, showBackLinkJS: Boolean = false, backLinkUrl: Option[String] = None, showSignOutInHeader: Boolean = false,
-                         bannerConfig: BannerConfig = BannerConfig(showChildBenefitBanner = false, showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
+                         bannerConfig: BannerConfig = BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
                          fullWidth: Boolean = false, hideMenuBar: Boolean = false, disableSessionExpired: Boolean = false, optTrustedHelper: Option[TrustedHelper] = None)(implicit messages: Messages): Html = {
 
     scaLayout(menu, Some("Service-Name-Key"), Some("Service-Name_Url"), Some("Page-Title"),
@@ -112,7 +112,7 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
     }
 
     "return a Wrapper layout when showBetaBanner is true in English" in {
-      val document = asDocument(createView(bannerConfig = BannerConfig(showChildBenefitBanner = false, showAlphaBanner = false, showBetaBanner = true, showHelpImproveBanner = false)).toString())
+      val document = asDocument(createView(bannerConfig = BannerConfig(showAlphaBanner = false, showBetaBanner = true, showHelpImproveBanner = false)).toString())
 
       document.select(".govuk-phase-banner__content").asScala.exists(x => x.text().equals("beta This is a new service – your feedback will help us to improve it.")) mustBe true
     }
