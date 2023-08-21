@@ -88,7 +88,6 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       when(mockAppConfig.showAlphaBanner).thenReturn(true)
       when(mockAppConfig.showBetaBanner).thenReturn(false)
       when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
-      when(mockAppConfig.showChildBenefitBanner).thenReturn(false)
       when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
       when(mockAppConfig.signoutUrl).thenReturn("Signout-Url")
       when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
@@ -110,7 +109,6 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       verify(mockAppConfig, times(1)).showAlphaBanner
       verify(mockAppConfig, times(1)).showBetaBanner
       verify(mockAppConfig, times(1)).showHelpImproveBanner
-      verify(mockAppConfig, times(1)).showChildBenefitBanner
       verify(mockAppConfig, times(1)).serviceNameKey
       verify(mockAppConfig, times(1)).signoutUrl
       verify(mockAppConfig, times(1)).keepAliveUrl
@@ -128,7 +126,7 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       showSignOutInHeaderCaptor.getValue mustBe false
       scriptsCaptor.getValue mustBe Seq.empty
       styleSheetsCaptor.getValue mustBe Seq.empty
-      bannerConfigCaptor.getValue mustBe BannerConfig(showChildBenefitBanner = false, showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = true)
+      bannerConfigCaptor.getValue mustBe BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = true)
       optTrustedHelperCaptor.getValue mustBe None
       fullWidthCaptor.getValue mustBe true
       hideMenuBarCaptor.getValue mustBe false
@@ -151,7 +149,7 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       val showSignOutInHeader = true
       val scripts = Seq(Html("Scripts"))
       val styleSheets = Seq(Html("StyleSheets"))
-      val bannerConfig = BannerConfig(showChildBenefitBanner = true, showAlphaBanner = false, showBetaBanner = true, showHelpImproveBanner = false)
+      val bannerConfig = BannerConfig(showAlphaBanner = false, showBetaBanner = true, showHelpImproveBanner = false)
       val optTrustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", "principalNino"))
       val fullWidth = true
       val hideMenuBar = true
@@ -174,7 +172,6 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       verify(mockAppConfig, never).showAlphaBanner
       verify(mockAppConfig, never).showBetaBanner
       verify(mockAppConfig, never).showHelpImproveBanner
-      verify(mockAppConfig, never).showChildBenefitBanner
       verify(mockAppConfig, never).serviceNameKey
       verify(mockAppConfig, never).signoutUrl
       verify(mockAppConfig, never).keepAliveUrl
