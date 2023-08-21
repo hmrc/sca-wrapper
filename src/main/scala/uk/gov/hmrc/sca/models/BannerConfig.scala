@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.sca.models
 
-case class BannerConfig(showChildBenefitBanner: Boolean,
-                        showAlphaBanner: Boolean,
+case class BannerConfig(showAlphaBanner: Boolean,
                         showBetaBanner: Boolean,
                         showHelpImproveBanner: Boolean)

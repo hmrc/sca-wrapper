@@ -20,7 +20,6 @@
 @import uk.gov.hmrc.ptafrontend.viewmodels.attorneybanner.AttorneyBanner
 @import uk.gov.hmrc.ptafrontend.views.html._
 @import uk.gov.hmrc.sca.config.AppConfig
-@import uk.gov.hmrc.sca.views.html.{ChildBenefitBanner, PtaHomeBanner}
 @import uk.gov.hmrc.sca.models.BannerConfig
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
 
@@ -43,8 +42,6 @@
         hmrcAccountMenu: HmrcAccountMenu,
         ptaScripts: PtaScripts,
         ptaHead: PtaHead,
-        childBenefitBanner: ChildBenefitBanner,
-        ptaHomeBanner: PtaHomeBanner,
         govukPhaseBanner: GovukPhaseBanner,
         ptaAttorneyBanner: PtaAttorneyBanner,
         twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
@@ -167,13 +164,7 @@
     additionalHeadBlock = Some(headBlock),
     beforeContentBlock = Some(beforeContent),
     additionalScriptsBlock = Some(additionalScripts),
-    additionalBannersBlock = if(bannerConfig.showChildBenefitBanner) {
-        Some(childBenefitBanner.apply())
-    } else if(bannerConfig.showHelpImproveBanner) {
-        Some(ptaHomeBanner.apply())
-    } else {
-        None
-    },
+    userResearchBannerUrl = if(bannerConfig.showHelpImproveBanner) {Some(appConfig.helpImproveBannerUrl.getOrElse("#"))} else {None},
     mainContentLayout = Some(sidebarContent match {
         case Some(sidebarHtml) => twoThirdsOneThirdMainContent(sidebarHtml)
         case None =>

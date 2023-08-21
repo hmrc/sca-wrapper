@@ -37,7 +37,6 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
                                appConfig: AppConfig) extends Logging {
 
   lazy val defaultBannerConfig: BannerConfig = BannerConfig(
-    showChildBenefitBanner = appConfig.showChildBenefitBanner,
     showAlphaBanner = appConfig.showAlphaBanner,
     showBetaBanner = appConfig.showBetaBanner,
     showHelpImproveBanner = appConfig.showHelpImproveBanner
