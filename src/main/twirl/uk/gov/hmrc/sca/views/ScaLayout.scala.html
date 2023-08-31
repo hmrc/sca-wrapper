@@ -103,7 +103,9 @@
             <div class="govuk-grid-row">
                 @if(showBackLinkJS){
                     <div class="govuk-grid-column-one-half">
-                        @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
+                        <div class="govuk-!-display-inline-block">
+                            @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
+                        </div>
                     </div>
                 }else{
                     <div class="govuk-grid-column-one-half">
