@@ -77,7 +77,6 @@ val appDependencies = Seq(
   "uk.gov.hmrc"                 %% "play-language"                    % s"6.1.0-$playVersion",
   "uk.gov.hmrc"                 %% "play-partials"                    % s"8.4.0-$playVersion",
   "uk.gov.hmrc"                 %% "domain"                           % s"8.1.0-$playVersion",
-  "uk.gov.hmrc"                 %% "play-frontend-pta"                % "0.4.0"
 )
 
 val testDependencies = Seq(

@@ -1,0 +1,54 @@
+// This code is based on original code from assets-frontend:
+// https://github.com/hmrc/assets-frontend/blob/main/assets/scss/components/_attorney-banner.scss
+$govuk-include-default-font-face: false;
+@import "../../../node_modules/govuk-frontend/govuk/base";
+
+$pta-attorney-banner-bg: #def;
+$pta-attorney-banner-border: #005ea5;
+$client-request-accepted-bg: #bfd8cd;
+$client-request-requested-bg: #fcddcd;
+$client-request-rejected-bg: #ecc3c7;
+
+.pta-attorney-banner {
+  @include govuk-font($size: 19);
+  @include govuk-responsive-padding(2);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 999;
+  border-left: 3px solid $pta-attorney-banner-border;
+  background-color: $pta-attorney-banner-bg;
+  box-sizing: border-box;
+  width: 100%;
+
+  @include govuk-media-query($from: desktop) {
+    flex-direction: row;
+  }
+}
+
+.pta-attorney-banner--client-request-accepted {
+  border-left: 3px solid govuk-colour('green');
+  background-color: $client-request-accepted-bg;
+}
+
+.pta-attorney-banner--client-request-requested {
+  border-left: 3px solid govuk-colour('orange');
+  background-color: $client-request-requested-bg;
+}
+
+.pta-attorney-banner--client-request-rejected {
+  border-left: 3px solid govuk-colour('red');
+  background-color: $client-request-rejected-bg;
+}
+
+.pta-attorney-banner--fixed {
+  top: 0;
+  width: calc(100% - #{$govuk-gutter});
+  max-width: $govuk-page-width;
+  position: fixed;
+
+  @include govuk-media-query($from: tablet) {
+    width: calc(100% - #{$govuk-gutter} - #{$govuk-gutter});
+  }
+}
