@@ -17,8 +17,8 @@
 package uk.gov.hmrc.sca.controllers
 
 import controllers.{AssetsBuilder, AssetsMetadata}
-import javax.inject.{Inject, Singleton}
 import play.api.http.HttpErrorHandler
+import javax.inject.{Inject, Singleton}
 
 /*
  * Without this we get
