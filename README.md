@@ -14,6 +14,7 @@ anything (e.g button position on the menu bar, href links, button names etc. can
 - Check the `application.conf` file and override the default values
 - Inject `WrapperService` and call `layout()`
 - Pass your HTML view into the method, and override any parameters as needed
+- Since wrapper library has Pta frontend library included in it, provide the ptafrontend route in the app.routes class.
 
 ## Testing the library locally and making changes to it
 

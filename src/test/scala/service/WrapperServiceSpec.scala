@@ -41,7 +41,7 @@ import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 import uk.gov.hmrc.sca.services.WrapperService
 import uk.gov.hmrc.sca.utils.Keys
-import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout}
+import uk.gov.hmrc.sca.views.html.{NewScaLayout, PtaMenuBar, ScaLayout}
 
 class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
@@ -61,10 +61,12 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
   private val mockScaWrapperDataConnector = mock[ScaWrapperDataConnector]
   private val mockAppConfig = mock[AppConfig]
   private val mockPtaMenuBar = mock[PtaMenuBar]
+  private val mockNewScaLayout = mock[NewScaLayout]
 
   val modules: Seq[GuiceableModule] =
     Seq(
       inject.bind[ScaLayout].toInstance(mockScaLayout),
+      inject.bind[NewScaLayout].toInstance(mockNewScaLayout),
       inject.bind[ScaWrapperDataConnector].toInstance(mockScaWrapperDataConnector),
       inject.bind[AppConfig].toInstance(mockAppConfig)
     )
@@ -77,6 +79,7 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
 
   override def beforeEach(): Unit = {
     reset(mockScaLayout)
+    reset(mockNewScaLayout)
     reset(mockScaWrapperDataConnector)
     reset(mockAppConfig)
   }
@@ -97,6 +100,57 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       wrapperService.layout(content = Html("Default-Content"))
 
       verify(mockScaLayout, times(1)).apply(menu = menuCaptor.capture(), serviceNameKey = serviceNameKeyCaptor.capture(),
+        serviceNameUrl = serviceNameUrlCaptor.capture(), pageTitle = pageTitleCaptor.capture(),
+        sidebarContent = sideBarContentCaptor.capture(), signoutUrl = signoutUrlCaptor.capture(),
+        timeOutUrl = timeOutUrlCaptor.capture(), keepAliveUrl = keepAliveUrlCaptor.capture(), showBackLinkJS = showBackLinkJSCaptor.capture(),
+        backLinkUrl = backLinkUrlCaptor.capture(), showSignOutInHeader = showSignOutInHeaderCaptor.capture(),
+        scripts = scriptsCaptor.capture(), styleSheets = styleSheetsCaptor.capture(), bannerConfig = bannerConfigCaptor.capture(),
+        fullWidth = fullWidthCaptor.capture(), hideMenuBar = hideMenuBarCaptor.capture(),
+        disableSessionExpired = disableSessionExpiredCaptor.capture(),
+        optTrustedHelper = optTrustedHelperCaptor.capture())(contentCaptor.capture())(any(), any(), any())
+
+      verify(mockAppConfig, times(1)).showAlphaBanner
+      verify(mockAppConfig, times(1)).showBetaBanner
+      verify(mockAppConfig, times(1)).showHelpImproveBanner
+      verify(mockAppConfig, times(1)).serviceNameKey
+      verify(mockAppConfig, times(1)).signoutUrl
+      verify(mockAppConfig, times(1)).keepAliveUrl
+      verify(mockAppConfig, times(1)).disableSessionExpired
+
+      menuCaptor.getValue mustBe menu
+      serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
+      serviceNameUrlCaptor.getValue mustBe None
+      pageTitleCaptor.getValue mustBe None
+      sideBarContentCaptor.getValue mustBe None
+      signoutUrlCaptor.getValue mustBe "Signout-Url"
+      keepAliveUrlCaptor.getValue mustBe "/refresh-session"
+      showBackLinkJSCaptor.getValue mustBe false
+      backLinkUrlCaptor.getValue mustBe None
+      showSignOutInHeaderCaptor.getValue mustBe false
+      scriptsCaptor.getValue mustBe Seq.empty
+      styleSheetsCaptor.getValue mustBe Seq.empty
+      bannerConfigCaptor.getValue mustBe BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = true)
+      optTrustedHelperCaptor.getValue mustBe None
+      fullWidthCaptor.getValue mustBe true
+      hideMenuBarCaptor.getValue mustBe false
+      disableSessionExpiredCaptor.getValue mustBe false
+      contentCaptor.getValue mustBe Html("Default-Content")
+    }
+
+    "return default New Sca layout" in {
+
+      when(mockAppConfig.showAlphaBanner).thenReturn(true)
+      when(mockAppConfig.showBetaBanner).thenReturn(false)
+      when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
+      when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
+      when(mockAppConfig.signoutUrl).thenReturn("Signout-Url")
+      when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
+      when(mockAppConfig.disableSessionExpired).thenReturn(false)
+
+
+      wrapperService.newLayout(content = Html("Default-Content"))
+
+      verify(mockNewScaLayout, times(1)).apply(menu = menuCaptor.capture(), serviceNameKey = serviceNameKeyCaptor.capture(),
         serviceNameUrl = serviceNameUrlCaptor.capture(), pageTitle = pageTitleCaptor.capture(),
         sidebarContent = sideBarContentCaptor.capture(), signoutUrl = signoutUrlCaptor.capture(),
         timeOutUrl = timeOutUrlCaptor.capture(), keepAliveUrl = keepAliveUrlCaptor.capture(), showBackLinkJS = showBackLinkJSCaptor.capture(),
@@ -211,7 +265,7 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
 
       val expectedUrl = appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
 
-      val response = new WrapperService(mockPtaMenuBar, mockScaLayout, appConfig).safeSignoutUrl(None)
+      val response = new WrapperService(mockPtaMenuBar, mockScaLayout, mockNewScaLayout, appConfig).safeSignoutUrl(None)
 
       response mustBe expectedUrl
     }

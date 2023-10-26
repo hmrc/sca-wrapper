@@ -27,14 +27,16 @@ import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMenuConfig, WrapperDataResponse}
 import uk.gov.hmrc.sca.utils.Keys
-import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout}
+import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, NewScaLayout}
 
 import javax.inject.Inject
 import scala.util.{Failure, Success, Try}
 
 class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
                                scaLayout: ScaLayout,
+                               newScaLayout: NewScaLayout,
                                appConfig: AppConfig) extends Logging {
+
 
   lazy val defaultBannerConfig: BannerConfig = BannerConfig(
     showAlphaBanner = appConfig.showAlphaBanner,
@@ -42,6 +44,8 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
     showHelpImproveBanner = appConfig.showHelpImproveBanner
   )
 
+  @deprecated(
+    "Use newLayout method instead - this is support the HMRCStandardPage template instead of deprecated HmrcLayout")
   def layout(
               content: HtmlFormat.Appendable,
               pageTitle: Option[String] = None,
@@ -88,6 +92,50 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
     )(content)
   }
 
+  def newLayout(
+                 content: HtmlFormat.Appendable,
+                 pageTitle: Option[String] = None,
+                 serviceNameKey: Option[String] = appConfig.serviceNameKey,
+                 serviceNameUrl: Option[String] = None,
+                 sidebarContent: Option[Html] = None,
+                 signoutUrl: String = appConfig.signoutUrl,
+                 timeOutUrl: Option[String] = appConfig.timeOutUrl,
+                 keepAliveUrl: String = appConfig.keepAliveUrl,
+                 showBackLinkJS: Boolean = false,
+                 backLinkUrl: Option[String] = None,
+                 showSignOutInHeader: Boolean = false,
+                 scripts: Seq[HtmlFormat.Appendable] = Seq.empty,
+                 styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
+                 bannerConfig: BannerConfig = defaultBannerConfig,
+                 optTrustedHelper: Option[TrustedHelper] = None,
+                 fullWidth: Boolean = true,
+                 hideMenuBar: Boolean = false,
+                 disableSessionExpired: Boolean = appConfig.disableSessionExpired
+               )
+               (implicit messages: Messages,
+                hc: HeaderCarrier,
+                request: Request[_]): HtmlFormat.Appendable = {
+    newScaLayout(
+      menu = ptaMenuBar(sortMenuItemConfig(signoutUrl)),
+      serviceNameKey = serviceNameKey,
+      serviceNameUrl = serviceNameUrl,
+      pageTitle = pageTitle,
+      sidebarContent = sidebarContent,
+      signoutUrl = signoutUrl,
+      timeOutUrl = timeOutUrl,
+      keepAliveUrl = keepAliveUrl,
+      showBackLinkJS = showBackLinkJS,
+      backLinkUrl = backLinkUrl,
+      showSignOutInHeader = showSignOutInHeader,
+      scripts = scripts,
+      styleSheets = styleSheets,
+      bannerConfig = bannerConfig,
+      fullWidth = fullWidth,
+      hideMenuBar = hideMenuBar,
+      disableSessionExpired = disableSessionExpired,
+      optTrustedHelper = optTrustedHelper
+    )(content)
+  }
   def safeSignoutUrl(continueUrl: Option[RedirectUrl] = None): Option[String] = continueUrl match {
     case Some(continue) if continue.getEither(OnlyRelative).isRight => Some(continue.getEither(OnlyRelative).toOption.get.url)
     case _ => appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
