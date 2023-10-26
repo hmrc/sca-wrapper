@@ -186,7 +186,7 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
   private def getWrapperDataResponse(request: Request[_]): Option[WrapperDataResponse] = {
     val result = request.attrs.get(Keys.wrapperDataKey)
     if (result.isEmpty) {
-      logger.warn("[SCA Wrapper Library][WrapperService][getWrapperDataResponse] Expecting Wrapper Data in the request but none was there")
+      logger.warn(s"[SCA Wrapper Library][WrapperService][getWrapperDataResponse]{ Expecting Wrapper Data in the request but none was there [${appConfig.serviceUrl}]")
     }
     result
   }

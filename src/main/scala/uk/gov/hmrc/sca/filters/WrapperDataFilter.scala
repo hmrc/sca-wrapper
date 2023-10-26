@@ -21,13 +21,14 @@ import play.api.mvc.{Filter, RequestHeader, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
+import uk.gov.hmrc.sca.logging.Logging
 import uk.gov.hmrc.sca.utils.Keys
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class WrapperDataFilter @Inject()(scaWrapperDataConnector: ScaWrapperDataConnector)
-                                 (implicit val executionContext: ExecutionContext, val mat: Materializer) extends Filter {
+                                 (implicit val executionContext: ExecutionContext, val mat: Materializer) extends Filter with Logging {
 
   val excludedPaths = Seq("/assets", "/ping/ping")
 
@@ -37,6 +38,9 @@ class WrapperDataFilter @Inject()(scaWrapperDataConnector: ScaWrapperDataConnect
     implicit val head: RequestHeader = rh
 
     if (rh.session.get("authToken").isEmpty || excludedPaths.exists(excludedPath => rh.path.contains(excludedPath))) {
+      if (rh.session.get("authToken").isEmpty) {
+      logger.info(s"[SCA Wrapper Data Filter][Auth Token Empty]")
+      }
       f(rh)
     } else {
       for {
