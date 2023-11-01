@@ -34,6 +34,7 @@ import play.api.test.Helpers.stubMessages
 import play.api.{Application, inject}
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.sca.config.AppConfig
@@ -41,7 +42,7 @@ import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 import uk.gov.hmrc.sca.services.WrapperService
 import uk.gov.hmrc.sca.utils.Keys
-import uk.gov.hmrc.sca.views.html.{NewScaLayout, PtaMenuBar, ScaLayout}
+import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
 
 class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
@@ -61,12 +62,12 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
   private val mockScaWrapperDataConnector = mock[ScaWrapperDataConnector]
   private val mockAppConfig = mock[AppConfig]
   private val mockPtaMenuBar = mock[PtaMenuBar]
-  private val mockNewScaLayout = mock[NewScaLayout]
+  private val mockStandardScaLayout = mock[StandardScaLayout]
 
   val modules: Seq[GuiceableModule] =
     Seq(
       inject.bind[ScaLayout].toInstance(mockScaLayout),
-      inject.bind[NewScaLayout].toInstance(mockNewScaLayout),
+      inject.bind[StandardScaLayout].toInstance(mockStandardScaLayout),
       inject.bind[ScaWrapperDataConnector].toInstance(mockScaWrapperDataConnector),
       inject.bind[AppConfig].toInstance(mockAppConfig)
     )
@@ -79,7 +80,7 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
 
   override def beforeEach(): Unit = {
     reset(mockScaLayout)
-    reset(mockNewScaLayout)
+    reset(mockStandardScaLayout)
     reset(mockScaWrapperDataConnector)
     reset(mockAppConfig)
   }
@@ -148,11 +149,10 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       when(mockAppConfig.disableSessionExpired).thenReturn(false)
 
 
-      wrapperService.newLayout(content = Html("Default-Content"))
+      wrapperService.standardScaLayout(content = Html("Default-Content"))
 
-      verify(mockNewScaLayout, times(1)).apply(menu = menuCaptor.capture(), serviceNameKey = serviceNameKeyCaptor.capture(),
-        serviceNameUrl = serviceNameUrlCaptor.capture(), pageTitle = pageTitleCaptor.capture(),
-        sidebarContent = sideBarContentCaptor.capture(), signoutUrl = signoutUrlCaptor.capture(),
+      verify(mockStandardScaLayout, times(1)).apply(menu = menuCaptor.capture(), serviceURLs = serviceURLsCaptor.capture(),
+        serviceNameKey = serviceNameKeyCaptor.capture(), pageTitle = pageTitleCaptor.capture(), sidebarContent = sideBarContentCaptor.capture(),
         timeOutUrl = timeOutUrlCaptor.capture(), keepAliveUrl = keepAliveUrlCaptor.capture(), showBackLinkJS = showBackLinkJSCaptor.capture(),
         backLinkUrl = backLinkUrlCaptor.capture(), showSignOutInHeader = showSignOutInHeaderCaptor.capture(),
         scripts = scriptsCaptor.capture(), styleSheets = styleSheetsCaptor.capture(), bannerConfig = bannerConfigCaptor.capture(),
@@ -168,12 +168,11 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       verify(mockAppConfig, times(1)).keepAliveUrl
       verify(mockAppConfig, times(1)).disableSessionExpired
 
-      menuCaptor.getValue mustBe menu
+      menuCaptor.getValue mustBe standardmenu
+      serviceURLsCaptor.getValue mustBe ServiceURLs(serviceUrl = None, signOutUrl = Some("Signout-Url"), accessibilityStatementUrl = Some(null))
       serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
-      serviceNameUrlCaptor.getValue mustBe None
       pageTitleCaptor.getValue mustBe None
       sideBarContentCaptor.getValue mustBe None
-      signoutUrlCaptor.getValue mustBe "Signout-Url"
       keepAliveUrlCaptor.getValue mustBe "/refresh-session"
       showBackLinkJSCaptor.getValue mustBe false
       backLinkUrlCaptor.getValue mustBe None
@@ -265,7 +264,7 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
 
       val expectedUrl = appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
 
-      val response = new WrapperService(mockPtaMenuBar, mockScaLayout, mockNewScaLayout, appConfig).safeSignoutUrl(None)
+      val response = new WrapperService(mockPtaMenuBar, mockScaLayout, mockStandardScaLayout, appConfig).safeSignoutUrl(None)
 
       response mustBe expectedUrl
     }
@@ -282,10 +281,12 @@ object WrapperServiceSpec {
   val menuItemConfig4: MenuItemConfig = MenuItemConfig("profile", "Profile and settings", "pertaxUrl-profile-and-settings", leftAligned = false, position = 2, None, None)
   val menuItemConfig5: MenuItemConfig = MenuItemConfig("signout", "Sign out", "pertaxUrl-signout-feedback-PERTAX", leftAligned = false, position = 3, None, None)
   val menu: Html = Html("\n<!-- ACCOUNT MENU -->\n<nav id=\"secondary-nav\" class=\"hmrc-account-menu\" aria-label=\"Account\" data-module=\"hmrc-account-menu\">\n<!-- LEFT ALIGNED ITEMS -->\n            \n                \n<a href=\"pertaxUrl\"\n   class=\"hmrc-account-menu__link hmrc-account-menu__link--home\n   \" id=\"menu.left.0\">\n \n <span class=\"hmrc-account-icon hmrc-account-icon--home\">\n Account home\n </span>\n \n</a>\n\n            \n<!-- LEFT ALIGNED ITEMS -->\n    <a id=\"menu.name\" href=\"#\" class=\"hmrc-account-menu__link hmrc-account-menu__link--menu js-hidden js-visible\" tabindex=\"-1\" aria-hidden=\"true\" aria-expanded=\"false\">\n        Account menu\n    </a>\n    <ul class=\"hmrc-account-menu__main\">\n        <li class=\"hmrc-account-menu__link--back hidden\" aria-hidden=\"false\">\n            <a id=\"menu.back\" href=\"#\" tabindex=\"-1\" class=\"hmrc-account-menu__link\">\n            Back\n            </a>\n        </li>\n<!-- RIGHT ALIGNED ITEMS -->\n        \n                \n<li>\n <a href=\"pertaxUrl-messages\" class=\"hmrc-account-menu__link \" id=\"menu.right.0\">\n \n  <span class=\"\">\n   Messages\n   \n    <span class=\"hmrc-notification-badge\">2</span>\n\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"trackingUrl-track\" class=\"hmrc-account-menu__link \" id=\"menu.right.1\">\n \n  <span class=\"\">\n   Check progress\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"pertaxUrl-profile-and-settings\" class=\"hmrc-account-menu__link \" id=\"menu.right.2\">\n \n  <span class=\"\">\n   Profile and settings\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"Signout-Url\" class=\"hmrc-account-menu__link \" id=\"menu.right.3\">\n \n  <span class=\"\">\n   Sign out\n   \n  </span>\n \n </a>\n</li>\n\n            \n<!-- RIGHT ALIGNED ITEMS -->\n    </ul>\n</nav>\n")
+  val standardmenu: Html = Html("\n<!-- ACCOUNT MENU -->\n<nav id=\"secondary-nav\" class=\"hmrc-account-menu\" aria-label=\"Account\" data-module=\"hmrc-account-menu\">\n<!-- LEFT ALIGNED ITEMS -->\n            \n                \n<a href=\"pertaxUrl\"\n   class=\"hmrc-account-menu__link hmrc-account-menu__link--home\n   \" id=\"menu.left.0\">\n \n <span class=\"hmrc-account-icon hmrc-account-icon--home\">\n Account home\n </span>\n \n</a>\n\n            \n<!-- LEFT ALIGNED ITEMS -->\n    <a id=\"menu.name\" href=\"#\" class=\"hmrc-account-menu__link hmrc-account-menu__link--menu js-hidden js-visible\" tabindex=\"-1\" aria-hidden=\"true\" aria-expanded=\"false\">\n        Account menu\n    </a>\n    <ul class=\"hmrc-account-menu__main\">\n        <li class=\"hmrc-account-menu__link--back hidden\" aria-hidden=\"false\">\n            <a id=\"menu.back\" href=\"#\" tabindex=\"-1\" class=\"hmrc-account-menu__link\">\n            Back\n            </a>\n        </li>\n<!-- RIGHT ALIGNED ITEMS -->\n        \n                \n<li>\n <a href=\"pertaxUrl-messages\" class=\"hmrc-account-menu__link \" id=\"menu.right.0\">\n \n  <span class=\"\">\n   Messages\n   \n    <span class=\"hmrc-notification-badge\">2</span>\n\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"trackingUrl-track\" class=\"hmrc-account-menu__link \" id=\"menu.right.1\">\n \n  <span class=\"\">\n   Check progress\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"pertaxUrl-profile-and-settings\" class=\"hmrc-account-menu__link \" id=\"menu.right.2\">\n \n  <span class=\"\">\n   Profile and settings\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"Some(Signout-Url)\" class=\"hmrc-account-menu__link \" id=\"menu.right.3\">\n \n  <span class=\"\">\n   Sign out\n   \n  </span>\n \n </a>\n</li>\n\n            \n<!-- RIGHT ALIGNED ITEMS -->\n    </ul>\n</nav>\n")
 
   private val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5), ptaMenuConfig)
 
   val menuCaptor = ArgumentCaptor.forClass(classOf[Html])
+  val serviceURLsCaptor = ArgumentCaptor.forClass(classOf[ServiceURLs])
   val serviceNameKeyCaptor = ArgumentCaptor.forClass(classOf[Option[String]])
   val serviceNameUrlCaptor = ArgumentCaptor.forClass(classOf[Option[String]])
   val pageTitleCaptor = ArgumentCaptor.forClass(classOf[Option[String]])

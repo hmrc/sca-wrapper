@@ -19,24 +19,25 @@ package views
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.sca.models.BannerConfig
-import uk.gov.hmrc.sca.views.html.NewScaLayout
+import uk.gov.hmrc.sca.views.html.StandardScaLayout
 import utils.ViewBaseSpec
+import views.NewScaLayoutViewSpec.menu
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-class NewScaLayoutViewSpec extends ViewBaseSpec {
+class StandardScaLayoutViewSpec extends ViewBaseSpec {
 
-  import NewScaLayoutViewSpec._
-
-  private val newScaLayout = inject[NewScaLayout]
+  private val standardScaLayout = inject[StandardScaLayout]
 
   private def createView(sidebarContent: Option[Html] = None, showBackLinkJS: Boolean = false, backLinkUrl: Option[String] = None, showSignOutInHeader: Boolean = false,
+                         serviceURLs: ServiceURLs = ServiceURLs(serviceUrl = Some("Service-Name_Url"), signOutUrl = Some("Signout-Url"), accessibilityStatementUrl = Some("accessibility-url")),
                          bannerConfig: BannerConfig = BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
                          fullWidth: Boolean = false, hideMenuBar: Boolean = false, disableSessionExpired: Boolean = false, optTrustedHelper: Option[TrustedHelper] = None)(implicit messages: Messages): Html = {
 
-    newScaLayout(menu, Some("Service-Name-Key"), Some("Service-Name_Url"), Some("Page-Title"),
-      sidebarContent, "Signout-Url", Some("TimeOut-Url"), "Keep-Alive-Url", showBackLinkJS, backLinkUrl, showSignOutInHeader,
+    standardScaLayout(menu, serviceURLs, Some("Service-Name-Key"), Some("Page-Title"),
+      sidebarContent, Some("TimeOut-Url"), "Keep-Alive-Url", showBackLinkJS, backLinkUrl, showSignOutInHeader,
       Seq(Html("<script src=/customscript.js></script>")), Seq(Html("<link href=/customStylesheet rel=stylesheet/>")), bannerConfig,
       fullWidth, hideMenuBar, disableSessionExpired, optTrustedHelper)(
       Html("Content-Block"))(fakeRequest, messages, hc)
@@ -72,7 +73,6 @@ class NewScaLayoutViewSpec extends ViewBaseSpec {
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-countdown") mustBe "120"
       document.select(".hmrc-language-select__list-item").asScala.exists(e => e.text.equals("English")) mustBe true
       document.select(".hmrc-language-select__list-item").asScala.exists(e => e.text.equals("Newid yr iaith ir Gymraeg Cymraeg")) mustBe true
-      document.getElementsByAttributeValue("href", "http://localhost:12346/accessibility-statement/single-customer-account-frontend?referrerUrl=http%3A%2F%2Flocalhost%3A12346%2Fsingle-customer-account").text() mustBe "Accessibility statement"
       document.getElementsByAttributeValue("href", "/help/cookies").text() mustBe "Cookies"
       document.getElementsByAttributeValue("href", "/help/privacy").text() mustBe "Privacy policy"
       document.getElementsByAttributeValue("href", "/help/terms-and-conditions").text() mustBe "Terms and conditions"

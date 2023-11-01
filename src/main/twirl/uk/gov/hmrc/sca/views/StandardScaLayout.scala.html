@@ -52,11 +52,10 @@
 )
 
 @(menu: HtmlFormat.Appendable,
+        serviceURLs: ServiceURLs,
         serviceNameKey: Option[String],
-        serviceNameUrl: Option[String],
         pageTitle: Option[String],
         sidebarContent: Option[Html],
-        signoutUrl: String,
         timeOutUrl: Option[String],
         keepAliveUrl: String,
         showBackLinkJS: Boolean,
@@ -79,7 +78,7 @@
             timeout = Some(appConfig.timeout),
             countdown = Some(appConfig.countdown),
             keepAliveUrl = Some(keepAliveUrl),
-            signOutUrl = signoutUrl,
+            signOutUrl = serviceURLs.signOutUrl.getOrElse("#"),
             timeoutUrl = timeOutUrl
 
         )
@@ -157,11 +156,7 @@
 
 @hmrcStandardPage(
     HmrcStandardPageParams(
-        serviceURLs = ServiceURLs(
-            serviceUrl = serviceNameUrl,
-            signOutUrl = if(showSignOutInHeader) Some(signoutUrl) else None,
-            accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(appConfig.accessibilityStatementUrl)),
-        ),
+        serviceURLs = serviceURLs,
         banners = Banners(
             displayHmrcBanner = false,
             userResearchBanner = (if(bannerConfig.showHelpImproveBanner) {Some(appConfig.helpImproveBannerUrl.getOrElse("#"))} else {None}).map(url => UserResearchBanner(url = url)),
