@@ -50,7 +50,6 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
     accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl)
   )
 
-
   @deprecated(
     "Use standardScaLayout method instead - this is support the HMRCStandardPage template instead of deprecated HmrcLayout")
   def layout(
