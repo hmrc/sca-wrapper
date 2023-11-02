@@ -47,7 +47,7 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
   lazy val defaultserviceURLs: ServiceURLs = ServiceURLs(
     serviceUrl = None,
     signOutUrl = Some(appConfig.signoutUrl),
-    accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl)
+    accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(appConfig.accessibilityStatementUrl))
   )
 
   @deprecated(
