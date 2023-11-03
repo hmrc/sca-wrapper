@@ -21,27 +21,37 @@ import play.api.i18n.{Lang, Messages}
 import play.api.mvc.Request
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMenuConfig, WrapperDataResponse}
 import uk.gov.hmrc.sca.utils.Keys
-import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout}
+import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
 
 import javax.inject.Inject
 import scala.util.{Failure, Success, Try}
 
 class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
                                scaLayout: ScaLayout,
+                               newScaLayout: StandardScaLayout,
                                appConfig: AppConfig) extends Logging {
+
 
   lazy val defaultBannerConfig: BannerConfig = BannerConfig(
     showAlphaBanner = appConfig.showAlphaBanner,
     showBetaBanner = appConfig.showBetaBanner,
     showHelpImproveBanner = appConfig.showHelpImproveBanner
   )
+  lazy val defaultserviceURLs: ServiceURLs = ServiceURLs(
+    serviceUrl = None,
+    signOutUrl = Some(appConfig.signoutUrl),
+    accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(appConfig.accessibilityStatementUrl))
+  )
 
+  @deprecated(
+    "Use standardScaLayout method instead - this is support the HMRCStandardPage template instead of deprecated HmrcLayout")
   def layout(
               content: HtmlFormat.Appendable,
               pageTitle: Option[String] = None,
@@ -88,6 +98,47 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
     )(content)
   }
 
+  def standardScaLayout(content: HtmlFormat.Appendable,
+                        pageTitle: Option[String] = None,
+                        serviceURLs: ServiceURLs =  defaultserviceURLs,
+                        serviceNameKey: Option[String] = appConfig.serviceNameKey,
+                        sidebarContent: Option[Html] = None,
+                        timeOutUrl: Option[String] = appConfig.timeOutUrl,
+                        keepAliveUrl: String = appConfig.keepAliveUrl,
+                        showBackLinkJS: Boolean = false,
+                        backLinkUrl: Option[String] = None,
+                        showSignOutInHeader: Boolean = false,
+                        scripts: Seq[HtmlFormat.Appendable] = Seq.empty,
+                        styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
+                        bannerConfig: BannerConfig = defaultBannerConfig,
+                        optTrustedHelper: Option[TrustedHelper] = None,
+                        fullWidth: Boolean = true,
+                        hideMenuBar: Boolean = false,
+                        disableSessionExpired: Boolean = appConfig.disableSessionExpired
+               )
+                       (implicit messages: Messages,
+                hc: HeaderCarrier,
+                request: Request[_]): HtmlFormat.Appendable = {
+    newScaLayout(
+      menu = ptaMenuBar(sortMenuItemConfig(serviceURLs.signOutUrl.toString)),
+      serviceURLs = serviceURLs,
+      serviceNameKey = serviceNameKey,
+      pageTitle = pageTitle,
+      sidebarContent = sidebarContent,
+      timeOutUrl = timeOutUrl,
+      keepAliveUrl = keepAliveUrl,
+      showBackLinkJS = showBackLinkJS,
+      backLinkUrl = backLinkUrl,
+      showSignOutInHeader = showSignOutInHeader,
+      scripts = scripts,
+      styleSheets = styleSheets,
+      bannerConfig = bannerConfig,
+      fullWidth = fullWidth,
+      hideMenuBar = hideMenuBar,
+      disableSessionExpired = disableSessionExpired,
+      optTrustedHelper = optTrustedHelper
+    )(content)
+  }
   def safeSignoutUrl(continueUrl: Option[RedirectUrl] = None): Option[String] = continueUrl match {
     case Some(continue) if continue.getEither(OnlyRelative).isRight => Some(continue.getEither(OnlyRelative).toOption.get.url)
     case _ => appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
@@ -138,7 +189,7 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
   private def getWrapperDataResponse(request: Request[_]): Option[WrapperDataResponse] = {
     val result = request.attrs.get(Keys.wrapperDataKey)
     if (result.isEmpty) {
-      logger.warn("[SCA Wrapper Library][WrapperService][getWrapperDataResponse] Expecting Wrapper Data in the request but none was there")
+      logger.warn(s"[SCA Wrapper Library][WrapperService][getWrapperDataResponse]{ Expecting Wrapper Data in the request but none was there [${appConfig.serviceUrl}]")
     }
     result
   }

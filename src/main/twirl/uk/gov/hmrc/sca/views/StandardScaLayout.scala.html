@@ -1,0 +1,189 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+@import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
+@import uk.gov.hmrc.http.HeaderCarrier
+@import uk.gov.hmrc.ptafrontend.viewmodels.attorneybanner.AttorneyBanner
+@import uk.gov.hmrc.ptafrontend.views.html._
+@import uk.gov.hmrc.sca.config.AppConfig
+@import uk.gov.hmrc.sca.models.BannerConfig
+@import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
+
+@this(
+        hmrcLayout: HmrcLayout,
+        appConfig: AppConfig,
+        govukBackLink: GovukBackLink,
+        hmrcHead: HmrcHead,
+        hmrcStandardHeader: HmrcStandardHeader,
+        hmrcStandardFooter: HmrcStandardFooter,
+        hmrcStandardPage: HmrcStandardPage,
+        hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet,
+        hmrcLanguageSelect: HmrcLanguageSelect,
+        hmrcTimeoutDialog: HmrcTimeoutDialog,
+        hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
+        hmrcScripts: HmrcScripts,
+        alphaBanner: StandardAlphaBanner,
+        betaBanner: StandardBetaBanner,
+        hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
+        hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
+        hmrcAccountMenu: HmrcAccountMenu,
+        ptaScripts: PtaScripts,
+        ptaHead: PtaHead,
+        govukPhaseBanner: GovukPhaseBanner,
+        ptaAttorneyBanner: PtaAttorneyBanner,
+        twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
+        fullWidthMainContent: FullWidthMainContent,
+        twoThirdsMainContent: TwoThirdsMainContent
+)
+
+@(menu: HtmlFormat.Appendable,
+        serviceURLs: ServiceURLs,
+        serviceNameKey: Option[String],
+        pageTitle: Option[String],
+        sidebarContent: Option[Html],
+        timeOutUrl: Option[String],
+        keepAliveUrl: String,
+        showBackLinkJS: Boolean,
+        backLinkUrl: Option[String],
+        showSignOutInHeader: Boolean,
+        scripts: Seq[HtmlFormat.Appendable],
+        styleSheets: Seq[HtmlFormat.Appendable],
+        bannerConfig: BannerConfig,
+        fullWidth: Boolean,
+        hideMenuBar: Boolean,
+        disableSessionExpired: Boolean,
+        optTrustedHelper: Option[TrustedHelper])(contentBlock: Html)(implicit request: Request[_], messages: Messages, hc: HeaderCarrier)
+
+@headBlock = {
+
+    @styleSheets
+
+    @if(!disableSessionExpired) {
+        @hmrcTimeoutDialogHelper(
+            timeout = Some(appConfig.timeout),
+            countdown = Some(appConfig.countdown),
+            keepAliveUrl = Some(keepAliveUrl),
+            signOutUrl = serviceURLs.signOutUrl.getOrElse("#"),
+            timeoutUrl = timeOutUrl
+
+        )
+    }
+
+    @ptaHead()
+}
+
+@additionalScripts = {
+    @scripts
+    @ptaScripts()
+}
+
+@beforeContent = {
+    @defining(request.uri) { uri =>
+        @if(!hideMenuBar) {
+            @menu
+        }
+    }
+
+    @defining(appConfig.welshToggle) { welshEnabled =>
+        @if(showBackLinkJS || backLinkUrl.isDefined ) {
+            <div class="govuk-grid-row">
+                @if(showBackLinkJS){
+                    <div class="govuk-grid-column-one-half">
+                        <div class="govuk-!-display-inline-block js-enabled">
+                            @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
+                        </div>
+                    </div>
+                }else{
+                    <div class="govuk-grid-column-one-half">
+                        @govukBackLink(BackLink.withDefaultText(backLinkUrl.getOrElse("#")))
+                    </div>
+                }
+                <div class="govuk-grid-column-one-half">
+                    @if(welshEnabled) {
+                    @hmrcLanguageSelectHelper()
+                    }
+                </div>
+            </div>
+        } else {
+            @if(welshEnabled) {
+                @hmrcLanguageSelectHelper()
+            }
+        }
+    }
+
+    @attorneyBanner
+}
+
+@attorneyBanner = @{
+    optTrustedHelper.map { helper =>
+        ptaAttorneyBanner(AttorneyBanner(name = helper.principalName, classes = "govuk-!-margin-top-2", accountUrl = helper.returnLinkUrl))
+    }
+}
+
+@content = {
+
+    @contentBlock
+<div class="govuk-!-margin-top-8">
+    <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
+    @hmrcReportTechnicalIssueHelper()
+    <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
+    @{
+        if(bannerConfig.showBetaBanner) {
+            govukPhaseBanner(betaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
+        } else {
+            if(bannerConfig.showAlphaBanner) {
+                govukPhaseBanner(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
+            }
+        }
+    }
+</div>
+}
+
+@hmrcStandardPage(
+    HmrcStandardPageParams(
+        serviceURLs = {
+            val modifiedServiceURLs = if(showSignOutInHeader){
+                serviceURLs
+            }else{
+                serviceURLs.copy(signOutUrl = None)
+            }
+            modifiedServiceURLs
+        },
+        banners = Banners(
+            displayHmrcBanner = false,
+            userResearchBanner = (if(bannerConfig.showHelpImproveBanner) {Some(appConfig.helpImproveBannerUrl.getOrElse("#"))} else {None}).map(url => UserResearchBanner(url = url)),
+        ),
+        templateOverrides = TemplateOverrides(
+            additionalHeadBlock = Some(headBlock),
+            additionalScriptsBlock = Some(additionalScripts),
+            beforeContentBlock = Some(beforeContent),
+            mainContentLayout = Some(sidebarContent match {
+                case Some(sidebarHtml) => twoThirdsOneThirdMainContent(sidebarHtml)
+                case None =>
+                    if(fullWidth) {
+                        fullWidthMainContent(_)
+                    } else {
+                        twoThirdsMainContent(_)
+                    }
+            })
+        ),
+        serviceName = serviceNameKey.map(messages(_)),
+        pageTitle = pageTitle,
+        isWelshTranslationAvailable = true,
+    )
+)(content)
