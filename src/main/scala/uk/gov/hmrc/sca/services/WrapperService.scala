@@ -120,7 +120,7 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
                 hc: HeaderCarrier,
                 request: Request[_]): HtmlFormat.Appendable = {
     newScaLayout(
-      menu = ptaMenuBar(sortMenuItemConfig(serviceURLs.signOutUrl.toString)),
+      menu = ptaMenuBar(sortMenuItemConfig(serviceURLs.signOutUrl.getOrElse(appConfig.signoutUrl))),
       serviceURLs = serviceURLs,
       serviceNameKey = serviceNameKey,
       pageTitle = pageTitle,

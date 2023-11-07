@@ -156,14 +156,11 @@
 
 @hmrcStandardPage(
     HmrcStandardPageParams(
-        serviceURLs = {
-            val modifiedServiceURLs = if(showSignOutInHeader){
-                serviceURLs
-            }else{
-                serviceURLs.copy(signOutUrl = None)
-            }
-            modifiedServiceURLs
-        },
+        serviceURLs = ServiceURLs(
+            serviceUrl = serviceURLs.serviceUrl,
+            signOutUrl = if(showSignOutInHeader) serviceURLs.signOutUrl else None,
+            accessibilityStatementUrl = serviceURLs.accessibilityStatementUrl,
+        ),
         banners = Banners(
             displayHmrcBanner = false,
             userResearchBanner = (if(bannerConfig.showHelpImproveBanner) {Some(appConfig.helpImproveBannerUrl.getOrElse("#"))} else {None}).map(url => UserResearchBanner(url = url)),
