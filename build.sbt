@@ -8,10 +8,8 @@ lazy val root = (project in file("."))
   .settings(
     scalaVersion := "2.13.8",
     isPublicArtefact := true,
-    //TODO tests to check SNAPSHOT is changed back
-    version := "1.0.47",
+    version := "1.0.48",
 //    version := "1.0.0-SNAPSHOT",
-    //    publish / skip := true,
     name := "sca-wrapper",
     isSnapshot := true,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.scala-lang"),
@@ -65,23 +63,22 @@ lazy val templateImports: Seq[String] = Seq(
   "uk.gov.hmrc.hmrcfrontend.views.config._",
   "views.html.helper._",
   "uk.gov.hmrc.sca.viewmodels._"
-//  "controllers.routes._"
 )
 
 val playVersion = "play-28"
 
 val appDependencies = Seq(
   "com.typesafe.play"           %% "play-json"                        % "2.9.4",
-  "uk.gov.hmrc"                 %% "play-frontend-hmrc"               % s"7.23.0-$playVersion",
-  "uk.gov.hmrc"                 %% s"bootstrap-frontend-$playVersion" % "7.13.0",
-  "uk.gov.hmrc"                 %% "play-language"                    % s"6.1.0-$playVersion",
+  "uk.gov.hmrc"                 %% "play-frontend-hmrc"               % s"7.29.0-$playVersion",
+  "uk.gov.hmrc"                 %% s"bootstrap-frontend-$playVersion" % "7.23.0",
+  "uk.gov.hmrc"                 %% "play-language"                    % s"6.2.0-$playVersion",
   "uk.gov.hmrc"                 %% "play-partials"                    % s"8.4.0-$playVersion",
-  "uk.gov.hmrc"                 %% "domain"                           % s"8.1.0-$playVersion",
-  "uk.gov.hmrc"                 %% "play-frontend-pta"                % "0.4.0"
+  "uk.gov.hmrc"                 %% "domain"                           % s"8.3.0-$playVersion",
+  "uk.gov.hmrc"                 %% "play-frontend-pta"                % "0.5.0"
 )
 
 val testDependencies = Seq(
-  "uk.gov.hmrc"                   %% s"bootstrap-test-$playVersion"     % "7.13.0",
+  "uk.gov.hmrc"                   %% s"bootstrap-test-$playVersion"     % "7.23.0",
   "org.scalatest"                 %% "scalatest"                        % "3.2.15",
   "org.scalatestplus"             %% "mockito-4-6"                      % "3.2.15.0",
   "com.github.tomakehurst"        %  "wiremock-jre8"                    % "2.35.0",

@@ -26,7 +26,6 @@ class KeepAliveController @Inject()(val controllerComponents: MessagesController
 
   def keepAlive: Action[AnyContent] = Action {
     implicit request =>
-      logger.info(request.uri)
       Ok
   }
 
