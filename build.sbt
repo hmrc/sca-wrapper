@@ -6,7 +6,7 @@ lazy val root = (project in file("."))
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(itSettings): _*)
   .settings(
-    scalaVersion := "2.13.8",
+    scalaVersion := "2.13.12",
     isPublicArtefact := true,
     //TODO tests to check SNAPSHOT is changed back
     version := "1.0.47",
@@ -68,24 +68,22 @@ lazy val templateImports: Seq[String] = Seq(
 //  "controllers.routes._"
 )
 
-val playVersion = "play-28"
+val playVersion = "play-30"
 
 val appDependencies = Seq(
-  "com.typesafe.play"           %% "play-json"                        % "2.9.4",
-  "uk.gov.hmrc"                 %% "play-frontend-hmrc"               % s"7.23.0-$playVersion",
-  "uk.gov.hmrc"                 %% s"bootstrap-frontend-$playVersion" % "7.13.0",
-  "uk.gov.hmrc"                 %% "play-language"                    % s"6.1.0-$playVersion",
-  "uk.gov.hmrc"                 %% "play-partials"                    % s"8.4.0-$playVersion",
-  "uk.gov.hmrc"                 %% "domain"                           % s"8.1.0-$playVersion",
-  "uk.gov.hmrc"                 %% "play-frontend-pta"                % "0.4.0"
+  "org.playframework"           %% "play-json"                        % "3.0.1",
+  "uk.gov.hmrc"                 %% s"play-frontend-hmrc-$playVersion" % "8.1.0",
+  "uk.gov.hmrc"                 %% s"bootstrap-frontend-$playVersion" % "8.1.0",
+  "uk.gov.hmrc"                 %% s"play-language-$playVersion"      % "7.0.0",
+  "uk.gov.hmrc"                 %% s"play-partials-$playVersion"      % "9.1.0"//,
+//  "uk.gov.hmrc"                 %% s"domain-$playVersion"             % "8.3.0"//,
+//  "uk.gov.hmrc"                 %% "play-frontend-pta"                % "0.5.0" exclude("org.scala-lang.modules", "scala-xml_2.12")
 )
 
 val testDependencies = Seq(
-  "uk.gov.hmrc"                   %% s"bootstrap-test-$playVersion"     % "7.13.0",
-  "org.scalatest"                 %% "scalatest"                        % "3.2.15",
+  "uk.gov.hmrc"                   %% s"bootstrap-test-$playVersion"     % "8.1.0",
   "org.scalatestplus"             %% "mockito-4-6"                      % "3.2.15.0",
-  "com.github.tomakehurst"        %  "wiremock-jre8"                    % "2.35.0",
-  "com.vladsch.flexmark"          % "flexmark-all"                      % "0.62.2",
+  "com.github.tomakehurst"         %  "wiremock-jre8"                    % "2.35.0",
   "com.fasterxml.jackson.module"  %% "jackson-module-scala"             % "2.14.2"
 ).map(_ % "test,it")
 
