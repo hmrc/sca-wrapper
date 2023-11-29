@@ -30,7 +30,7 @@ import javax.inject.{Inject, Singleton}
 class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
 
   //library manual update, MAJOR.MINOR.PATCH
-  val versionNum: String = "1.0.3" //TODO read from build.sbt
+  val versionNum: String = "1.0.3"
 
   //config for service name in black bar
   val serviceNameKey: Option[String] = configuration.getOptional[String]("sca-wrapper.service-name.messages-key")

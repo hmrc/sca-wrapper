@@ -8,10 +8,8 @@ lazy val root = (project in file("."))
   .settings(
     scalaVersion := "2.13.12",
     isPublicArtefact := true,
-    //TODO tests to check SNAPSHOT is changed back
-    version := "1.0.47",
+    version := "1.0.48",
 //    version := "1.0.0-SNAPSHOT",
-    //    publish / skip := true,
     name := "sca-wrapper",
     isSnapshot := true,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.scala-lang"),
@@ -65,7 +63,6 @@ lazy val templateImports: Seq[String] = Seq(
   "uk.gov.hmrc.hmrcfrontend.views.config._",
   "views.html.helper._",
   "uk.gov.hmrc.sca.viewmodels._"
-//  "controllers.routes._"
 )
 
 val playVersion = "play-30"
