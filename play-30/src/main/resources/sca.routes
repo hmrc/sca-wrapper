@@ -1,0 +1,1 @@
+GET         /refresh-session                             uk.gov.hmrc.sca.controllers.KeepAliveController.keepAlive
