@@ -72,7 +72,7 @@ val playVersion = "play-28"
 
 val appDependencies = Seq(
   "com.typesafe.play"           %% "play-json"                        % "2.9.4",
-  "uk.gov.hmrc"                 %% "play-frontend-hmrc"               % s"7.19.0-$playVersion",
+  "uk.gov.hmrc"                 %% "play-frontend-hmrc"               % s"7.23.0-$playVersion",
   "uk.gov.hmrc"                 %% s"bootstrap-frontend-$playVersion" % "7.13.0",
   "uk.gov.hmrc"                 %% "play-language"                    % s"6.1.0-$playVersion",
   "uk.gov.hmrc"                 %% "play-partials"                    % s"8.4.0-$playVersion",
