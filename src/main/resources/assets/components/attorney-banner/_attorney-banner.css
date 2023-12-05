@@ -1,12 +1,8 @@
-// This code is based on original code from assets-frontend:
-// https://github.com/hmrc/assets-frontend/blob/main/assets/scss/components/_attorney-banner.scss
-$govuk-include-default-font-face: false;
-@import "../../../node_modules/govuk-frontend/govuk/base";
-
 .pta-attorney-banner {
+  font-family: GDS Transport,arial,sans-serif;
+  -webkit-font-smoothing: antialiased;
   font-size: 19px;
   padding: 2rem;
-
   display: flex;
   flex-direction: column;
   justify-content: space-between;
