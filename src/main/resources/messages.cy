@@ -19,3 +19,6 @@ sca-wrapper.banner.label.no_thanks = Dim diolch
 
 sca-wrapper.child.benefit.banner.heading = Helpu i wella’r gwasanaeth Budd-dal Plant
 sca-wrapper.child.benefit.banner.link.text = Helpwch i wella’r gwasanaeth Budd-dal Plant drwy gymryd rhan mewn arolwg (yn agor tab newydd). Dylai gymryd tua 5 munud.
+
+attorney.banner.link=Yn ôl i’ch cyfrif
+attorney.banner.using.service.for=Rydych yn defnyddio’r gwasanaeth hwn ar gyfer <span class="govuk-!-font-weight-bold">{0}</span>.

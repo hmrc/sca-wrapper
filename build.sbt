@@ -9,7 +9,7 @@ lazy val root = (project in file("."))
     scalaVersion := "2.13.8",
     isPublicArtefact := true,
     //TODO tests to check SNAPSHOT is changed back
-    version := "1.0.47",
+    version := "1.0.48",
 //    version := "1.0.0-SNAPSHOT",
     //    publish / skip := true,
     name := "sca-wrapper",
@@ -77,7 +77,6 @@ val appDependencies = Seq(
   "uk.gov.hmrc"                 %% "play-language"                    % s"6.1.0-$playVersion",
   "uk.gov.hmrc"                 %% "play-partials"                    % s"8.4.0-$playVersion",
   "uk.gov.hmrc"                 %% "domain"                           % s"8.1.0-$playVersion",
-  "uk.gov.hmrc"                 %% "play-frontend-pta"                % "0.4.0"
 )
 
 val testDependencies = Seq(
