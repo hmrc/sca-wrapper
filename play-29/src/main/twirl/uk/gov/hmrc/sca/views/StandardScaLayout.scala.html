@@ -18,7 +18,8 @@
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
 @import uk.gov.hmrc.http.HeaderCarrier
-@import uk.gov.hmrc.ptafrontend.views.html._
+@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig}
+@import uk.gov.hmrc.sca.views.html._
 @import uk.gov.hmrc.sca.config.AppConfig
 @import uk.gov.hmrc.sca.models.BannerConfig
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
@@ -125,6 +126,13 @@
         }
     }
 
+    @attorneyBanner
+}
+
+@attorneyBanner = @{
+    optTrustedHelper.map { helper =>
+        ptaAttorneyBanner(AttorneyBanner(name = helper.principalName, classes = "govuk-!-margin-top-2", accountUrl = helper.returnLinkUrl))
+    }
 }
 
 @content = {

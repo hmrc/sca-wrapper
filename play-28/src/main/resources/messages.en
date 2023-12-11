@@ -12,3 +12,6 @@ sca-wrapper.fallback.menu.signout = Sign out
 sca-wrapper.fallback.menu.bta = Business tax account
 sca-wrapper.fallback.menu.name = Account menu
 sca-wrapper.fallback.menu.back = Back
+
+attorney.banner.link=Return to your account
+attorney.banner.using.service.for=You are using this service for <span class="govuk-!-font-weight-bold">{0}</span>.

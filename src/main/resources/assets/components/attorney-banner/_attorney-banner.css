@@ -1,0 +1,47 @@
+.pta-attorney-banner {
+  font-family: GDS Transport,arial,sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-size: 16px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 999;
+  border-left: 3px solid #005ea5;
+  background-color: #def;
+  box-sizing: border-box;
+  width: 100%;
+
+  @media (min-width: 48.0625em) {
+    flex-direction: row;
+  }
+  @media (min-width: 40.0625em) {
+      font-size: 19px;
+  }
+}
+
+.pta-attorney-banner--client-request-accepted {
+  border-left: 3px solid green;
+  background-color: #bfd8cd;
+}
+
+.pta-attorney-banner--client-request-requested {
+  border-left: 3px solid orange;
+  background-color: #fcddcd;
+}
+
+.pta-attorney-banner--client-request-rejected {
+  border-left: 3px solid red;
+  background-color: #ecc3c7;
+}
+
+.pta-attorney-banner--fixed {
+  top: 0;
+  width: calc(100% - 1rem);
+  max-width: 68.75rem;
+  position: fixed;
+
+  @media (min-width: 40.0625em) {
+    width: calc(100% - 1rem - 1rem);
+  }
+}

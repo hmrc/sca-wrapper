@@ -150,4 +150,3 @@ lazy val templateImports: Seq[String] = Seq(
   "views.html.helper._",
   "uk.gov.hmrc.sca.viewmodels._"
 )
-

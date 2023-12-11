@@ -46,8 +46,8 @@ object LibDependencies {
     "uk.gov.hmrc"                 %% s"play-frontend-hmrc-play-30"      % "8.1.0",
     "uk.gov.hmrc"                 %% s"bootstrap-frontend-play-30"      % "8.1.0",
     "uk.gov.hmrc"                 %% s"play-language-play-30"           % "7.0.0",
-    "uk.gov.hmrc"                 %% s"play-partials-play-30"           % "9.1.0",
-    "uk.gov.hmrc"                 %% "play-frontend-pta"                % "0.5.0" exclude("org.scala-lang.modules", "scala-xml_2.12")
+    "uk.gov.hmrc"                 %% s"play-partials-play-30"           % "9.1.0"//,
+//    "uk.gov.hmrc"                 %% "play-frontend-pta"                % "0.5.0" exclude("org.scala-lang.modules", "scala-xml_2.12")
  )
 
   val play30Test = Seq(
