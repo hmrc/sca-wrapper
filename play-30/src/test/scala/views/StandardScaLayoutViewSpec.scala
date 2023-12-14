@@ -32,7 +32,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
   private val standardScaLayout = inject[StandardScaLayout]
 
   private def createView(sidebarContent: Option[Html] = None, showBackLinkJS: Boolean = false, backLinkUrl: Option[String] = None, showSignOutInHeader: Boolean = false,
-                         serviceURLs: ServiceURLs = ServiceURLs(serviceUrl = Some("Service-Name_Url"), signOutUrl = Some("Signout-Url"), accessibilityStatementUrl = Some("accessibility-url")),
+                         serviceURLs: ServiceURLs = ServiceURLs(serviceUrl = Some("Service-Name_Url"), signOutUrl = Some("Signout-Url"), accessibilityStatementUrl = Some("http://accessibility-url.org")),
                          bannerConfig: BannerConfig = BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
                          fullWidth: Boolean = false, hideMenuBar: Boolean = false, disableSessionExpired: Boolean = false, optTrustedHelper: Option[TrustedHelper] = None)(implicit messages: Messages): Html = {
 
@@ -145,6 +145,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       val document = asDocument(createView(optTrustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", "principalNino"))).toString())
 
       val attorneyBannerElement = document.getElementById("attorneyBanner")
+      print(attorneyBannerElement)
       attorneyBannerElement.hasClass("pta-attorney-banner") mustBe true
       attorneyBannerElement.attr("data-module").equals("pta-attorney-banner") mustBe true
       attorneyBannerElement.getElementsByClass("pta-attorney-banner__text").text().equals("You are using this service for principalName.") mustBe true

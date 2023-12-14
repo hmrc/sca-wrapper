@@ -16,9 +16,9 @@
 
 package utils
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
 import com.typesafe.config.ConfigFactory
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.matchers.must.Matchers

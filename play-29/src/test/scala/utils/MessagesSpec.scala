@@ -16,13 +16,11 @@
 
 package utils
 
-import play.api.i18n.Messages
-
 import scala.io.Source
 
 class MessagesSpec extends BaseSpec{
-  val englishFileName = "src/main/resources/messages.en"
-  val welshFileName = "src/main/resources/messages.cy"
+  val englishFileName = "play-29/src/main/resources/messages.en"
+  val welshFileName = "play-29/src/main/resources/messages.cy"
 
   lazy val actualWelshMessages = sanitize(Source.fromFile(welshFileName).getLines())
   lazy val actualEnglishMessages = sanitize(Source.fromFile(englishFileName).getLines())

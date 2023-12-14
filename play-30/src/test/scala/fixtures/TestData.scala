@@ -26,7 +26,7 @@ object TestData {
 
   object Requests {
     def authenticatedRequest[A](request: Request[A]): AuthenticatedRequest[A] = AuthenticatedRequest(
-      nino = Some(uk.gov.hmrc.domain.Nino("AA111111A")),
+      nino = Some("AA111111A"),
       credentials = Credentials(
         "providerId",
         "providerType"

@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-Ω@*
+@*
  * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,6 +33,6 @@
 @import views.html.helper.CSPNonce
 
 @this()
-
 @()(implicit request: RequestHeader)
+
 <link href="@uk.gov.hmrc.sca.controllers.routes.Assets.at("pta.css")" media="all" rel="stylesheet" type="text/css" @{CSPNonce.attr} />

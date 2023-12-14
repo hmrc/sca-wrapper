@@ -16,8 +16,8 @@
 
 package filters
 
-import akka.stream.Materializer
 import filters.WrapperDataFilterSpec.wrapperDataResponse
+import org.apache.pekko.stream.Materializer
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach

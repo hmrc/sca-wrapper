@@ -69,7 +69,6 @@ lazy val root = (project in file("."))
 lazy val play28 = Project("sca-wrapper-play-28", file("play-28"))
   .disablePlugins(PlayLayoutPlugin, JUnitXmlReportPlugin)
   .enablePlugins(SbtTwirl, RoutesCompiler, BuildInfoPlugin)
-
 //  .settings(copySources(play30))
 //  .settings(copyPlayResources(play30))
   .settings(sharedSettings: _*)
