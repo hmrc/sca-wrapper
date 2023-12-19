@@ -156,6 +156,35 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
         )
 
       }
+      s"return the request without calling the external api when request path has non empty token and contains $path" in {
+
+        implicit val materializer: Materializer = mock[Materializer]
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", path)
+
+        val f: RequestHeader => Future[Result] = r => {
+          Future.successful(
+            Ok(
+              Json.obj(
+                "wrapperData" -> r.attrs.get(Keys.wrapperDataKey),
+                "messageData" -> r.attrs.get(Keys.messageDataKey)
+              )
+            )
+          )
+        }
+
+        val result = wrapperDataFilter.apply(f)(request.withSession("authToken" -> "123abc"))
+
+        status(result) mustBe OK
+
+        verify(mockScaWrapperDataConnector, never()).wrapperData()(any(), any(), any())
+        verify(mockScaWrapperDataConnector, never()).messageData()(any(), any())
+
+        contentAsJson(result) mustBe Json.obj(
+          "wrapperData" -> None,
+          "messageData" -> None
+        )
+
+      }
     }
   }
 }

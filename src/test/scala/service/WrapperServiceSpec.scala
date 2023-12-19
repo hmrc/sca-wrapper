@@ -23,7 +23,7 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.i18n.Messages
+import play.api.i18n.{Lang, Messages}
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.libs.typedmap.TypedMap
 import play.api.mvc.request.{Cell, RequestAttrKey}
@@ -119,6 +119,64 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       verify(mockAppConfig, times(1)).disableSessionExpired
 
       menuCaptor.getValue mustBe menu
+      serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
+      serviceNameUrlCaptor.getValue mustBe None
+      pageTitleCaptor.getValue mustBe None
+      sideBarContentCaptor.getValue mustBe None
+      signoutUrlCaptor.getValue mustBe "Signout-Url"
+      keepAliveUrlCaptor.getValue mustBe "/refresh-session"
+      showBackLinkJSCaptor.getValue mustBe false
+      backLinkUrlCaptor.getValue mustBe None
+      showSignOutInHeaderCaptor.getValue mustBe false
+      scriptsCaptor.getValue mustBe Seq.empty
+      styleSheetsCaptor.getValue mustBe Seq.empty
+      bannerConfigCaptor.getValue mustBe BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = true)
+      optTrustedHelperCaptor.getValue mustBe None
+      fullWidthCaptor.getValue mustBe true
+      hideMenuBarCaptor.getValue mustBe false
+      disableSessionExpiredCaptor.getValue mustBe false
+      contentCaptor.getValue mustBe Html("Default-Content")
+    }
+
+    "return exception layout (failure scenario)" in {
+
+       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        .withAttrs(TypedMap(
+          RequestAttrKey.Cookies -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en")))))
+        )
+
+      implicit val lang: Lang = Lang(request.cookies.get("PLAY_LANG").map(_.value).getOrElse("en"))
+      when(mockAppConfig.fallbackWrapperDataResponse(lang)).thenReturn(badwrapperDataResponse)
+      when(mockAppConfig.showAlphaBanner).thenReturn(true)
+      when(mockAppConfig.showBetaBanner).thenReturn(false)
+      when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
+      when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
+      when(mockAppConfig.signoutUrl).thenReturn("Signout-Url")
+      when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
+      when(mockAppConfig.disableSessionExpired).thenReturn(false)
+
+
+      wrapperService.layout(content = Html("Default-Content"))
+
+      verify(mockScaLayout, times(1)).apply(menu = menuCaptor.capture(), serviceNameKey = serviceNameKeyCaptor.capture(),
+        serviceNameUrl = serviceNameUrlCaptor.capture(), pageTitle = pageTitleCaptor.capture(),
+        sidebarContent = sideBarContentCaptor.capture(), signoutUrl = signoutUrlCaptor.capture(),
+        timeOutUrl = timeOutUrlCaptor.capture(), keepAliveUrl = keepAliveUrlCaptor.capture(), showBackLinkJS = showBackLinkJSCaptor.capture(),
+        backLinkUrl = backLinkUrlCaptor.capture(), showSignOutInHeader = showSignOutInHeaderCaptor.capture(),
+        scripts = scriptsCaptor.capture(), styleSheets = styleSheetsCaptor.capture(), bannerConfig = bannerConfigCaptor.capture(),
+        fullWidth = fullWidthCaptor.capture(), hideMenuBar = hideMenuBarCaptor.capture(),
+        disableSessionExpired = disableSessionExpiredCaptor.capture(),
+        optTrustedHelper = optTrustedHelperCaptor.capture())(contentCaptor.capture())(any(), any(), any())
+
+      verify(mockAppConfig, times(1)).showAlphaBanner
+      verify(mockAppConfig, times(1)).showBetaBanner
+      verify(mockAppConfig, times(1)).showHelpImproveBanner
+      verify(mockAppConfig, times(1)).serviceNameKey
+      verify(mockAppConfig, times(1)).signoutUrl
+      verify(mockAppConfig, times(1)).keepAliveUrl
+      verify(mockAppConfig, times(1)).disableSessionExpired
+
+      menuCaptor.getValue mustBe failureScenarioMenu
       serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
       serviceNameUrlCaptor.getValue mustBe None
       pageTitleCaptor.getValue mustBe None
@@ -282,8 +340,11 @@ object WrapperServiceSpec {
   val menuItemConfig5: MenuItemConfig = MenuItemConfig("signout", "Sign out", "pertaxUrl-signout-feedback-PERTAX", leftAligned = false, position = 3, None, None)
   val menu: Html = Html("\n<!-- ACCOUNT MENU -->\n<nav id=\"secondary-nav\" class=\"hmrc-account-menu\" aria-label=\"Account\" data-module=\"hmrc-account-menu\">\n<!-- LEFT ALIGNED ITEMS -->\n            \n                \n<a href=\"pertaxUrl\"\n   class=\"hmrc-account-menu__link hmrc-account-menu__link--home\n   \" id=\"menu.left.0\">\n \n <span class=\"hmrc-account-icon hmrc-account-icon--home\">\n Account home\n </span>\n \n</a>\n\n            \n<!-- LEFT ALIGNED ITEMS -->\n    <a id=\"menu.name\" href=\"#\" class=\"hmrc-account-menu__link hmrc-account-menu__link--menu js-hidden js-visible\" tabindex=\"-1\" aria-hidden=\"true\" aria-expanded=\"false\">\n        Account menu\n    </a>\n    <ul class=\"hmrc-account-menu__main\">\n        <li class=\"hmrc-account-menu__link--back hidden\" aria-hidden=\"false\">\n            <a id=\"menu.back\" href=\"#\" tabindex=\"-1\" class=\"hmrc-account-menu__link\">\n            Back\n            </a>\n        </li>\n<!-- RIGHT ALIGNED ITEMS -->\n        \n                \n<li>\n <a href=\"pertaxUrl-messages\" class=\"hmrc-account-menu__link \" id=\"menu.right.0\">\n \n  <span class=\"\">\n   Messages\n   \n    <span class=\"hmrc-notification-badge\">2</span>\n\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"trackingUrl-track\" class=\"hmrc-account-menu__link \" id=\"menu.right.1\">\n \n  <span class=\"\">\n   Check progress\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"pertaxUrl-profile-and-settings\" class=\"hmrc-account-menu__link \" id=\"menu.right.2\">\n \n  <span class=\"\">\n   Profile and settings\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"Signout-Url\" class=\"hmrc-account-menu__link \" id=\"menu.right.3\">\n \n  <span class=\"\">\n   Sign out\n   \n  </span>\n \n </a>\n</li>\n\n            \n<!-- RIGHT ALIGNED ITEMS -->\n    </ul>\n</nav>\n")
   val standardmenu: Html = Html("\n<!-- ACCOUNT MENU -->\n<nav id=\"secondary-nav\" class=\"hmrc-account-menu\" aria-label=\"Account\" data-module=\"hmrc-account-menu\">\n<!-- LEFT ALIGNED ITEMS -->\n            \n                \n<a href=\"pertaxUrl\"\n   class=\"hmrc-account-menu__link hmrc-account-menu__link--home\n   \" id=\"menu.left.0\">\n \n <span class=\"hmrc-account-icon hmrc-account-icon--home\">\n Account home\n </span>\n \n</a>\n\n            \n<!-- LEFT ALIGNED ITEMS -->\n    <a id=\"menu.name\" href=\"#\" class=\"hmrc-account-menu__link hmrc-account-menu__link--menu js-hidden js-visible\" tabindex=\"-1\" aria-hidden=\"true\" aria-expanded=\"false\">\n        Account menu\n    </a>\n    <ul class=\"hmrc-account-menu__main\">\n        <li class=\"hmrc-account-menu__link--back hidden\" aria-hidden=\"false\">\n            <a id=\"menu.back\" href=\"#\" tabindex=\"-1\" class=\"hmrc-account-menu__link\">\n            Back\n            </a>\n        </li>\n<!-- RIGHT ALIGNED ITEMS -->\n        \n                \n<li>\n <a href=\"pertaxUrl-messages\" class=\"hmrc-account-menu__link \" id=\"menu.right.0\">\n \n  <span class=\"\">\n   Messages\n   \n    <span class=\"hmrc-notification-badge\">2</span>\n\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"trackingUrl-track\" class=\"hmrc-account-menu__link \" id=\"menu.right.1\">\n \n  <span class=\"\">\n   Check progress\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"pertaxUrl-profile-and-settings\" class=\"hmrc-account-menu__link \" id=\"menu.right.2\">\n \n  <span class=\"\">\n   Profile and settings\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"Signout-Url\" class=\"hmrc-account-menu__link \" id=\"menu.right.3\">\n \n  <span class=\"\">\n   Sign out\n   \n  </span>\n \n </a>\n</li>\n\n            \n<!-- RIGHT ALIGNED ITEMS -->\n    </ul>\n</nav>\n")
+  val failureScenarioMenu: Html = Html("\n<!-- ACCOUNT MENU -->\n<nav id=\"secondary-nav\" class=\"hmrc-account-menu\" aria-label=\"Account\" data-module=\"hmrc-account-menu\">\n<!-- LEFT ALIGNED ITEMS -->\n            \n                \n<a href=\"pertaxUrl\"\n   class=\"hmrc-account-menu__link hmrc-account-menu__link--home\n   \" id=\"menu.left.0\">\n \n <span class=\"hmrc-account-icon hmrc-account-icon--home\">\n Account home\n </span>\n \n</a>\n\n            \n<!-- LEFT ALIGNED ITEMS -->\n    <a id=\"menu.name\" href=\"#\" class=\"hmrc-account-menu__link hmrc-account-menu__link--menu js-hidden js-visible\" tabindex=\"-1\" aria-hidden=\"true\" aria-expanded=\"false\">\n        Account menu\n    </a>\n    <ul class=\"hmrc-account-menu__main\">\n        <li class=\"hmrc-account-menu__link--back hidden\" aria-hidden=\"false\">\n            <a id=\"menu.back\" href=\"#\" tabindex=\"-1\" class=\"hmrc-account-menu__link\">\n            Back\n            </a>\n        </li>\n<!-- RIGHT ALIGNED ITEMS -->\n        \n                \n<li>\n <a href=\"pertaxUrl-messages\" class=\"hmrc-account-menu__link \" id=\"menu.right.0\">\n \n  <span class=\"\">\n   Messages\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"trackingUrl-track\" class=\"hmrc-account-menu__link \" id=\"menu.right.1\">\n \n  <span class=\"\">\n   Check progress\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"pertaxUrl-profile-and-settings\" class=\"hmrc-account-menu__link \" id=\"menu.right.2\">\n \n  <span class=\"\">\n   Profile and settings\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"pertaxUrl-profile-and-settings\" class=\"hmrc-account-menu__link \" id=\"menu.right.2\">\n \n  <span class=\"\">\n   Profile and settings\n   \n  </span>\n \n </a>\n</li>\n\n            \n<!-- RIGHT ALIGNED ITEMS -->\n    </ul>\n</nav>\n")
+
 
   private val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5), ptaMenuConfig)
+  private val badwrapperDataResponse: WrapperDataResponse = WrapperDataResponse(Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig4), ptaMenuConfig)
 
   val menuCaptor = ArgumentCaptor.forClass(classOf[Html])
   val serviceURLsCaptor = ArgumentCaptor.forClass(classOf[ServiceURLs])
