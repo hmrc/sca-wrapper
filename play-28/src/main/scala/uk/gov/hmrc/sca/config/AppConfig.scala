@@ -19,8 +19,8 @@ package uk.gov.hmrc.sca.config
 import play.api.Configuration
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.RequestHeader
+import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.sca.controllers.routes
-import uk.gov.hmrc.http.StringContextOps
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 
 import java.net.URLEncoder
@@ -40,14 +40,14 @@ class AppConfig @Inject()(configuration: Configuration, messages: MessagesApi) {
   private val host: String = configuration.get[String]("sca-wrapper.host")
 
   def feedbackUrl(contactFrontendUrl: String)(implicit request: RequestHeader): String =
-    s"$contactFrontendUrl?service=$feedbackServiceName&backUrl=${StringContextOps(StringContext(host, request.uri)).url()}"
+    s"$contactFrontendUrl?service=$feedbackServiceName&backUrl=${SafeRedirectUrl(host + request.uri).encodedUrl}"
 
   private val accessibilityStatementReferrerUrl = configuration.get[String]("sca-wrapper.accessibility-statement.referrer.url")
   private val accessibilityStatementRedirectUrl = configuration.get[String]("sca-wrapper.accessibility-statement.redirect.url")
 
   def accessibilityStatementUrl(accessibilityBaseUrl: String): String =
     s"$accessibilityBaseUrl/accessibility-statement/$accessibilityStatementRedirectUrl?referrerUrl=" +
-      s"${StringContextOps(StringContext(accessibilityBaseUrl, accessibilityStatementReferrerUrl)).url()}"
+      s"${SafeRedirectUrl(accessibilityBaseUrl + accessibilityStatementReferrerUrl).encodedUrl}"
 
   val enc = URLEncoder.encode(_: String, "UTF-8")
   val exitSurveyOrigin: Option[String] = configuration.getOptional[String]("sca-wrapper.exit-survey-origin")

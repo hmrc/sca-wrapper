@@ -20,13 +20,14 @@ import play.api.mvc.Request
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.sca.models.auth.AuthenticatedRequest
 
 object TestData {
 
   object Requests {
     def authenticatedRequest[A](request: Request[A]): AuthenticatedRequest[A] = AuthenticatedRequest(
-      nino = Some("AA111111A"),
+      nino = Some(Nino("AA111111A")),
       credentials = Credentials(
         "providerId",
         "providerType"

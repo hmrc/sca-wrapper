@@ -1,2 +1,0 @@
-GET         /refresh-session                             uk.gov.hmrc.sca.controllers.KeepAliveController.keepAlive
-GET         /assets/*file                                uk.gov.hmrc.sca.controllers.Assets.at(path="/assets", file)

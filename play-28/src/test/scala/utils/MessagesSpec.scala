@@ -19,8 +19,8 @@ package utils
 import scala.io.Source
 
 class MessagesSpec extends BaseSpec{
-  val englishFileName = "play-28/src/main/resources/messages.en"
-  val welshFileName = "play-28/src/main/resources/messages.cy"
+  val englishFileName = "shared/src/main/resources/messages.en"
+  val welshFileName = "shared/src/main/resources/messages.cy"
 
   lazy val actualWelshMessages = sanitize(Source.fromFile(welshFileName).getLines())
   lazy val actualEnglishMessages = sanitize(Source.fromFile(englishFileName).getLines())

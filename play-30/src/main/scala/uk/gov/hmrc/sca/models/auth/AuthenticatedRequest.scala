@@ -20,9 +20,10 @@ import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
+import uk.gov.hmrc.domain.Nino
 
 case class AuthenticatedRequest[A](
-                                    nino: Option[String],
+                                    nino: Option[Nino],
                                     credentials: Credentials,
                                     confidenceLevel: ConfidenceLevel,
                                     name: Option[Name],

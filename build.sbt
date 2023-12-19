@@ -83,8 +83,8 @@ lazy val play28 = Project("sca-wrapper-play-28", file("play-28"))
 lazy val play29 = Project("sca-wrapper-play-29", file("play-29"))
   .disablePlugins(PlayLayoutPlugin, JUnitXmlReportPlugin)
   .enablePlugins(SbtTwirl, RoutesCompiler, BuildInfoPlugin)
-//  .settings(copySources(play30))
-//  .settings(copyPlayResources(play30))
+  .settings(copySources(play28))
+  .settings(copyPlayResources(play28))
   .settings(sharedSettings: _*)
   .settings(
     crossScalaVersions := Seq(scala2_13),
