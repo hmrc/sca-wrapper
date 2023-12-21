@@ -51,7 +51,7 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
   )
 
   @deprecated(
-    "Use standardScaLayout method instead - this is support the HMRCStandardPage template instead of deprecated HmrcLayout")
+    "Use standardScaLayout method instead - this is support the HMRCStandardPage template instead of deprecated HmrcLayout", "1.0.48")
   def layout(
               content: HtmlFormat.Appendable,
               pageTitle: Option[String] = None,
@@ -189,7 +189,7 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
   private def getWrapperDataResponse(request: Request[_]): Option[WrapperDataResponse] = {
     val result = request.attrs.get(Keys.wrapperDataKey)
     if (result.isEmpty) {
-      logger.warn(s"[SCA Wrapper Library][WrapperService][getWrapperDataResponse]{ Expecting Wrapper Data in the request but none was there [${appConfig.serviceUrl}]")
+      logger.warn(s"[SCA Wrapper Library][WrapperService][getWrapperDataResponse]{ Expecting Wrapper Data in the request but none was there")
     }
     result
   }

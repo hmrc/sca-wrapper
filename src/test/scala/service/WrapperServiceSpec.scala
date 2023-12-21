@@ -318,7 +318,7 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
     }
 
     "return the exitSurveyOrigin if the continueUrl is None" in {
-      val appConfig: AppConfig = injector.instanceOf[AppConfig]
+      val appConfig: AppConfig = injector().instanceOf[AppConfig]
 
       val expectedUrl = appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
 
