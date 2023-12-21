@@ -12,9 +12,9 @@ anything (e.g button position on the menu bar, href links, button names etc. can
 
 - Import the SCA Library in your SBT Dependencies: "uk.gov.hmrc" %% "sca-wrapper" % "[latest version]"
 - Check the `application.conf` file and override the default values
-- Inject `WrapperService` and call `layout()`
+- Inject `WrapperService` and call `standardScaLayout()`. The 'layout()' method is deprecated and hence it is recommended to use the 'standardScaLayout()'
 - Pass your HTML view into the method, and override any parameters as needed
-- Since wrapper library has Pta frontend library included in it, provide the ptafrontend route in the app.routes class.
+- Provide the sca route in the app.routes class in order to load the JS and CSS provided by wrapper.
 
 ## Testing the library locally and making changes to it
 
