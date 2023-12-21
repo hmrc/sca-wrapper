@@ -63,8 +63,7 @@ lazy val templateImports: Seq[String] = Seq(
   "uk.gov.hmrc.hmrcfrontend.views.html.components._",
   "uk.gov.hmrc.hmrcfrontend.views.html.helpers._",
   "uk.gov.hmrc.hmrcfrontend.views.config._",
-  "views.html.helper._",
-  "uk.gov.hmrc.sca.viewmodels._"
+  "views.html.helper._"
 //  "controllers.routes._"
 )
 
