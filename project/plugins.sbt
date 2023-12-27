@@ -12,7 +12,7 @@ sys.env.get("PLAY_VERSION") match {
     libraryDependencySchemes := libraryDependencySchemes.value // or any empty DslEntry
 }
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "3.15.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "3.18.0")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.3")
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.5")
 addSbtPlugin("uk.gov.hmrc" % "sbt-distributables" % "2.4.0")
