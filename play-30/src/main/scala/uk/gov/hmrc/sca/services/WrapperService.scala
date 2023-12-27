@@ -189,7 +189,8 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
   private def getWrapperDataResponse(request: Request[_]): Option[WrapperDataResponse] = {
     val result = request.attrs.get(Keys.wrapperDataKey)
     if (result.isEmpty) {
-      logger.warn(s"[SCA Wrapper Library][WrapperService][getWrapperDataResponse]{ Expecting Wrapper Data in the request but none was there [${appConfig.serviceUrl}]")
+      logger.warn(s"[SCA Wrapper Library][WrapperService][getWrapperDataResponse]{ Expecting Wrapper Data in " +
+        s"the request but none was there [${appConfig.serviceUrl}]")
     }
     result
   }
@@ -197,7 +198,8 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
   private def getMessageDataFromRequest(request: Request[_]): Option[Int] = {
     val result = request.attrs.get(Keys.messageDataKey)
     if (result.isEmpty) {
-      logger.warn("[SCA Wrapper Library][WrapperService][getMessageDataFromRequest] Expecting Message Data in the request but none was there")
+      logger.warn("[SCA Wrapper Library][WrapperService][getMessageDataFromRequest] Expecting Message Data in " +
+        "the request but none was there")
     }
     result.flatten
   }
