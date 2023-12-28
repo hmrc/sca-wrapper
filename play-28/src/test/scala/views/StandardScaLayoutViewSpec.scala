@@ -16,6 +16,7 @@
 
 package views
 
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
@@ -101,6 +102,16 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       val document = asDocument(createView(backLinkUrl = Some("backlink-url")).toString())
 
       document.getElementsByAttributeValue("href", "backlink-url").text() mustBe messagesEn("label.back")
+    }
+
+    "return a Wrapper layout when showBackLinkJs is true in English" in {
+      val document = asDocument(createView(showBackLinkJS = true).toString())
+
+      val actualBackLink = document.select(".govuk-back-link")
+      actualBackLink should have size 1
+      actualBackLink.attr("href") shouldBe "#"
+      actualBackLink.attr("data-module") shouldBe "hmrc-back-link"
+      actualBackLink.html() shouldBe "Back"
     }
 
     "return a Wrapper layout when showSignOutInHeader is true in English" in {

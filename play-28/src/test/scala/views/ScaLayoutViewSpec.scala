@@ -16,6 +16,7 @@
 
 package views
 
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
@@ -103,6 +104,16 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
       document.getElementsByAttributeValue("href", "backlink-url").text() mustBe messagesEn("label.back")
     }
 
+    "return a Wrapper layout when showBackLinkJs is true in English" in {
+      val document = asDocument(createView(showBackLinkJS = true).toString())
+
+      val actualBackLink = document.select(".govuk-back-link")
+      actualBackLink should have size 1
+      actualBackLink.attr("href") shouldBe "#"
+      actualBackLink.attr("data-module") shouldBe "hmrc-back-link"
+      actualBackLink.html() shouldBe "Back"
+    }
+
     "return a Wrapper layout when showSignOutInHeader is true in English" in {
       val document = asDocument(createView(showSignOutInHeader = true).toString())
 
@@ -115,6 +126,13 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
       val document = asDocument(createView(bannerConfig = BannerConfig(showAlphaBanner = false, showBetaBanner = true, showHelpImproveBanner = false)).toString())
 
       document.select(".govuk-phase-banner__content").asScala.exists(x => x.text().equals("beta This is a new service – your feedback will help us to improve it.")) mustBe true
+    }
+
+    "return a Wrapper layout when helpImproveBanner is true in English" in {
+      val document = asDocument(createView(bannerConfig = BannerConfig(showAlphaBanner = false, showBetaBanner = false, showHelpImproveBanner = true)).toString())
+
+      val banner = document.select(".hmrc-user-research-banner__link")
+      banner should have size 1
     }
 
     "return a Wrapper layout when fullWidth is true in English" in {
