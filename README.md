@@ -10,19 +10,25 @@ anything (e.g button position on the menu bar, href links, button names etc. can
 
 ## Using the library with your service
 
-- Import the SCA Library in your SBT Dependencies: "uk.gov.hmrc" %% "sca-wrapper" % "[latest version]"
+- Import the SCA Library in your SBT Dependencies: "uk.gov.hmrc" %% "sca-wrapper-[play version]" % "[latest version]", where [play version] is one of `play28`, `play29` or `play30`
 - Check the `application.conf` file and override the default values
-- Inject `WrapperService` and call `layout()`
+- Inject `WrapperService` and call `standardScaLayout()`. The 'layout()' method is deprecated and hence it is recommended to use the 'standardScaLayout()'
 - Pass your HTML view into the method, and override any parameters as needed
-- Since wrapper library has Pta frontend library included in it, provide the ptafrontend route in the app.routes class.
+- Provide the sca route in the app.routes class in order to load the JS and CSS provided by wrapper.
 
 ## Testing the library locally and making changes to it
 
-- Import the SCA Library in your SBT Dependencies: "uk.gov.hmrc" %% "sca-wrapper" % "[latest version]-SNAPSHOT"
+- Import the SCA Library in your SBT Dependencies: "uk.gov.hmrc" %% "sca-wrapper-[play version]" % "[latest version]-SNAPSHOT"
 - Refresh SBT sources
 - Clone the SCA library
 - Edit the build.sbt file and add `-SNAPSHOT` to the end of the `version` field
 - Run `sbt publishLocal`, this will publish the library on your local machine
+
+`runTests.sh` and `publishLocal.sh` are provided to quickly test and publish versions of the library for Play 2.8, 2.9 and 3.0.
+
+Play 3.0 is used by default. The version can be overridden by providing an environment variable, `PLAY_VERSION`:
+
+`env PLAY_VERSION=2.8 sbt clean test`
 
 ## Working example
 
