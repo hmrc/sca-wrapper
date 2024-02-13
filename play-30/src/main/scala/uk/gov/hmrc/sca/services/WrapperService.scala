@@ -51,7 +51,7 @@ class WrapperService @Inject()(ptaMenuBar: PtaMenuBar,
   )
 
   @deprecated(
-    "Use standardScaLayout method instead - this is support the HMRCStandardPage template instead of deprecated HmrcLayout")
+    "Use standardScaLayout method instead - this is support the HMRCStandardPage template instead of deprecated HmrcLayout", "1.0.48")
   def layout(
               content: HtmlFormat.Appendable,
               pageTitle: Option[String] = None,

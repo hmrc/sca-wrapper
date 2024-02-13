@@ -24,7 +24,7 @@ import utils.BaseSpec
 
 class KeepAliveControllerSpec extends BaseSpec {
 
-  override implicit val hc = HeaderCarrier(authorization = Some(Authorization("Bearer 123")))
+  override implicit val hc: HeaderCarrier = HeaderCarrier(authorization = Some(Authorization("Bearer 123")))
 
   private val controller = new KeepAliveController(Helpers.stubMessagesControllerComponents())
   val nino = "AA999999A"

@@ -25,7 +25,6 @@ import javax.inject.Inject
 class KeepAliveController @Inject()(val controllerComponents: MessagesControllerComponents) extends FrontendBaseController with Logging {
 
   def keepAlive: Action[AnyContent] = Action {
-    implicit request =>
       Ok
   }
 

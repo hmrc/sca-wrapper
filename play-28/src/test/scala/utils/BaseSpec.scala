@@ -59,11 +59,11 @@ trait BaseSpec
   lazy val injector: Injector = app.injector
   def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
 
-  lazy val appConfig = app.injector.instanceOf[AppConfig]
+  lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   implicit val defaultTimeout: FiniteDuration = 5.seconds
   implicit val hc: HeaderCarrier = HeaderCarrier()
-  implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
+  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   implicit val frontendAppConfigInstance: AppConfig = injector.instanceOf[AppConfig]
 
   implicit lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "").withSession(
