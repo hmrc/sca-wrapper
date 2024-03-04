@@ -14,7 +14,6 @@ sys.env.get("PLAY_VERSION") match {
 }
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "3.20.0")
-addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.3")
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.9")
 addSbtPlugin("uk.gov.hmrc" % "sbt-distributables" % "2.5.0")
 
@@ -27,7 +26,7 @@ sys.env.get("PLAY_VERSION") match {
 
 sys.env.get("PLAY_VERSION") match {
   case Some("2.8") =>
-    addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.20")
+    addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.21")
   case Some("2.9") =>
     addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.9.1")
   case _           =>
