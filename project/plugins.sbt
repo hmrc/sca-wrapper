@@ -13,10 +13,10 @@ sys.env.get("PLAY_VERSION") match {
     libraryDependencySchemes := libraryDependencySchemes.value // or any empty DslEntry
 }
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "3.18.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "3.20.0")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.3")
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.9")
-addSbtPlugin("uk.gov.hmrc" % "sbt-distributables" % "2.4.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-distributables" % "2.5.0")
 
 sys.env.get("PLAY_VERSION") match {
   case Some("2.8") =>
@@ -29,7 +29,7 @@ sys.env.get("PLAY_VERSION") match {
   case Some("2.8") =>
     addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.20")
   case Some("2.9") =>
-    addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.9.0")
+    addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.9.1")
   case _           =>
-    addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.0")
+    addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.1")
 }
