@@ -14,17 +14,9 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.sca.models.AttorneyBanner
+@import views.html.helper.CSPNonce
 
 @this()
 
-@(params: AttorneyBanner)(implicit messages: Messages)
-@import params._
-<div class="govuk-width-container">
-    <div class="pta-attorney-banner @classes" data-module="pta-attorney-banner" id="attorneyBanner">
-        <div class="pta-attorney-banner__text">
-            @Html(Messages("attorney.banner.using.service.for", HtmlFormat.escape(name)))
-        </div>
-        <a href="@accountUrl" class="govuk-link pta-attorney-banner__link">@messages("attorney.banner.link")</a>
-    </div>
-</div>
+@()(implicit request: RequestHeader)
+<script src="@uk.gov.hmrc.sca.controllers.routes.Assets.at("pta.js")" @{CSPNonce.attr}></script>
