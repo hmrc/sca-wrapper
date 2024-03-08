@@ -15,7 +15,6 @@ function getElementRectangle(element) {
 
 const bannerPlaceholderClass = 'pta-attorney-banner__placeholder';
 const bannerFixedModifierClass = 'pta-attorney-banner--fixed';
-const govukWidthContainerClass = 'govuk-width-container';
 
 function insertPlaceholder(module, originalRectangle) {
   const placeholder = document.createElement('div');
@@ -29,14 +28,12 @@ function insertPlaceholder(module, originalRectangle) {
 
 function fixBanner(module, placeholder) {
   module.classList.add(bannerFixedModifierClass);
-  module.classList.add(govukWidthContainerClass);
   // eslint-disable-next-line no-param-reassign
   placeholder.style.display = 'block';
 }
 
 function unfixBanner(module, placeholder) {
   module.classList.remove(bannerFixedModifierClass);
-  module.classList.remove(govukWidthContainerClass);
   // eslint-disable-next-line no-param-reassign
   placeholder.style.display = 'none';
 }
