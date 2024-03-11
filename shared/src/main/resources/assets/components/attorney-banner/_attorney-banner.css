@@ -42,7 +42,10 @@
   padding: 0.5em 0.75em;
   max-width: 960px;
 
-  @media (min-width: 40.0625em) {
+}
+
+@media (min-width: 40.0625em) {
+  .pta-attorney-banner--fixed {
     width: calc(100% - 3.7rem);
     padding: 10px;
   }
