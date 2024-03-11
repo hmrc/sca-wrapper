@@ -11,12 +11,18 @@
   background-color: #def;
   box-sizing: border-box;
   width: 100%;
+}
 
-  @media (min-width: 48.0625em) {
+@media (min-width: 48.0625em) {
+    .pta-attorney-banner {
+      flex-direction: row;
+    }
+}
+
+@media (min-width: 40.0625em) {
+  .pta-attorney-banner {
+    font-size: 19px;
     flex-direction: row;
-  }
-  @media (min-width: 40.0625em) {
-      font-size: 19px;
   }
 }
 
@@ -41,12 +47,12 @@
   position: fixed;
   padding: 0.5em 0.75em;
   max-width: 960px;
-
 }
 
 @media (min-width: 40.0625em) {
   .pta-attorney-banner--fixed {
     width: calc(100% - 3.7rem);
     padding: 10px;
+    flex-direction: row;
   }
 }
