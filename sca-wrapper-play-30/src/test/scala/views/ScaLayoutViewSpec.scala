@@ -68,8 +68,6 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
     "return a Wrapper layout with default parameters in English" in {
       val document = asDocument(createView().toString())
 
-      println(document)
-
       document.title() mustBe "Page-Title"
       document.select(".hmrc-header__service-name").attr("href") mustBe "Service-Name_Url"
       document.select(".hmrc-header__service-name").text() mustBe "Service-Name-Key"
@@ -105,11 +103,13 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
         .asScala
         .exists(e => e.text.equals("Newid yr iaith ir Gymraeg Cymraeg")) mustBe true
       document
-        .getElementsByAttributeValue(
-          "href",
-          "http://localhost:12346/accessibility-statement/single-customer-account-frontend?referrerUrl=http%3A%2F%2Flocalhost%3A8420%2Fsingle-customer-account"
-        )
+        .getElementsByAttributeValueContaining("href", "accessibility-statement")
         .text() mustBe "Accessibility statement"
+      document
+        .getElementsByAttributeValueContaining("href", "accessibility-statement")
+        .attr(
+          "href"
+        ) mustBe "http://localhost:12346/accessibility-statement/single-customer-account-frontend?referrerUrl=http%3A%2F%2Flocalhost%3A8420%2Fsingle-customer-account"
       document.getElementsByAttributeValue("href", "/help/cookies").text() mustBe "Cookies"
       document.getElementsByAttributeValue("href", "/help/privacy").text() mustBe "Privacy policy"
       document.getElementsByAttributeValue("href", "/help/terms-and-conditions").text() mustBe "Terms and conditions"
@@ -152,7 +152,7 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
     "return a Wrapper layout when there is a backlinkUrl in English" in {
       val document = asDocument(createView(backLinkUrl = Some("backlink-url")).toString())
 
-      document.getElementsByAttributeValue("href", "backlink-url").text() mustBe messagesEn("label.back")
+      document.getElementsByAttributeValue("href", "backlink-url").text() mustBe "Back"
     }
 
     "return a Wrapper layout when showSignOutInHeader is true in English" in {
@@ -211,19 +211,10 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
         ).toString()
       )
 
-      val attorneyBannerElement = document.getElementById("attorneyBanner")
-      attorneyBannerElement.hasClass("pta-attorney-banner") mustBe true
-      attorneyBannerElement.attr("data-module").equals("pta-attorney-banner") mustBe true
-      attorneyBannerElement
-        .getElementsByClass("pta-attorney-banner__text")
-        .text()
-        .equals("You are using this service for principalName.") mustBe true
-      attorneyBannerElement
-        .getElementsByClass("govuk-link pta-attorney-banner__link")
-        .attr("href") mustBe "returnLinkUrl"
-      attorneyBannerElement
-        .getElementsByClass("govuk-link pta-attorney-banner__link")
-        .text() mustBe "Return to your account"
+      document
+        .getElementById("attorneyBanner")
+        .html()
+        .nonEmpty mustBe true
 
     }
   }

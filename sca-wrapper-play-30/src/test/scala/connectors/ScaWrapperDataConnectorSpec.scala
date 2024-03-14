@@ -20,7 +20,9 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.inject
+import play.api
+import play.api.Application
+import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.RequestHeader
 import play.api.test.FakeRequest
@@ -29,29 +31,23 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
-import utils.WireMockHelper
+import utils.{BaseSpec, WireMockHelper}
 
-class ScaWrapperDataConnectorSpec
-    extends AsyncWordSpec
-    with Matchers
-    with WireMockHelper
-    with HttpClientSupport
-    with MockitoSugar {
+class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientSupport {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-  implicit val rh: RequestHeader = FakeRequest("", "")
+  //override protected def urlConfigKeys: String = "sca-wrapper.services.single-customer-account-wrapper-data.url"
 
-  override protected def urlConfigKeys: String = "sca-wrapper.services.single-customer-account-wrapper-data.url"
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .overrides(
+      bind[HttpClient].toInstance(httpClient)
+    )
+    .build()
 
   val urlWrapperDataResponse = s"/single-customer-account-wrapper-data/wrapper-data?lang=en&version=1.0.3"
   val urlMessageData         = "/single-customer-account-wrapper-data/message-data"
 
-  private lazy val scaWrapperDataConnector: ScaWrapperDataConnector = injector.instanceOf[ScaWrapperDataConnector]
-  private lazy val appConfig: AppConfig                             = injector.instanceOf[AppConfig]
-  override def bindings: Seq[GuiceableModule]                       =
-    Seq(
-      inject.bind[HttpClient].toInstance(httpClient)
-    )
+  private lazy val scaWrapperDataConnector: ScaWrapperDataConnector = app.injector.instanceOf[ScaWrapperDataConnector]
+  private lazy val appConfig: AppConfig                             = app.injector.instanceOf[AppConfig]
 
   "ScaWrapperDataConnector" must {
     "return a successful response when wrapperData() is called" in {

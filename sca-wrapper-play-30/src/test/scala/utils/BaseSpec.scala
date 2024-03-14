@@ -16,91 +16,57 @@
 
 package utils
 
-import com.typesafe.config.ConfigFactory
-import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.Materializer
-import org.scalatest.BeforeAndAfterEach
+import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.{Messages, MessagesApi}
-import play.api.inject.Injector
+import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.{AnyContentAsEmpty, BodyParsers, Cookie, MessagesControllerComponents}
-import play.api.test.CSRFTokenHelper.CSRFFRequestHeader
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.CSRFTokenHelper.CSRFRequest
 import play.api.test.{FakeRequest, Injecting}
-import play.api.{Application, Configuration}
-import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
+import uk.gov.hmrc.domain.{Nino, Generator => NinoGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.sca.config.AppConfig
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.duration.{FiniteDuration, _}
-import scala.reflect.ClassTag
 
 trait BaseSpec
     extends AnyWordSpec
-    with Matchers
-    with ScalaFutures
-    with PatienceConfiguration
-    with Injecting
-    with MockitoSugar
     with GuiceOneAppPerSuite
-    with BeforeAndAfterEach {
-  override implicit lazy val app: Application = applicationBuilder().build()
+    with Matchers
+    with PatienceConfiguration
+    with BeforeAndAfterEach
+    with MockitoSugar
+    with ScalaFutures
+    with Injecting
+    with WireMockHelper {
+  this: Suite =>
 
-  implicit val system: ActorSystem                   = ActorSystem("Test")
-  implicit val materializer: Materializer            = Materializer(system)
-  lazy val injector: Injector                        = app.injector
-  def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
+  def generateNino: Nino = new NinoGenerator().nextNino
 
-  lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  implicit val defaultTimeout: FiniteDuration       = 5.seconds
-  implicit val hc: HeaderCarrier                    = HeaderCarrier()
-  implicit lazy val ec: ExecutionContext            = app.injector.instanceOf[ExecutionContext]
-  implicit val frontendAppConfigInstance: AppConfig = injector.instanceOf[AppConfig]
+  val configValues: Map[String, AnyVal] =
+    Map(
+      "metrics.enabled"  -> false,
+      "auditing.enabled" -> false
+    )
 
-  implicit lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type]  = FakeRequest("", "")
+  protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
+    GuiceApplicationBuilder()
+      .configure(configValues)
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
+
+  implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
+
+  lazy val config: AppConfig = inject[AppConfig]
+
+  implicit lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
     .withSession(SessionKeys.sessionId -> "foo")
     .withCSRFToken
     .asInstanceOf[FakeRequest[AnyContentAsEmpty.type]]
-  lazy val messagesApiInstance: MessagesApi                           = injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages                                = messagesApiInstance.preferred(fakeRequest)
-  lazy val messagesCy: Messages                                       = messagesApiInstance.preferred(fakeRequest.withCookies(Cookie("PLAY_LANG", "cy")))
-  // lazy val messages: Messages = messagesApiInstance.preferred(fakeRequest)
-  lazy val messagesControllerComponents: MessagesControllerComponents =
-    injector.instanceOf[MessagesControllerComponents]
-  lazy val bodyParserInstance: BodyParsers.Default                    = injector.instanceOf[BodyParsers.Default]
-
-  type AuthRetrievals =
-    Option[String] ~ AffinityGroup ~ Enrolments ~ Option[Credentials] ~ Option[String] ~
-      ConfidenceLevel ~ Option[Name] ~ Option[TrustedHelper] ~ Option[String]
-
-  def fakeSaEnrolments(utr: String, enrolmentState: String) = Set(
-    Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), enrolmentState)
-  )
-
-  def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
-
-  protected def applicationBuilder(): GuiceApplicationBuilder =
-    new GuiceApplicationBuilder()
-      .overrides(
-      )
-      .configure(
-        Configuration(
-          ConfigFactory
-            .parseString(
-              """
-              |host = "http://localhost:9000"
-              |""".stripMargin
-            )
-            .resolve()
-        )
-      )
-
 }

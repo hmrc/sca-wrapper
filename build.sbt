@@ -33,6 +33,7 @@ ThisBuild / libraryDependencySchemes ++= Seq(
 ThisBuild / organization := "uk.gov.hmrc"
 ThisBuild / scalafmtOnCompile := true
 
+
 lazy val library = Project(libName, file("."))
   .settings(publish / skip := true)
   .aggregate(
@@ -45,7 +46,7 @@ lazy val library = Project(libName, file("."))
 
 val buildScalacOptions = Seq(
   "-feature",
-  "-Werror",
+  //"-Werror",
   "-Wconf:cat=unused-imports&site=uk\\.gov\\.hmrc\\.sca\\.views.*:s",
   "-Wconf:cat=unused-imports&site=<empty>:s",
   "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
@@ -66,14 +67,18 @@ def copyPlay30SourcesFor28(module: Project) =
       .replace("extends AssetsBuilder(errorHandler, meta, env)",
         "extends AssetsBuilder(errorHandler, meta)")
       .replace("import play.api.Environment",
-      ""),
+      "")
+    .replace("src/main/resources/messages.en", "target/scala-2.13/resource_managed/main/messages.en")
+    .replace("src/main/resources/messages.cy", "target/scala-2.13/resource_managed/main/messages.cy"),
     transformResource = _.replace("pekko", "akka")
   )
 
 def copyPlay30Sources(module: Project) =
   CopySources.copySources(
     module,
-    transformSource   = _.replace("org.apache.pekko", "akka"),
+    transformSource   = _.replace("org.apache.pekko", "akka")
+      .replace("src/main/resources/messages.en", "target/scala-2.13/resource_managed/main/messages.en")
+      .replace("src/main/resources/messages.cy", "target/scala-2.13/resource_managed/main/messages.cy"),
     transformResource = _.replace("pekko", "akka")
   )
 

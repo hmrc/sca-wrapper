@@ -63,10 +63,8 @@ class AppConfig @Inject() (configuration: Configuration, messages: MessagesApi) 
       case Right(safeRedirectUrl) => safeRedirectUrl.url
       case Left(error)            => throw new IllegalArgumentException(error)
     }
-    val x           = s"$accessibilityBaseUrl/accessibility-statement/$accessibilityStatementRedirectUrl?referrerUrl=${URLEncoder
+    s"$accessibilityBaseUrl/accessibility-statement/$accessibilityStatementRedirectUrl?referrerUrl=${URLEncoder
       .encode(redirectUrl, "UTF-8")}"
-    println("IIIII " + x)
-    x
   }
 
   val enc                              = URLEncoder.encode(_: String, "UTF-8")
