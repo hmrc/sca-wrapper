@@ -15,38 +15,32 @@ object LibDependencies {
   val play28Test = Seq(
     "uk.gov.hmrc"                   %% "bootstrap-test-play-28"         % bootstrapVersion % Test,
     "org.scalatestplus"             %% "mockito-4-6"                    % "3.2.15.0" % Test,
-    "com.github.tomakehurst"         %  "wiremock-jre8"                 % "2.35.0" % Test,
-    "com.fasterxml.jackson.module"  %% "jackson-module-scala"           % "2.14.2" % Test,
-    "com.vladsch.flexmark"            %  "flexmark-all"                 % "0.64.8" % Test
+    "com.vladsch.flexmark"           % "flexmark-all"                   % "0.64.8" % Test
   )
 
   val play29 = Seq(
-    "com.typesafe.play"           %% s"play-json"                       % "2.9.4",
-    "uk.gov.hmrc"                 %% s"domain-play-29"                  % "9.0.0",
-    "uk.gov.hmrc"                 %% s"play-frontend-hmrc-play-29"      % playHmrcFrontendVersion,
-    "uk.gov.hmrc"                 %% "bootstrap-frontend-play-29"       % bootstrapVersion,
-    "uk.gov.hmrc"                 %% s"play-language-play-29"           % "7.0.0",
-    "uk.gov.hmrc"                 %% s"play-partials-play-29"           % "9.1.0"
+    "com.typesafe.play"           %% "play-json"                       % "2.10.4",
+    "uk.gov.hmrc"                 %% "domain-play-29"                  % "9.0.0",
+    "uk.gov.hmrc"                 %% "play-frontend-hmrc-play-29"      % playHmrcFrontendVersion,
+    "uk.gov.hmrc"                 %% "bootstrap-frontend-play-29"      % bootstrapVersion,
+    "uk.gov.hmrc"                 %% "play-language-play-29"           % "7.0.0",
+    "uk.gov.hmrc"                 %% "play-partials-play-29"           % "9.1.0"
   )
 
   val play29Test = Seq(
-    "uk.gov.hmrc"                   %% s"bootstrap-test-play-29"        % bootstrapVersion % Test,
-    "org.scalatestplus"             %% "mockito-4-6"                    % "3.2.15.0" % Test,
-    "com.fasterxml.jackson.module"  %% "jackson-module-scala"           % "2.14.2" % Test
+    "uk.gov.hmrc"                   %% "bootstrap-test-play-29"        % bootstrapVersion % Test
   )
 
   val play30 = Seq(
     "org.playframework"           %% "play-json"                        % "3.0.1",
     "uk.gov.hmrc"                 %% "play-frontend-hmrc-play-30"       % playHmrcFrontendVersion,
-    "uk.gov.hmrc"                 %% s"domain-play-30"                  % "9.0.0",
+    "uk.gov.hmrc"                 %% "domain-play-30"                  % "9.0.0",
     "uk.gov.hmrc"                 %% "bootstrap-frontend-play-30"       % bootstrapVersion,
-    "uk.gov.hmrc"                 %% s"play-language-play-30"           % "7.0.0",
-    "uk.gov.hmrc"                 %% s"play-partials-play-30"           % "9.1.0"
+    "uk.gov.hmrc"                 %% "play-language-play-30"           % "7.0.0",
+    "uk.gov.hmrc"                 %% "play-partials-play-30"           % "9.1.0"
  )
 
   val play30Test = Seq(
-    "uk.gov.hmrc"                   %% s"bootstrap-test-play-30"        % bootstrapVersion  % Test,
-    "org.scalatestplus"             %% "mockito-4-6"                    % "3.2.15.0"  % Test,
-    "com.fasterxml.jackson.module"  %% "jackson-module-scala"           % "2.14.2"  % Test
+    "uk.gov.hmrc"                   %% "bootstrap-test-play-30"        % bootstrapVersion  % Test
   )
 }
