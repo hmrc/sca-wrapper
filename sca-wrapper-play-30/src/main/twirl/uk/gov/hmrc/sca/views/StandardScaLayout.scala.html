@@ -25,23 +25,14 @@
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
 
 @this(
-        hmrcLayout: HmrcLayout,
         appConfig: AppConfig,
         govukBackLink: GovukBackLink,
-        hmrcHead: HmrcHead,
-        hmrcStandardHeader: HmrcStandardHeader,
-        hmrcStandardFooter: HmrcStandardFooter,
         hmrcStandardPage: HmrcStandardPage,
-        hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet,
-        hmrcLanguageSelect: HmrcLanguageSelect,
-        hmrcTimeoutDialog: HmrcTimeoutDialog,
         hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-        hmrcScripts: HmrcScripts,
         alphaBanner: StandardAlphaBanner,
         betaBanner: StandardBetaBanner,
         hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
         hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
-        hmrcAccountMenu: HmrcAccountMenu,
         ptaScripts: PtaScripts,
         ptaHead: PtaHead,
         govukPhaseBanner: GovukPhaseBanner,
@@ -93,7 +84,7 @@
 }
 
 @beforeContent = {
-    @defining(request.uri) { uri =>
+    @defining(request.uri) { _ =>
         @if(!hideMenuBar) {
             @menu
         }

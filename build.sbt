@@ -33,7 +33,6 @@ ThisBuild / libraryDependencySchemes ++= Seq(
 ThisBuild / organization := "uk.gov.hmrc"
 ThisBuild / scalafmtOnCompile := true
 
-
 lazy val library = Project(libName, file("."))
   .settings(publish / skip := true)
   .aggregate(
@@ -45,8 +44,14 @@ lazy val library = Project(libName, file("."))
   )
 
 val buildScalacOptions = Seq(
+  "-unchecked",
   "-feature",
-  //"-Werror",
+  "-Xlint:_",
+  "-Wdead-code",
+  "-Wunused:_",
+  "-Wextra-implicit",
+  "-Wvalue-discard",
+  "-Werror",
   "-Wconf:cat=unused-imports&site=uk\\.gov\\.hmrc\\.sca\\.views.*:s",
   "-Wconf:cat=unused-imports&site=<empty>:s",
   "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
@@ -99,7 +104,10 @@ lazy val play28 = Project(s"$libName-play-28", file(s"$libName-play-28"))
     libraryDependencies ++= LibDependencies.play28 ++ LibDependencies.play28Test,
     scalacOptions ++= buildScalacOptions,
     copyPlay30SourcesFor28(play30),
-    copyPlay30Routes(play30)
+    copyPlay30Routes(play30),
+    Test / Keys.fork := true,
+    Test / parallelExecution := true,
+    Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
   )
 
 lazy val play29 = Project(s"$libName-play-29", file(s"$libName-play-29"))
@@ -112,7 +120,10 @@ lazy val play29 = Project(s"$libName-play-29", file(s"$libName-play-29"))
     libraryDependencies ++= LibDependencies.play29 ++ LibDependencies.play29Test,
     scalacOptions ++= buildScalacOptions,
     copyPlay30Sources(play30),
-    copyPlay30Routes(play30)
+    copyPlay30Routes(play30),
+    Test / Keys.fork := true,
+    Test / parallelExecution := true,
+    Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
   )
 
 lazy val play30 = Project(s"$libName-play-30", file(s"$libName-play-30"))
@@ -127,7 +138,10 @@ lazy val play30 = Project(s"$libName-play-30", file(s"$libName-play-30"))
       val dirs = (Compile / unmanagedResourceDirectories).value
       (dirs * "routes").get ++ (dirs * "*.routes").get
     },
-    scalacOptions ++= buildScalacOptions
+    scalacOptions ++= buildScalacOptions,
+    Test / Keys.fork := true,
+    Test / parallelExecution := true,
+    Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
   )
 
 lazy val templateImports: Seq[String] = Seq(

@@ -17,25 +17,16 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AsyncWordSpec
-import org.scalatestplus.mockito.MockitoSugar
-import play.api
 import play.api.Application
 import play.api.inject.bind
-import play.api.inject.guice.GuiceableModule
-import play.api.mvc.RequestHeader
-import play.api.test.FakeRequest
 import uk.gov.hmrc.http.test.HttpClientSupport
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
-import utils.{BaseSpec, WireMockHelper}
+import utils.BaseSpec
 
 class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientSupport {
-
-  //override protected def urlConfigKeys: String = "sca-wrapper.services.single-customer-account-wrapper-data.url"
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
@@ -43,7 +34,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientSupport {
     )
     .build()
 
-  val urlWrapperDataResponse = s"/single-customer-account-wrapper-data/wrapper-data?lang=en&version=1.0.3"
+  val urlWrapperDataResponse = "/single-customer-account-wrapper-data/wrapper-data?lang=en&version=1.0.3"
   val urlMessageData         = "/single-customer-account-wrapper-data/message-data"
 
   private lazy val scaWrapperDataConnector: ScaWrapperDataConnector = app.injector.instanceOf[ScaWrapperDataConnector]
