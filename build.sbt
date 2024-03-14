@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 
 import sbt.Keys.*
 import sbt.*
-import sbt.internal.BuildDependencies
-
-import scala.collection.Seq
 
 val libName = "sca-wrapper"
 
