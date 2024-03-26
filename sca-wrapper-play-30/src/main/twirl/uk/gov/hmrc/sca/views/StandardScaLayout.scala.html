@@ -135,10 +135,10 @@
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
     @{
         if(bannerConfig.showBetaBanner) {
-            govukPhaseBanner(betaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
+            govukPhaseBanner(betaBanner(appConfig.feedbackUrl))
         } else {
             if(bannerConfig.showAlphaBanner) {
-                govukPhaseBanner(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
+                govukPhaseBanner(alphaBanner(appConfig.feedbackUrl))
             }
         }
     }
@@ -172,6 +172,6 @@
         ),
         serviceName = serviceNameKey.map(messages(_)),
         pageTitle = pageTitle,
-        isWelshTranslationAvailable = true,
+        isWelshTranslationAvailable = true
     )
 )(content)

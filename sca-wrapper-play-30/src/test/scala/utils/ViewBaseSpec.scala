@@ -18,27 +18,22 @@ package utils
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.scalatest.matchers.must.Matchers
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{AnyContentAsEmpty, Cookie}
 import play.api.test.CSRFTokenHelper.CSRFRequest
-import play.api.test.{FakeRequest, Injecting}
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import play.api.test.FakeRequest
+import uk.gov.hmrc.http.SessionKeys
 
-trait ViewBaseSpec extends PlaySpec with GuiceOneAppPerSuite with Injecting with Matchers {
+trait ViewBaseSpec extends BaseSpec {
 
-  implicit lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
+  implicit override lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
     .withSession(SessionKeys.sessionId -> "foo")
     .withCSRFToken
     .asInstanceOf[FakeRequest[AnyContentAsEmpty.type]]
-  protected lazy val realMessagesApi: MessagesApi                    = inject[MessagesApi]
+  protected lazy val realMessagesApi: MessagesApi                             = inject[MessagesApi]
 
   implicit lazy val messagesEn: Messages = realMessagesApi.preferred(fakeRequest)
   lazy val messagesCy: Messages          = realMessagesApi.preferred(fakeRequest.withCookies(Cookie("PLAY_LANG", "cy")))
-
-  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   def asDocument(page: String): Document = Jsoup.parse(page)
 }

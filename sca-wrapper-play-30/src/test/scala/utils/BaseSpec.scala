@@ -49,10 +49,11 @@ trait BaseSpec
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val configValues: Map[String, AnyVal] =
+  val configValues: Map[String, Any] =
     Map(
-      "metrics.enabled"  -> false,
-      "auditing.enabled" -> false
+      "metrics.enabled"            -> false,
+      "auditing.enabled"           -> false,
+      "contact-frontend.serviceId" -> "ServiceId"
     )
 
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =

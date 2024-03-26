@@ -16,11 +16,9 @@
 
 package uk.gov.hmrc.sca.config
 
-import play.api.Configuration
+import play.api.{Configuration, Logging}
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
-import uk.gov.hmrc.play.bootstrap.binders.{AbsoluteWithHostnameFromAllowlist, OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.sca.controllers.routes
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 
@@ -28,7 +26,11 @@ import java.net.URLEncoder
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class AppConfig @Inject() (configuration: Configuration, messages: MessagesApi) {
+class AppConfig @Inject() (
+  configuration: Configuration,
+  messages: MessagesApi,
+  localContactFrontendConfig: LocalContactFrontendConfig
+) extends Logging {
 
   //library manual update, MAJOR.MINOR.PATCH
   val versionNum: String = "1.0.3"
@@ -36,35 +38,11 @@ class AppConfig @Inject() (configuration: Configuration, messages: MessagesApi) 
   //config for service name in black bar
   val serviceNameKey: Option[String] = configuration.getOptional[String]("sca-wrapper.service-name.messages-key")
 
-  //service name config for links
-  val feedbackServiceName: String = configuration.get[String]("sca-wrapper.feedback-service-name")
-  private val host: String        = configuration.get[String]("sca-wrapper.host")
-
-  def feedbackUrl(contactFrontendUrl: String)(implicit request: RequestHeader): String = {
-    val redirectUrl = RedirectUrl(host + request.uri).getEither(
-      OnlyRelative | AbsoluteWithHostnameFromAllowlist("localhost")
-    ) match {
-      case Right(safeRedirectUrl) => safeRedirectUrl.url
-      case Left(error)            => throw new IllegalArgumentException(error)
-    }
-
-    s"$contactFrontendUrl?service=$feedbackServiceName&backUrl=$redirectUrl"
-  }
-
-  private val accessibilityStatementReferrerUrl =
-    configuration.get[String]("sca-wrapper.accessibility-statement.referrer.url")
-  private val accessibilityStatementRedirectUrl =
-    configuration.get[String]("sca-wrapper.accessibility-statement.redirect.url")
-
-  def accessibilityStatementUrl(accessibilityBaseUrl: String): String = {
-    val redirectUrl = RedirectUrl(host + accessibilityStatementReferrerUrl).getEither(
-      OnlyRelative | AbsoluteWithHostnameFromAllowlist("localhost")
-    ) match {
-      case Right(safeRedirectUrl) => safeRedirectUrl.url
-      case Left(error)            => throw new IllegalArgumentException(error)
-    }
-    s"$accessibilityBaseUrl/accessibility-statement/$accessibilityStatementRedirectUrl?referrerUrl=${URLEncoder
-      .encode(redirectUrl, "UTF-8")}"
+  def feedbackUrl(implicit request: RequestHeader): String = localContactFrontendConfig.url.getOrElse {
+    val exception: RuntimeException =
+      new RuntimeException("empty contact-frontend url. Is contact-frontend.serviceId set?")
+    logger.error(exception.getMessage, exception)
+    ""
   }
 
   val enc                              = URLEncoder.encode(_: String, "UTF-8")
@@ -77,11 +55,7 @@ class AppConfig @Inject() (configuration: Configuration, messages: MessagesApi) 
   val disableSessionExpired: Boolean = configuration.get[Boolean]("sca-wrapper.disable-session-expired")
 
   //signout links
-  private val signoutBaseUrl: String            = configuration.get[String]("sca-wrapper.signout.url")
-  private val signoutBaseUrlAlt: Option[String] =
-    configuration.getOptional[String]("sca-wrapper.signout.alternative-url")
-  val signoutUrl: String                        = signoutBaseUrlAlt.getOrElse(signoutBaseUrl)
-  val timeOutUrl: Option[String]                = configuration.getOptional[String]("sca-wrapper.signin.url")
+  val timeOutUrl: Option[String] = configuration.getOptional[String]("sca-wrapper.signin.url")
 
   //internal
   val serviceUrl: String   = configuration.get[String]("sca-wrapper.service.url")
@@ -92,10 +66,6 @@ class AppConfig @Inject() (configuration: Configuration, messages: MessagesApi) 
   val trackingUrl: String                  = s"${configuration.get[String]("sca-wrapper.services.tracking-frontend.url")}"
   val feedbackFrontendUrl: String          =
     s"${configuration.get[String]("sca-wrapper.services.feedback-frontend.url")}/feedback"
-  val contactFrontendUrl: String           =
-    s"${configuration.get[String]("sca-wrapper.services.contact-frontend.url")}/contact/beta-feedback"
-  val accessibilityStatementUrl: String    =
-    configuration.get[String]("sca-wrapper.services.accessibility-statement-frontend.url")
   val scaWrapperDataUrl                    =
     s"${configuration.get[String]("sca-wrapper.services.single-customer-account-wrapper-data.url")}/single-customer-account-wrapper-data"
   val helpImproveBannerUrl: Option[String] =
@@ -147,7 +117,7 @@ class AppConfig @Inject() (configuration: Configuration, messages: MessagesApi) 
     MenuItemConfig(
       "signout",
       messages("sca-wrapper.fallback.menu.signout"),
-      s"$signoutUrl",
+      "placeHolder-url",
       leftAligned = false,
       position = 3,
       None,

@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.sca.views.html._
 @import uk.gov.hmrc.sca.views.html.PtaAttorneyBanner
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
+@import uk.gov.hmrc.hmrcfrontend.config.AccessibilityStatementConfig
 
 @this(
         hmrcLayout: HmrcLayout,
@@ -38,7 +39,8 @@
         ptaAttorneyBanner: PtaAttorneyBanner,
         twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
         fullWidthMainContent: FullWidthMainContent,
-        twoThirdsMainContent: TwoThirdsMainContent
+        twoThirdsMainContent: TwoThirdsMainContent,
+        accessibilityStatementConfig: AccessibilityStatementConfig
 )
 
 @(menu: HtmlFormat.Appendable,
@@ -46,7 +48,7 @@
         serviceNameUrl: Option[String],
         pageTitle: Option[String],
         sidebarContent: Option[Html],
-        signoutUrl: String,
+        signoutUrl: Option[String],
         timeOutUrl: Option[String],
         keepAliveUrl: String,
         showBackLinkJS: Boolean,
@@ -69,7 +71,7 @@
             timeout = Some(appConfig.timeout),
             countdown = Some(appConfig.countdown),
             keepAliveUrl = Some(keepAliveUrl),
-            signOutUrl = signoutUrl,
+            signOutUrl = signoutUrl.get,
             timeoutUrl = timeOutUrl
 
         )
@@ -135,10 +137,10 @@
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
     @{
         if(bannerConfig.showBetaBanner) {
-            govukPhaseBanner(betaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
+            govukPhaseBanner(betaBanner(appConfig.feedbackUrl))
         } else {
             if(bannerConfig.showAlphaBanner) {
-                govukPhaseBanner(alphaBanner(appConfig.feedbackUrl(appConfig.contactFrontendUrl)))
+                govukPhaseBanner(alphaBanner(appConfig.feedbackUrl))
             }
         }
     }
@@ -150,9 +152,9 @@
     serviceName = serviceNameKey.map(messages(_)),
     serviceUrl = serviceNameUrl,
     isWelshTranslationAvailable = true,
-    accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(appConfig.accessibilityStatementUrl)),
+    accessibilityStatementUrl = accessibilityStatementConfig.url,
     displayHmrcBanner = false,
-    signOutUrl = if(showSignOutInHeader) Some(signoutUrl) else None,
+    signOutUrl = if(showSignOutInHeader) signoutUrl else None,
     backLinkUrl = backLinkUrl,
     additionalHeadBlock = Some(headBlock),
     beforeContentBlock = Some(beforeContent),

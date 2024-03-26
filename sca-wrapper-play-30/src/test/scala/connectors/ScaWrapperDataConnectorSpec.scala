@@ -21,7 +21,6 @@ import play.api.Application
 import play.api.inject.bind
 import uk.gov.hmrc.http.test.HttpClientSupport
 import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 import utils.BaseSpec
@@ -38,7 +37,6 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientSupport {
   val urlMessageData         = "/single-customer-account-wrapper-data/message-data"
 
   private lazy val scaWrapperDataConnector: ScaWrapperDataConnector = app.injector.instanceOf[ScaWrapperDataConnector]
-  private lazy val appConfig: AppConfig                             = app.injector.instanceOf[AppConfig]
 
   "ScaWrapperDataConnector" must {
     "return a successful response when wrapperData() is called" in {
@@ -127,7 +125,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientSupport {
           None,
           None
         ),
-        MenuItemConfig("signout", "Sign out", s"${appConfig.signoutUrl}", leftAligned = false, position = 3, None, None)
+        MenuItemConfig("signout", "Sign out", s"placeHolder-Url", leftAligned = false, position = 3, None, None)
       )
 
       def fallbackWrapperDataResponse: WrapperDataResponse = WrapperDataResponse(

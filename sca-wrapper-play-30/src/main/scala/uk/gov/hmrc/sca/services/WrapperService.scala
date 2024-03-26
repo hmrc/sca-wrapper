@@ -45,11 +45,6 @@ class WrapperService @Inject() (
     showBetaBanner = appConfig.showBetaBanner,
     showHelpImproveBanner = appConfig.showHelpImproveBanner
   )
-  lazy val defaultserviceURLs: ServiceURLs   = ServiceURLs(
-    serviceUrl = None,
-    signOutUrl = Some(appConfig.signoutUrl),
-    accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(appConfig.accessibilityStatementUrl))
-  )
 
   @deprecated(
     "Use standardScaLayout method instead - this is support the HMRCStandardPage template instead of deprecated HmrcLayout",
@@ -61,12 +56,11 @@ class WrapperService @Inject() (
     serviceNameKey: Option[String] = appConfig.serviceNameKey,
     serviceNameUrl: Option[String] = None,
     sidebarContent: Option[Html] = None,
-    signoutUrl: String = appConfig.signoutUrl,
+    signoutUrl: Option[String] = None,
     timeOutUrl: Option[String] = appConfig.timeOutUrl,
     keepAliveUrl: String = appConfig.keepAliveUrl,
     showBackLinkJS: Boolean = false,
     backLinkUrl: Option[String] = None,
-    showSignOutInHeader: Boolean = false,
     scripts: Seq[HtmlFormat.Appendable] = Seq.empty,
     styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
     bannerConfig: BannerConfig = defaultBannerConfig,
@@ -74,7 +68,13 @@ class WrapperService @Inject() (
     fullWidth: Boolean = true,
     hideMenuBar: Boolean = false,
     disableSessionExpired: Boolean = appConfig.disableSessionExpired
-  )(implicit messages: Messages, hc: HeaderCarrier, request: Request[_]): HtmlFormat.Appendable =
+  )(implicit messages: Messages, hc: HeaderCarrier, request: Request[_]): HtmlFormat.Appendable = {
+    val showSignOutInHeader = (signoutUrl, hideMenuBar) match {
+      case (Some(_), false) => false
+      case (Some(_), true)  => true // should we throw exception? if the menu is hidden the user must be unauthenticated
+      case (None, false)    => throw new RuntimeException("The PTA menu cannot be shown without a signout url")
+      case (None, true)     => false
+    }
     scaLayout(
       menu = ptaMenuBar(sortMenuItemConfig(signoutUrl)),
       serviceNameKey = serviceNameKey,
@@ -95,18 +95,18 @@ class WrapperService @Inject() (
       disableSessionExpired = disableSessionExpired,
       optTrustedHelper = optTrustedHelper
     )(content)
+  }
 
   def standardScaLayout(
     content: HtmlFormat.Appendable,
     pageTitle: Option[String] = None,
-    serviceURLs: ServiceURLs = defaultserviceURLs,
+    serviceURLs: ServiceURLs,
     serviceNameKey: Option[String] = appConfig.serviceNameKey,
     sidebarContent: Option[Html] = None,
     timeOutUrl: Option[String] = appConfig.timeOutUrl,
     keepAliveUrl: String = appConfig.keepAliveUrl,
     showBackLinkJS: Boolean = false,
     backLinkUrl: Option[String] = None,
-    showSignOutInHeader: Boolean = false,
     scripts: Seq[HtmlFormat.Appendable] = Seq.empty,
     styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
     bannerConfig: BannerConfig = defaultBannerConfig,
@@ -114,9 +114,16 @@ class WrapperService @Inject() (
     fullWidth: Boolean = true,
     hideMenuBar: Boolean = false,
     disableSessionExpired: Boolean = appConfig.disableSessionExpired
-  )(implicit messages: Messages, request: Request[_]): HtmlFormat.Appendable  =
+  )(implicit messages: Messages, request: Request[_]): HtmlFormat.Appendable = {
+    val showSignOutInHeader = (serviceURLs.signOutUrl, hideMenuBar) match {
+      case (Some(_), false) => false
+      case (Some(_), true)  => true // should we throw exception? if the menu is hidden the user must be unauthenticated
+      case (None, false)    => throw new RuntimeException("The PTA menu cannot be shown without a signout url")
+      case (None, true)     => false
+    }
+
     newScaLayout(
-      menu = ptaMenuBar(sortMenuItemConfig(serviceURLs.signOutUrl.getOrElse(appConfig.signoutUrl))),
+      menu = ptaMenuBar(sortMenuItemConfig(serviceURLs.signOutUrl)),
       serviceURLs = serviceURLs,
       serviceNameKey = serviceNameKey,
       pageTitle = pageTitle,
@@ -134,16 +141,19 @@ class WrapperService @Inject() (
       disableSessionExpired = disableSessionExpired,
       optTrustedHelper = optTrustedHelper
     )(content)
+  }
+
   def safeSignoutUrl(continueUrl: Option[RedirectUrl] = None): Option[String] = continueUrl match {
     case Some(continue) if continue.getEither(OnlyRelative).isRight =>
       Some(continue.getEither(OnlyRelative).toOption.get.url)
     case _                                                          => appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
   }
 
-  private def sortMenuItemConfig(signoutUrl: String)(implicit request: Request[_]): PtaMenuConfig = {
+  private def sortMenuItemConfig(signoutUrl: Option[String])(implicit request: Request[_]): PtaMenuConfig = {
     implicit val lang: Lang = Lang(request.cookies.get("PLAY_LANG").map(_.value).getOrElse("en"))
 
-    val wrapperDataResponse = getWrapperDataResponse(request).getOrElse(appConfig.fallbackWrapperDataResponse)
+    val wrapperDataResponse =
+      getWrapperDataResponse(request).getOrElse(appConfig.fallbackWrapperDataResponse)
     val unreadMessageCount  = getMessageDataFromRequest(request)
 
     val menuItemConfigWithSignout            = setSignoutUrl(signoutUrl, wrapperDataResponse.menuItemConfig)
@@ -156,18 +166,10 @@ class WrapperService @Inject() (
     )
   }
 
-  private def setSignoutUrl(signoutUrl: String, menuItemConfig: Seq[MenuItemConfig]) =
-    Try {
-      menuItemConfig.find(_.id == "signout").fold(menuItemConfig) { signout =>
-        menuItemConfig.updated(menuItemConfig.indexWhere(_.id == "signout"), signout.copy(href = signoutUrl))
-      }
-    } match {
-      case Success(config)    => config
-      case Failure(exception) =>
-        logger.error(
-          s"[SCA Wrapper Library][WrapperService][setSignoutUrl] Set signout url exception: ${exception.getMessage}"
-        )
-        menuItemConfig
+  private def setSignoutUrl(signoutUrl: Option[String], menuItemConfig: Seq[MenuItemConfig]) =
+    menuItemConfig.flatMap {
+      case signout if signout.id == "signout" => signoutUrl.map(url => signout.copy(href = url))
+      case other                              => Some(other)
     }
 
   private def setUnreadMessageCount(unreadMessageCount: Option[Int], menuItemConfig: Seq[MenuItemConfig]) =

@@ -19,10 +19,7 @@ package service
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AsyncWordSpec
-import org.scalatestplus.mockito.MockitoSugar
+import play.api
 import play.api.i18n.Messages
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.libs.typedmap.TypedMap
@@ -31,11 +28,10 @@ import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.baseApplicationBuilder.injector
 import play.api.test.Helpers.stubMessages
-import play.api.{Application, inject}
+import play.api.Application
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
@@ -43,12 +39,13 @@ import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMinMenuConfig, W
 import uk.gov.hmrc.sca.services.WrapperService
 import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
+import utils.BaseSpec
+import api.inject.bind
 
-class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
+class WrapperServiceSpec extends BaseSpec {
 
   import WrapperServiceSpec._
 
-  private implicit val hc: HeaderCarrier  = HeaderCarrier()
   private implicit val messages: Messages = stubMessages()
 
   private implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -68,10 +65,10 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
 
   val modules: Seq[GuiceableModule] =
     Seq(
-      inject.bind[ScaLayout].toInstance(mockScaLayout),
-      inject.bind[StandardScaLayout].toInstance(mockStandardScaLayout),
-      inject.bind[ScaWrapperDataConnector].toInstance(mockScaWrapperDataConnector),
-      inject.bind[AppConfig].toInstance(mockAppConfig)
+      bind[ScaLayout].toInstance(mockScaLayout),
+      bind[StandardScaLayout].toInstance(mockStandardScaLayout),
+      bind[ScaWrapperDataConnector].toInstance(mockScaWrapperDataConnector),
+      bind[AppConfig].toInstance(mockAppConfig)
     )
 
   val application: Application = new GuiceApplicationBuilder()
@@ -80,6 +77,12 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
     .build()
 
   private def wrapperService = application.injector.instanceOf[WrapperService]
+
+  private val serviceUrls = ServiceURLs(
+    serviceUrl = None,
+    signOutUrl = Some("Signout-Url"),
+    accessibilityStatementUrl = Some(null)
+  )
 
   override def beforeEach(): Unit = {
     reset(mockScaLayout)
@@ -96,11 +99,10 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       when(mockAppConfig.showBetaBanner).thenReturn(false)
       when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
       when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
-      when(mockAppConfig.signoutUrl).thenReturn("Signout-Url")
       when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
       when(mockAppConfig.disableSessionExpired).thenReturn(false)
 
-      wrapperService.layout(content = Html("Default-Content"))
+      wrapperService.layout(signoutUrl = Some("Signout-Url"), content = Html("Default-Content"))
 
       verify(mockScaLayout, times(1)).apply(
         menu = menuCaptor.capture(),
@@ -127,7 +129,6 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       verify(mockAppConfig, times(1)).showBetaBanner
       verify(mockAppConfig, times(1)).showHelpImproveBanner
       verify(mockAppConfig, times(1)).serviceNameKey
-      verify(mockAppConfig, times(1)).signoutUrl
       verify(mockAppConfig, times(1)).keepAliveUrl
       verify(mockAppConfig, times(1)).disableSessionExpired
 
@@ -136,7 +137,7 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       serviceNameUrlCaptor.getValue mustBe None
       pageTitleCaptor.getValue mustBe None
       sideBarContentCaptor.getValue mustBe None
-      signoutUrlCaptor.getValue mustBe "Signout-Url"
+      signoutUrlCaptor.getValue mustBe Some("Signout-Url")
       keepAliveUrlCaptor.getValue mustBe "/refresh-session"
       showBackLinkJSCaptor.getValue mustBe false
       backLinkUrlCaptor.getValue mustBe None
@@ -161,11 +162,10 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       when(mockAppConfig.showBetaBanner).thenReturn(false)
       when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
       when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
-      when(mockAppConfig.signoutUrl).thenReturn("Signout-Url")
       when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
       when(mockAppConfig.disableSessionExpired).thenReturn(false)
 
-      wrapperService.standardScaLayout(content = Html("Default-Content"))
+      wrapperService.standardScaLayout(content = Html("Default-Content"), serviceURLs = serviceUrls)
 
       verify(mockStandardScaLayout, times(1)).apply(
         menu = menuCaptor.capture(),
@@ -191,16 +191,11 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       verify(mockAppConfig, times(1)).showBetaBanner
       verify(mockAppConfig, times(1)).showHelpImproveBanner
       verify(mockAppConfig, times(1)).serviceNameKey
-      verify(mockAppConfig, times(1)).signoutUrl
       verify(mockAppConfig, times(1)).keepAliveUrl
       verify(mockAppConfig, times(1)).disableSessionExpired
 
       menuCaptor.getValue mustBe standardmenu
-      serviceURLsCaptor.getValue mustBe ServiceURLs(
-        serviceUrl = None,
-        signOutUrl = Some("Signout-Url"),
-        accessibilityStatementUrl = Some(null)
-      )
+      serviceURLsCaptor.getValue mustBe serviceUrls
       serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
       pageTitleCaptor.getValue mustBe None
       sideBarContentCaptor.getValue mustBe None
@@ -229,7 +224,7 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       val serviceNameKey        = Some("Service-Name-Key")
       val serviceNameUrl        = Some("Service-Name-Url")
       val sidebarContent        = Some(Html("Sidebar-Content"))
-      val signoutUrl            = "Signout-Url"
+      val signoutUrl            = Some("Signout-Url")
       val timeOutUrl            = Some("Timeout-Url")
       val keepAliveUrl          = "Keep-Alive-Url"
       val showBackLinkJS        = true
@@ -254,7 +249,6 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
         keepAliveUrl,
         showBackLinkJS,
         backLinkUrl,
-        showSignOutInHeader,
         scripts,
         styleSheets,
         bannerConfig,
@@ -289,7 +283,6 @@ class WrapperServiceSpec extends AsyncWordSpec with Matchers with MockitoSugar w
       verify(mockAppConfig, never).showBetaBanner
       verify(mockAppConfig, never).showHelpImproveBanner
       verify(mockAppConfig, never).serviceNameKey
-      verify(mockAppConfig, never).signoutUrl
       verify(mockAppConfig, never).keepAliveUrl
       verify(mockAppConfig, never).disableSessionExpired
 
@@ -389,7 +382,7 @@ object WrapperServiceSpec {
   val serviceNameUrlCaptor        = ArgumentCaptor.forClass(classOf[Option[String]])
   val pageTitleCaptor             = ArgumentCaptor.forClass(classOf[Option[String]])
   val sideBarContentCaptor        = ArgumentCaptor.forClass(classOf[Option[Html]])
-  val signoutUrlCaptor            = ArgumentCaptor.forClass(classOf[String])
+  val signoutUrlCaptor            = ArgumentCaptor.forClass(classOf[Option[String]])
   val timeOutUrlCaptor            = ArgumentCaptor.forClass(classOf[Option[String]])
   val keepAliveUrlCaptor          = ArgumentCaptor.forClass(classOf[String])
   val showBackLinkJSCaptor        = ArgumentCaptor.forClass(classOf[Boolean])

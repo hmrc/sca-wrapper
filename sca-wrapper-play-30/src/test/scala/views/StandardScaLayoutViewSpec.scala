@@ -152,7 +152,9 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
     }
 
     "return a Wrapper layout when showSignOutInHeader is true in English" in {
-      val document = asDocument(createView(showSignOutInHeader = true).toString())
+      val document = asDocument(
+        createView(showSignOutInHeader = true, serviceURLs = ServiceURLs(signOutUrl = Some("Signout-Url"))).toString()
+      )
 
       document
         .getElementsByAttributeValue("data-module", "govuk-header")

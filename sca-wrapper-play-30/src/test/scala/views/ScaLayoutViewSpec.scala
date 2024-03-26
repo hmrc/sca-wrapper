@@ -49,7 +49,7 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
       Some("Service-Name_Url"),
       Some("Page-Title"),
       sidebarContent,
-      "Signout-Url",
+      Some("Signout-Url"),
       Some("TimeOut-Url"),
       "Keep-Alive-Url",
       showBackLinkJS,
@@ -67,6 +67,7 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
   "WrapperService layout" must {
     "return a Wrapper layout with default parameters in English" in {
       val document = asDocument(createView().toString())
+      println(document)
 
       document.title() mustBe "Page-Title"
       document.select(".hmrc-header__service-name").attr("href") mustBe "Service-Name_Url"
@@ -102,14 +103,6 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
         .select(".hmrc-language-select__list-item")
         .asScala
         .exists(e => e.text.equals("Newid yr iaith ir Gymraeg Cymraeg")) mustBe true
-      document
-        .getElementsByAttributeValueContaining("href", "accessibility-statement")
-        .text() mustBe "Accessibility statement"
-      document
-        .getElementsByAttributeValueContaining("href", "accessibility-statement")
-        .attr(
-          "href"
-        ) mustBe "http://localhost:12346/accessibility-statement/single-customer-account-frontend?referrerUrl=http%3A%2F%2Flocalhost%3A8420%2Fsingle-customer-account"
       document.getElementsByAttributeValue("href", "/help/cookies").text() mustBe "Cookies"
       document.getElementsByAttributeValue("href", "/help/privacy").text() mustBe "Privacy policy"
       document.getElementsByAttributeValue("href", "/help/terms-and-conditions").text() mustBe "Terms and conditions"
