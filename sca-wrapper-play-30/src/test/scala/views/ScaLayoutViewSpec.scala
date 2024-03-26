@@ -67,7 +67,6 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
   "WrapperService layout" must {
     "return a Wrapper layout with default parameters in English" in {
       val document = asDocument(createView().toString())
-      println(document)
 
       document.title() mustBe "Page-Title"
       document.select(".hmrc-header__service-name").attr("href") mustBe "Service-Name_Url"
