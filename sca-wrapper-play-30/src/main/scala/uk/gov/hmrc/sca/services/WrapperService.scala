@@ -143,6 +143,10 @@ class WrapperService @Inject() (
     )(content)
   }
 
+  @deprecated(
+    "Inline instead. This will be removed in a future release.",
+    since = "1.7.0"
+  )
   def safeSignoutUrl(continueUrl: Option[RedirectUrl] = None): Option[String] = continueUrl match {
     case Some(continue) if continue.getEither(OnlyRelative).isRight =>
       Some(continue.getEither(OnlyRelative).toOption.get.url)

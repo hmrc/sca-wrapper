@@ -59,7 +59,8 @@ val buildScalacOptions = Seq(
   "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s",
   "-Wconf:cat=deprecation&site=uk\\.gov\\.hmrc\\.sca\\.views.*:s",
   "-Wconf:cat=deprecation&msg=method apply in class HmrcLayout is deprecated:s",
-  "-Wconf:cat=deprecation&msg=method layout in class WrapperService is deprecated:s"
+  "-Wconf:cat=deprecation&msg=method layout in class WrapperService is deprecated:s",
+  "-Wconf:cat=deprecation&msg=method safeSignoutUrl in class WrapperService is deprecated:s"
 
 )
 
