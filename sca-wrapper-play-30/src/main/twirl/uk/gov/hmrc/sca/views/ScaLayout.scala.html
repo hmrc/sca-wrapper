@@ -22,7 +22,6 @@
 @import uk.gov.hmrc.sca.views.html._
 @import uk.gov.hmrc.sca.views.html.PtaAttorneyBanner
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
-@import uk.gov.hmrc.hmrcfrontend.config.AccessibilityStatementConfig
 
 @this(
         hmrcLayout: HmrcLayout,
@@ -39,8 +38,7 @@
         ptaAttorneyBanner: PtaAttorneyBanner,
         twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
         fullWidthMainContent: FullWidthMainContent,
-        twoThirdsMainContent: TwoThirdsMainContent,
-        accessibilityStatementConfig: AccessibilityStatementConfig
+        twoThirdsMainContent: TwoThirdsMainContent
 )
 
 @(menu: HtmlFormat.Appendable,
@@ -60,7 +58,9 @@
         fullWidth: Boolean,
         hideMenuBar: Boolean,
         disableSessionExpired: Boolean,
-        optTrustedHelper: Option[TrustedHelper])(contentBlock: Html)(implicit request: Request[_], messages: Messages)
+        optTrustedHelper: Option[TrustedHelper],
+        accessibilityStatementUrl: Option[String]
+)(contentBlock: Html)(implicit request: Request[_], messages: Messages)
 
 @headBlock = {
 
@@ -152,7 +152,7 @@
     serviceName = serviceNameKey.map(messages(_)),
     serviceUrl = serviceNameUrl,
     isWelshTranslationAvailable = true,
-    accessibilityStatementUrl = accessibilityStatementConfig.url,
+    accessibilityStatementUrl = accessibilityStatementUrl,
     displayHmrcBanner = false,
     signOutUrl = if(showSignOutInHeader) signoutUrl else None,
     backLinkUrl = backLinkUrl,

@@ -67,7 +67,8 @@ class WrapperService @Inject() (
     optTrustedHelper: Option[TrustedHelper] = None,
     fullWidth: Boolean = true,
     hideMenuBar: Boolean = false,
-    disableSessionExpired: Boolean = appConfig.disableSessionExpired
+    disableSessionExpired: Boolean = appConfig.disableSessionExpired,
+    accessibilityStatementUrl: Option[String] = None
   )(implicit messages: Messages, hc: HeaderCarrier, request: Request[_]): HtmlFormat.Appendable = {
     val showSignOutInHeader = (signoutUrl, hideMenuBar) match {
       case (Some(_), false) => false
@@ -93,7 +94,8 @@ class WrapperService @Inject() (
       fullWidth = fullWidth,
       hideMenuBar = hideMenuBar,
       disableSessionExpired = disableSessionExpired,
-      optTrustedHelper = optTrustedHelper
+      optTrustedHelper = optTrustedHelper,
+      accessibilityStatementUrl = accessibilityStatementUrl
     )(content)
   }
 
