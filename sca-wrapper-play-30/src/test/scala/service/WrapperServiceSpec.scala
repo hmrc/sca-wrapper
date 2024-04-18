@@ -122,7 +122,8 @@ class WrapperServiceSpec extends BaseSpec {
         fullWidth = fullWidthCaptor.capture(),
         hideMenuBar = hideMenuBarCaptor.capture(),
         disableSessionExpired = disableSessionExpiredCaptor.capture(),
-        optTrustedHelper = optTrustedHelperCaptor.capture()
+        optTrustedHelper = optTrustedHelperCaptor.capture(),
+        accessibilityStatementUrl = any()
       )(contentCaptor.capture())(any(), any())
 
       verify(mockAppConfig, times(1)).showAlphaBanner
@@ -276,7 +277,8 @@ class WrapperServiceSpec extends BaseSpec {
         fullWidth = fullWidthCaptor.capture(),
         hideMenuBar = hideMenuBarCaptor.capture(),
         disableSessionExpired = disableSessionExpiredCaptor.capture(),
-        optTrustedHelper = optTrustedHelperCaptor.capture()
+        optTrustedHelper = optTrustedHelperCaptor.capture(),
+        any()
       )(contentCaptor.capture())(any(), any())
 
       verify(mockAppConfig, never).showAlphaBanner

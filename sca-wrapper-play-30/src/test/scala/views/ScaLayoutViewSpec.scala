@@ -61,7 +61,8 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
       fullWidth,
       hideMenuBar,
       disableSessionExpired,
-      optTrustedHelper
+      optTrustedHelper,
+      None
     )(Html("Content-Block"))(fakeRequest, messages)
 
   "WrapperService layout" must {
