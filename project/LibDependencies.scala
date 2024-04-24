@@ -1,8 +1,8 @@
 import sbt._
 
 object LibDependencies {
-  private val bootstrapVersion = "8.5.0"
-  private val playHmrcFrontendVersion = "8.5.0"
+  val bootstrapVersion = "8.5.0"
+  private val playHmrcFrontendVersion = "9.9.0"
 
   val play28 = Seq(
     "uk.gov.hmrc"                 %% "play-frontend-hmrc-play-28"       % playHmrcFrontendVersion,
