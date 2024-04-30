@@ -53,7 +53,7 @@ trait BaseSpec
     Map(
       "metrics.enabled"            -> false,
       "auditing.enabled"           -> false,
-      "contact-frontend.serviceId" -> "ServiceId"
+      "contact-frontend.serviceId" -> "/Service Id"
     )
 
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =

@@ -73,8 +73,8 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       val document = asDocument(createView().toString())
 
       document.title() mustBe "Page-Title"
-      document.select(".hmrc-header__service-name").attr("href") mustBe "Service-Name_Url"
-      document.select(".hmrc-header__service-name").text() mustBe "Service-Name-Key"
+      document.select(".govuk-header__service-name").attr("href") mustBe "Service-Name_Url"
+      document.select(".govuk-header__service-name").text() mustBe "Service-Name-Key"
       document.getElementById("secondary-nav").className mustBe "hmrc-account-menu"
       document.getElementById("secondary-nav").attr("data-module") mustBe "hmrc-account-menu"
       document.getElementById("menu.name").text() mustBe "Account menu"
@@ -133,7 +133,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         .select(".govuk-phase-banner__content")
         .asScala
         .exists(x =>
-          x.text().equals("alpha This is a new service – your feedback will help us to improve it.")
+          x.text().equals("Alpha This is a new service – your feedback will help us to improve it.")
         ) mustBe true
       document.getElementsByTag("h2").asScala.exists(x => x.text().equals("Support links")) mustBe true
       document.select(".govuk-grid-column-two-thirds").asScala.nonEmpty mustBe true
@@ -174,7 +174,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         .select(".govuk-phase-banner__content")
         .asScala
         .exists(x =>
-          x.text().equals("beta This is a new service – your feedback will help us to improve it.")
+          x.text().equals("Beta This is a new service – your feedback will help us to improve it.")
         ) mustBe true
     }
 

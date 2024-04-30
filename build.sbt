@@ -33,15 +33,14 @@ ThisBuild / libraryDependencySchemes ++= Seq(
 ThisBuild / organization := "uk.gov.hmrc"
 ThisBuild / scalafmtOnCompile := true
 
+lazy val projects: Seq[ProjectReference] = sys.env.get("PLAY_VERSION") match {
+  case Some("2.8") => Seq(play28, play28Test)
+  case Some("2.9") => Seq(play29, play29Test)
+  case _ => Seq(play30, play30Test)
+}
 lazy val library = Project(libName, file("."))
   .settings(publish / skip := true)
-  .aggregate(
-    sys.env.get("PLAY_VERSION") match {
-      case Some("2.8") => play28
-      case Some("2.9") => play29
-      case _ => play30
-    }
-  )
+  .aggregate(projects: _*)
 
 val buildScalacOptions = Seq(
   "-unchecked",
@@ -111,6 +110,13 @@ lazy val play28 = Project(s"$libName-play-28", file(s"$libName-play-28"))
     Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
   )
 
+lazy val play28Test = Project(s"$libName-test-play-28", file(s"$libName-test-play-28"))
+  .settings(libraryDependencies ++= Seq(
+    "uk.gov.hmrc"         %% s"bootstrap-test-play-28"   % LibDependencies.bootstrapVersion)
+  )
+  .dependsOn(play28)
+
+
 lazy val play29 = Project(s"$libName-play-29", file(s"$libName-play-29"))
   .enablePlugins(PlayScala)
   .disablePlugins(PlayLayoutPlugin)
@@ -126,6 +132,13 @@ lazy val play29 = Project(s"$libName-play-29", file(s"$libName-play-29"))
     Test / parallelExecution := true,
     Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
   )
+
+lazy val play29Test = Project(s"$libName-test-play-29", file(s"$libName-test-play-29"))
+  .settings(libraryDependencies ++= Seq(
+    "uk.gov.hmrc"         %% s"bootstrap-test-play-29"   % LibDependencies.bootstrapVersion)
+  )
+  .dependsOn(play29)
+
 
 lazy val play30 = Project(s"$libName-play-30", file(s"$libName-play-30"))
   .enablePlugins(PlayScala)
@@ -144,6 +157,12 @@ lazy val play30 = Project(s"$libName-play-30", file(s"$libName-play-30"))
     Test / parallelExecution := true,
     Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
   )
+
+lazy val play30Test = Project(s"$libName-test-play-30", file(s"$libName-test-play-30"))
+  .settings(libraryDependencies ++= Seq(
+    "uk.gov.hmrc"         %% s"bootstrap-test-play-30"   % LibDependencies.bootstrapVersion)
+  )
+  .dependsOn(play30)
 
 lazy val templateImports: Seq[String] = Seq(
   "_root_.play.twirl.api.Html",
