@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.sca.config.AppConfig
-import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMenuConfig, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMenuConfig, UrBanner, WrapperDataResponse}
 import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
 
@@ -141,7 +141,8 @@ class WrapperService @Inject() (
       fullWidth = fullWidth,
       hideMenuBar = hideMenuBar,
       disableSessionExpired = disableSessionExpired,
-      optTrustedHelper = optTrustedHelper
+      optTrustedHelper = optTrustedHelper,
+      urBannerUrl = if (urBannerEnabled(bannerConfig)) getUrBannerUrl else None
     )(content)
   }
 
@@ -216,4 +217,23 @@ class WrapperService @Inject() (
     }
     result.flatten
   }
+
+  private def getUrBannerDetailsForPage(implicit request: Request[_]): Option[UrBanner] = {
+    val wrapperDataResponse = getWrapperDataResponse(request)
+    wrapperDataResponse.flatMap { response =>
+      response.urBanners.find(_.page.equals(request.uri))
+    }
+  }
+
+  private def getUrBannerUrl(implicit request: Request[_]): Option[String] =
+    getUrBannerDetailsForPage match {
+      case Some(urBanner) => Some(urBanner.link)
+      case None           => appConfig.helpImproveBannerUrl
+    }
+
+  private def urBannerEnabled(config: BannerConfig)(implicit request: Request[_]): Boolean =
+    getUrBannerDetailsForPage match {
+      case Some(urBanner) => urBanner.isEnabled
+      case None           => config.showHelpImproveBanner
+    }
 }

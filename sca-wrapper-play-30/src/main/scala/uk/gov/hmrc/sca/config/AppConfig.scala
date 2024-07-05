@@ -45,7 +45,7 @@ class AppConfig @Inject() (
     ""
   }
 
-  val enc                              = URLEncoder.encode(_: String, "UTF-8")
+  val enc: String => String = URLEncoder.encode(_: String, "UTF-8")
   val exitSurveyOrigin: Option[String] = configuration.getOptional[String]("sca-wrapper.exit-survey-origin")
 
   //service config
@@ -131,6 +131,7 @@ class AppConfig @Inject() (
     PtaMinMenuConfig(
       menuName = messages("sca-wrapper.fallback.menu.name"),
       backName = messages("sca-wrapper.fallback.menu.back")
-    )
+    ),
+    List.empty
   )
 }
