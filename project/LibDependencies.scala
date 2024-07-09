@@ -1,8 +1,8 @@
 import sbt._
 
 object LibDependencies {
-  val bootstrapVersion = "8.6.0"
-  private val playHmrcFrontendVersion = "9.10.0"
+  val bootstrapVersion = "9.0.0"
+  private val playHmrcFrontendVersion = "10.3.0"
 
   val play28 = Seq(
     "uk.gov.hmrc"                 %% "play-frontend-hmrc-play-28"       % playHmrcFrontendVersion,
@@ -20,7 +20,7 @@ object LibDependencies {
 
   val play29 = Seq(
     "com.typesafe.play"           %% "play-json"                       % "2.10.4",
-    "uk.gov.hmrc"                 %% "domain-play-29"                  % "9.0.0",
+    "uk.gov.hmrc"                 %% "domain-play-29"                  % "10.0.0",
     "uk.gov.hmrc"                 %% "play-frontend-hmrc-play-29"      % playHmrcFrontendVersion,
     "uk.gov.hmrc"                 %% "bootstrap-frontend-play-29"      % bootstrapVersion,
     "uk.gov.hmrc"                 %% "play-language-play-29"           % "7.0.0",
@@ -34,7 +34,7 @@ object LibDependencies {
   val play30 = Seq(
     "org.playframework"           %% "play-json"                        % "3.0.1",
     "uk.gov.hmrc"                 %% "play-frontend-hmrc-play-30"       % playHmrcFrontendVersion,
-    "uk.gov.hmrc"                 %% "domain-play-30"                  % "9.0.0",
+    "uk.gov.hmrc"                 %% "domain-play-30"                  % "10.0.0",
     "uk.gov.hmrc"                 %% "bootstrap-frontend-play-30"       % bootstrapVersion,
     "uk.gov.hmrc"                 %% "play-language-play-30"           % "7.0.0",
     "uk.gov.hmrc"                 %% "play-partials-play-30"           % "9.1.0"
