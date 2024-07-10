@@ -233,7 +233,7 @@ class WrapperService @Inject() (
 
   private def urBannerEnabled(config: BannerConfig)(implicit request: Request[_]): Boolean =
     getUrBannerDetailsForPage match {
-      case Some(_) => true
-      case None    => config.showHelpImproveBanner
+      case Some(urBanner) => urBanner.isEnabled
+      case None           => config.showHelpImproveBanner
     }
 }
