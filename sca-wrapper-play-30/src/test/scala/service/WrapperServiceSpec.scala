@@ -234,7 +234,8 @@ class WrapperServiceSpec extends BaseSpec {
       val scripts               = Seq(Html("Scripts"))
       val styleSheets           = Seq(Html("StyleSheets"))
       val bannerConfig          = BannerConfig(showAlphaBanner = false, showBetaBanner = true, showHelpImproveBanner = false)
-      val optTrustedHelper      = Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", "principalNino"))
+      val optTrustedHelper      =
+        Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", Some("principalNino")))
       val fullWidth             = true
       val hideMenuBar           = true
       val disableSessionExpired = true

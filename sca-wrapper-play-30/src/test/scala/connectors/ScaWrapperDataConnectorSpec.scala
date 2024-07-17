@@ -19,17 +19,17 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.Application
 import play.api.inject.bind
-import uk.gov.hmrc.http.test.HttpClientSupport
-import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.test.HttpClientV2Support
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 import utils.BaseSpec
 
-class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientSupport {
+class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientV2Support {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
-      bind[HttpClient].toInstance(httpClient)
+      bind[HttpClientV2].toInstance(httpClientV2)
     )
     .build()
 
