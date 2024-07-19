@@ -22,7 +22,7 @@ import play.api.inject.bind
 import uk.gov.hmrc.http.test.HttpClientSupport
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, WrapperDataResponse}
 import utils.BaseSpec
 
 class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientSupport {
@@ -33,8 +33,9 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientSupport {
     )
     .build()
 
-  val urlWrapperDataResponse = "/single-customer-account-wrapper-data/wrapper-data?lang=en&version=1.0.3"
-  val urlMessageData         = "/single-customer-account-wrapper-data/message-data"
+  val urlWrapperDataResponse    = "/single-customer-account-wrapper-data/wrapper-data?lang=en&version=1.0.3"
+  val urlMessageData            = "/single-customer-account-wrapper-data/message-data"
+  val defaultUrBanner: UrBanner = UrBanner("test-page", "test-link", isEnabled = true)
 
   private lazy val scaWrapperDataConnector: ScaWrapperDataConnector = app.injector.instanceOf[ScaWrapperDataConnector]
 
@@ -51,7 +52,8 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientSupport {
         None
       )
 
-      val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(Seq(menuItemConfig), ptaMenuConfig)
+      val wrapperDataResponse: WrapperDataResponse =
+        WrapperDataResponse(Seq(menuItemConfig), ptaMenuConfig, List(defaultUrBanner))
       val wrapperDataJsonResponse                  =
         """
           |{
@@ -68,7 +70,16 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientSupport {
           |    "ptaMinMenuConfig": {
           |        "menuName": "Account menu",
           |        "backName": "Back"
-          |    }
+          |    },
+          |    "urBanners": [
+          |     {
+          |       "defaultUrBanner": {
+          |         "page": "test-page",
+          |         "link": "test-link",
+          |         "isEnabled": true
+          |        }
+          |     }
+          |    ]
           |}
           |""".stripMargin
 
@@ -130,7 +141,8 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientSupport {
 
       def fallbackWrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
         fallbackMenuConfig,
-        PtaMinMenuConfig(menuName = "Account menu", backName = "Back")
+        PtaMinMenuConfig(menuName = "Account menu", backName = "Back"),
+        List(defaultUrBanner)
       )
 
       server.stubFor(

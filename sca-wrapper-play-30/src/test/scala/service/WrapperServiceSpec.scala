@@ -35,7 +35,7 @@ import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
-import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMinMenuConfig, UrBanner, WrapperDataResponse}
 import uk.gov.hmrc.sca.services.WrapperService
 import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
@@ -157,8 +157,15 @@ class WrapperServiceSpec extends BaseSpec {
       contentCaptor.getValue mustBe Html("Default-Content")
     }
 
-    "return default New Sca layout" in {
-
+    "return default New Sca layout with UR banner link from new data response" in {
+      val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", defaultUrBanner.page)
+        .withAttrs(
+          TypedMap(
+            Keys.wrapperDataKey    -> wrapperDataResponse,
+            Keys.messageDataKey    -> Some(2),
+            RequestAttrKey.Cookies -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
+          )
+        )
       when(mockAppConfig.showAlphaBanner).thenReturn(true)
       when(mockAppConfig.showBetaBanner).thenReturn(false)
       when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
@@ -166,7 +173,7 @@ class WrapperServiceSpec extends BaseSpec {
       when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
       when(mockAppConfig.disableSessionExpired).thenReturn(false)
 
-      wrapperService.standardScaLayout(content = Html("Default-Content"), serviceURLs = serviceUrls)
+      wrapperService.standardScaLayout(content = Html("Default-Content"), serviceURLs = serviceUrls)(messages, request)
 
       verify(mockStandardScaLayout, times(1)).apply(
         menu = menuCaptor.capture(),
@@ -185,7 +192,8 @@ class WrapperServiceSpec extends BaseSpec {
         fullWidth = fullWidthCaptor.capture(),
         hideMenuBar = hideMenuBarCaptor.capture(),
         disableSessionExpired = disableSessionExpiredCaptor.capture(),
-        optTrustedHelper = optTrustedHelperCaptor.capture()
+        optTrustedHelper = optTrustedHelperCaptor.capture(),
+        urBannerUrl = urBannerUrlCaptor.capture()
       )(contentCaptor.capture())(any(), any())
 
       verify(mockAppConfig, times(1)).showAlphaBanner
@@ -215,6 +223,76 @@ class WrapperServiceSpec extends BaseSpec {
       fullWidthCaptor.getValue mustBe true
       hideMenuBarCaptor.getValue mustBe false
       disableSessionExpiredCaptor.getValue mustBe false
+      urBannerUrlCaptor.getValue mustBe Some(defaultUrBanner.link)
+      contentCaptor.getValue mustBe Html("Default-Content")
+    }
+
+    "return default New Sca layout with old UR banner, help improve link" in {
+
+      val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "NON MATCHING URI")
+        .withAttrs(
+          TypedMap(
+            Keys.wrapperDataKey    -> wrapperDataResponse,
+            Keys.messageDataKey    -> Some(2),
+            RequestAttrKey.Cookies -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
+          )
+        )
+
+      when(mockAppConfig.helpImproveBannerUrl).thenReturn(Some("config link"))
+      when(mockAppConfig.showBetaBanner).thenReturn(false)
+      when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
+      when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
+      when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
+      when(mockAppConfig.disableSessionExpired).thenReturn(false)
+
+      wrapperService.standardScaLayout(
+        content = Html("Default-Content"),
+        serviceURLs = serviceUrls,
+        bannerConfig = BannerConfig(false, true, true)
+      )(messages, request)
+
+      verify(mockStandardScaLayout, times(1)).apply(
+        menu = menuCaptor.capture(),
+        serviceURLs = serviceURLsCaptor.capture(),
+        serviceNameKey = serviceNameKeyCaptor.capture(),
+        pageTitle = pageTitleCaptor.capture(),
+        sidebarContent = sideBarContentCaptor.capture(),
+        timeOutUrl = timeOutUrlCaptor.capture(),
+        keepAliveUrl = keepAliveUrlCaptor.capture(),
+        showBackLinkJS = showBackLinkJSCaptor.capture(),
+        backLinkUrl = backLinkUrlCaptor.capture(),
+        showSignOutInHeader = showSignOutInHeaderCaptor.capture(),
+        scripts = scriptsCaptor.capture(),
+        styleSheets = styleSheetsCaptor.capture(),
+        bannerConfig = bannerConfigCaptor.capture(),
+        fullWidth = fullWidthCaptor.capture(),
+        hideMenuBar = hideMenuBarCaptor.capture(),
+        disableSessionExpired = disableSessionExpiredCaptor.capture(),
+        optTrustedHelper = optTrustedHelperCaptor.capture(),
+        urBannerUrl = urBannerUrlCaptor.capture()
+      )(contentCaptor.capture())(any(), any())
+
+      menuCaptor.getValue mustBe standardmenu
+      serviceURLsCaptor.getValue mustBe serviceUrls
+      serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
+      pageTitleCaptor.getValue mustBe None
+      sideBarContentCaptor.getValue mustBe None
+      keepAliveUrlCaptor.getValue mustBe "/refresh-session"
+      showBackLinkJSCaptor.getValue mustBe false
+      backLinkUrlCaptor.getValue mustBe None
+      showSignOutInHeaderCaptor.getValue mustBe false
+      scriptsCaptor.getValue mustBe Seq.empty
+      styleSheetsCaptor.getValue mustBe Seq.empty
+      bannerConfigCaptor.getValue mustBe BannerConfig(
+        showAlphaBanner = false,
+        showBetaBanner = true,
+        showHelpImproveBanner = true
+      )
+      optTrustedHelperCaptor.getValue mustBe None
+      fullWidthCaptor.getValue mustBe true
+      hideMenuBarCaptor.getValue mustBe false
+      disableSessionExpiredCaptor.getValue mustBe false
+      urBannerUrlCaptor.getValue mustBe Some("config link")
       contentCaptor.getValue mustBe Html("Default-Content")
     }
 
@@ -328,7 +406,6 @@ class WrapperServiceSpec extends BaseSpec {
 
       response mustBe expectedUrl
     }
-
   }
 }
 
@@ -373,9 +450,12 @@ object WrapperServiceSpec {
     "\n<!-- ACCOUNT MENU -->\n<nav id=\"secondary-nav\" class=\"hmrc-account-menu\" aria-label=\"Account\" data-module=\"hmrc-account-menu\">\n<!-- LEFT ALIGNED ITEMS -->\n            \n                \n<a href=\"pertaxUrl\"\n   class=\"hmrc-account-menu__link hmrc-account-menu__link--home\n   \" id=\"menu.left.0\">\n \n <span class=\"hmrc-account-icon hmrc-account-icon--home\">\n Account home\n </span>\n \n</a>\n\n            \n<!-- LEFT ALIGNED ITEMS -->\n    <a id=\"menu.name\" href=\"#\" class=\"hmrc-account-menu__link hmrc-account-menu__link--menu js-hidden js-visible\" tabindex=\"-1\" aria-hidden=\"true\" aria-expanded=\"false\">\n        Account menu\n    </a>\n    <ul class=\"hmrc-account-menu__main\">\n        <li class=\"hmrc-account-menu__link--back hidden\" aria-hidden=\"false\">\n            <a id=\"menu.back\" href=\"#\" tabindex=\"-1\" class=\"hmrc-account-menu__link\">\n            Back\n            </a>\n        </li>\n<!-- RIGHT ALIGNED ITEMS -->\n        \n                \n<li>\n <a href=\"pertaxUrl-messages\" class=\"hmrc-account-menu__link \" id=\"menu.right.0\">\n \n  <span class=\"\">\n   Messages\n   \n    <span class=\"hmrc-notification-badge\">2</span>\n\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"trackingUrl-track\" class=\"hmrc-account-menu__link \" id=\"menu.right.1\">\n \n  <span class=\"\">\n   Check progress\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"pertaxUrl-profile-and-settings\" class=\"hmrc-account-menu__link \" id=\"menu.right.2\">\n \n  <span class=\"\">\n   Profile and settings\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"Signout-Url\" class=\"hmrc-account-menu__link \" id=\"menu.right.3\">\n \n  <span class=\"\">\n   Sign out\n   \n  </span>\n \n </a>\n</li>\n\n            \n<!-- RIGHT ALIGNED ITEMS -->\n    </ul>\n</nav>\n"
   )
 
+  val defaultUrBanner: UrBanner = UrBanner("test-page", "test-link", isEnabled = true)
+
   private val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
     Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
-    ptaMenuConfig
+    ptaMenuConfig,
+    List(defaultUrBanner)
   )
 
   val menuCaptor                  = ArgumentCaptor.forClass(classOf[Html])
@@ -398,4 +478,5 @@ object WrapperServiceSpec {
   val hideMenuBarCaptor           = ArgumentCaptor.forClass(classOf[Boolean])
   val disableSessionExpiredCaptor = ArgumentCaptor.forClass(classOf[Boolean])
   val contentCaptor               = ArgumentCaptor.forClass(classOf[Html])
+  val urBannerUrlCaptor           = ArgumentCaptor.forClass(classOf[Option[String]])
 }
