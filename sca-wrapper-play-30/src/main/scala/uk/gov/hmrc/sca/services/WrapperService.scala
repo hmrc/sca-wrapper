@@ -76,7 +76,6 @@ class WrapperService @Inject() (
       case (None, false)    => throw new RuntimeException("The PTA menu cannot be shown without a signout url")
       case (None, true)     => false
     }
-    println("PPPPO " + bannerConfig)
     scaLayout(
       menu = ptaMenuBar(sortMenuItemConfig(signoutUrl)),
       serviceNameKey = serviceNameKey,
