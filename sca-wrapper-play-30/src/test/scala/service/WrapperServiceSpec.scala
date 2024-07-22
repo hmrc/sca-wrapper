@@ -202,6 +202,7 @@ class WrapperServiceSpec extends BaseSpec {
       verify(mockAppConfig, times(1)).serviceNameKey
       verify(mockAppConfig, times(1)).keepAliveUrl
       verify(mockAppConfig, times(1)).disableSessionExpired
+      verify(mockAppConfig, times(0)).helpImproveBannerUrl
 
       menuCaptor.getValue mustBe standardmenu
       serviceURLsCaptor.getValue mustBe serviceUrls
@@ -271,6 +272,8 @@ class WrapperServiceSpec extends BaseSpec {
         optTrustedHelper = optTrustedHelperCaptor.capture(),
         urBannerUrl = urBannerUrlCaptor.capture()
       )(contentCaptor.capture())(any(), any())
+
+      verify(mockAppConfig, times(1)).helpImproveBannerUrl
 
       menuCaptor.getValue mustBe standardmenu
       serviceURLsCaptor.getValue mustBe serviceUrls
