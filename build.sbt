@@ -19,7 +19,8 @@ import sbt.*
 
 val libName = "sca-wrapper"
 
-val scala2_13 = "2.13.12"
+val scala2_13 = "2.13.14"
+val scala3_3 = "3.3.3"
 
 // Disable multiple project tests running at the same time, since notablescan flag is a global setting.
 // https://www.scala-sbt.org/1.x/docs/Parallel-Execution.html
@@ -41,26 +42,29 @@ lazy val library = Project(libName, file("."))
   .settings(publish / skip := true)
   .aggregate(projects: _*)
 
-val buildScalacOptions = Seq(
-  "-unchecked",
-  "-feature",
-  "-Xlint:_",
-  "-Wdead-code",
-  "-Wunused:_",
-  "-Wextra-implicit",
-  "-Wvalue-discard",
-  "-Werror",
-  "-Wconf:cat=unused-imports&site=uk\\.gov\\.hmrc\\.sca\\.views.*:s",
-  "-Wconf:cat=unused-imports&site=<empty>:s",
-  "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
-  "-Wconf:cat=unused&src=.*Routes\\.scala:s",
-  "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s",
-  "-Wconf:cat=deprecation&site=uk\\.gov\\.hmrc\\.sca\\.views.*:s",
-  "-Wconf:cat=deprecation&msg=method apply in class HmrcLayout is deprecated:s",
-  "-Wconf:cat=deprecation&msg=method layout in class WrapperService is deprecated:s",
-  "-Wconf:cat=deprecation&msg=method safeSignoutUrl in class WrapperService is deprecated:s"
-
-)
+val buildScalacOptions = scalaVersion.toString() match {
+  case scala3_3 => Seq.empty
+  case _ =>
+  Seq(
+    "-unchecked",
+    "-feature",
+    "-Xlint:_",
+    "-Wdead-code",
+    "-Wunused:_",
+    "-Wextra-implicit",
+    "-Wvalue-discard",
+    "-Werror",
+    "-Wconf:cat=unused-imports&site=uk\\.gov\\.hmrc\\.sca\\.views.*:s",
+    "-Wconf:cat=unused-imports&site=<empty>:s",
+    "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
+    "-Wconf:cat=unused&src=.*Routes\\.scala:s",
+    "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s",
+    "-Wconf:cat=deprecation&site=uk\\.gov\\.hmrc\\.sca\\.views.*:s",
+    "-Wconf:cat=deprecation&msg=method apply in class HmrcLayout is deprecated:s",
+    "-Wconf:cat=deprecation&msg=method layout in class WrapperService is deprecated:s",
+    "-Wconf:cat=deprecation&msg=method safeSignoutUrl in class WrapperService is deprecated:s"
+  )
+}
 
 def copyPlay30SourcesFor28(module: Project) =
   CopySources.copySources(
@@ -110,7 +114,9 @@ lazy val play29 = Project(s"$libName-play-29", file(s"$libName-play-29"))
   )
 
 lazy val play29Test = Project(s"$libName-test-play-29", file(s"$libName-test-play-29"))
-  .settings(libraryDependencies ++= Seq(
+  .settings(
+    crossScalaVersions := Seq(scala2_13),
+    libraryDependencies ++= Seq(
     "uk.gov.hmrc"         %% s"bootstrap-test-play-29"   % LibDependencies.bootstrapVersion)
   )
   .dependsOn(play29)
@@ -122,7 +128,7 @@ lazy val play30 = Project(s"$libName-play-30", file(s"$libName-play-30"))
   .settings(CodeCoverageSettings.settings: _*)
   .settings(
     TwirlKeys.templateImports := templateImports,
-    crossScalaVersions := Seq(scala2_13),
+    crossScalaVersions := Seq(scala3_3, scala2_13),
     libraryDependencies ++= LibDependencies.play30 ++ LibDependencies.play30Test,
     Compile / routes / sources ++= {
       val dirs = (Compile / unmanagedResourceDirectories).value
@@ -135,7 +141,9 @@ lazy val play30 = Project(s"$libName-play-30", file(s"$libName-play-30"))
   )
 
 lazy val play30Test = Project(s"$libName-test-play-30", file(s"$libName-test-play-30"))
-  .settings(libraryDependencies ++= Seq(
+  .settings(
+    crossScalaVersions := Seq(scala3_3, scala2_13),
+    libraryDependencies ++= Seq(
     "uk.gov.hmrc"         %% s"bootstrap-test-play-30"   % LibDependencies.bootstrapVersion)
   )
   .dependsOn(play30)
