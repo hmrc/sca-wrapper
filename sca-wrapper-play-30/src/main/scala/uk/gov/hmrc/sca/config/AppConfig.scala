@@ -45,7 +45,10 @@ class AppConfig @Inject() (
     ""
   }
 
-  val enc: String => String            = URLEncoder.encode(_: String, "UTF-8")
+  val timeoutHttpClientMillis: Int = configuration.get[Int]("sca-wrapper.timeoutHttpClientMillis")
+
+  val enc                              = URLEncoder.encode(_: String, "UTF-8")
+
   val exitSurveyOrigin: Option[String] = configuration.getOptional[String]("sca-wrapper.exit-survey-origin")
 
   //service config

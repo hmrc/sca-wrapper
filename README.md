@@ -24,11 +24,11 @@ anything (e.g button position on the menu bar, href links, button names etc. can
 - Edit the build.sbt file and add `-SNAPSHOT` to the end of the `version` field
 - Run `sbt publishLocal`, this will publish the library on your local machine
 
-`runTests.sh` and `publishLocal.sh` are provided to quickly test and publish versions of the library for Play 2.8, 2.9 and 3.0.
+`runTests.sh` and `publishLocal.sh` are provided to quickly test and publish versions of the library for Play 2.9 and 3.0.
 
 Play 3.0 is used by default. The version can be overridden by providing an environment variable, `PLAY_VERSION`:
 
-`env PLAY_VERSION=2.8 sbt clean test`
+`env PLAY_VERSION=2.9 sbt clean test`
 
 ## Working example
 

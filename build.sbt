@@ -34,7 +34,6 @@ ThisBuild / organization := "uk.gov.hmrc"
 ThisBuild / scalafmtOnCompile := true
 
 lazy val projects: Seq[ProjectReference] = sys.env.get("PLAY_VERSION") match {
-  case Some("2.8") => Seq(play28, play28Test)
   case Some("2.9") => Seq(play29, play29Test)
   case _ => Seq(play30, play30Test)
 }
@@ -93,29 +92,6 @@ def copyPlay30Routes(module: Project) = Seq(
     (dirs * "routes").get ++ (dirs * "*.routes").get
   }
 )
-
-lazy val play28 = Project(s"$libName-play-28", file(s"$libName-play-28"))
-  .enablePlugins(PlayScala)
-  .disablePlugins(PlayLayoutPlugin)
-  .settings(CodeCoverageSettings.settings: _*)
-  .settings(
-    TwirlKeys.templateImports := templateImports,
-    crossScalaVersions := Seq(scala2_13),
-    libraryDependencies ++= LibDependencies.play28 ++ LibDependencies.play28Test,
-    scalacOptions ++= buildScalacOptions,
-    copyPlay30SourcesFor28(play30),
-    copyPlay30Routes(play30),
-    Test / Keys.fork := true,
-    Test / parallelExecution := true,
-    Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
-  )
-
-lazy val play28Test = Project(s"$libName-test-play-28", file(s"$libName-test-play-28"))
-  .settings(libraryDependencies ++= Seq(
-    "uk.gov.hmrc"         %% s"bootstrap-test-play-28"   % LibDependencies.bootstrapVersion)
-  )
-  .dependsOn(play28)
-
 
 lazy val play29 = Project(s"$libName-play-29", file(s"$libName-play-29"))
   .enablePlugins(PlayScala)

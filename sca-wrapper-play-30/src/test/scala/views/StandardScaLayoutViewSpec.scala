@@ -213,7 +213,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
     "return a Wrapper layout there is a trusted helper in English" in {
       val document = asDocument(
         createView(optTrustedHelper =
-          Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", "principalNino"))
+          Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", Some("principalNino")))
         ).toString()
       )
 
