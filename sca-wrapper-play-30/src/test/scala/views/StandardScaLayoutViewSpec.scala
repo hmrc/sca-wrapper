@@ -65,7 +65,8 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       fullWidth,
       hideMenuBar,
       disableSessionExpired,
-      optTrustedHelper
+      optTrustedHelper,
+      Some("test-ur-banner-link")
     )(Html("Content-Block"))(fakeRequest, messages)
 
   "WrapperService layout" must {
@@ -137,6 +138,13 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         ) mustBe true
       document.getElementsByTag("h2").asScala.exists(x => x.text().equals("Support links")) mustBe true
       document.select(".govuk-grid-column-two-thirds").asScala.nonEmpty mustBe true
+      document
+        .getElementsByClass("govuk-link hmrc-user-research-banner__link")
+        .text() mustBe "Sign up to take part in research (opens in new tab)"
+      document
+        .getElementsByClass("govuk-link hmrc-user-research-banner__link")
+        .asScala
+        .exists(x => x.attr("href").equals("test-ur-banner-link")) mustBe true
     }
 
     "return a Wrapper layout when there is a sidebar content in English" in {
