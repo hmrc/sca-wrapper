@@ -59,7 +59,7 @@
         hideMenuBar: Boolean,
         disableSessionExpired: Boolean,
         optTrustedHelper: Option[TrustedHelper],
-        urBannerUrl: Option[String])(contentBlock: Html)(implicit request: Request[_], messages: Messages)
+        urBannerUrl: Option[String])(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
 
 @headBlock = {
 

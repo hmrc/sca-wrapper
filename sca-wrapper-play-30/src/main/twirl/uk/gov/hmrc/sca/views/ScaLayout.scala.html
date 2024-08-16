@@ -60,7 +60,7 @@
         disableSessionExpired: Boolean,
         optTrustedHelper: Option[TrustedHelper],
         accessibilityStatementUrl: Option[String]
-)(contentBlock: Html)(implicit request: Request[_], messages: Messages)
+)(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
 
 @headBlock = {
 
