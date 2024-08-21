@@ -34,7 +34,7 @@ Play 3.0 is used by default. The version can be overridden by providing an envir
 
 Clone https://github.com/hmrc/single-customer-account-frontend for a working example of the Wrapper being integrated with a standard HMRC MDTP frontend. `HomeController`
 shows how the integration works.
-To run all the SCA services from service manager, run `sm –start SCA_FUTURES_ALL` or `sm2 –start SCA_FUTURES_ALL`
+To run all the SCA services from service manager, run `sm --start SCA_FUTURES_AL` or `sm2 --start SCA_FUTURES_AL`
 
 ### License
 

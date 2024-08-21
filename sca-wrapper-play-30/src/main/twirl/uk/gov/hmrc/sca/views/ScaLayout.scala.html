@@ -60,7 +60,7 @@
         disableSessionExpired: Boolean,
         optTrustedHelper: Option[TrustedHelper],
         accessibilityStatementUrl: Option[String]
-)(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
+)(contentBlock: Html)(implicit requestHeader: RequestHeader, messages: Messages)
 
 @headBlock = {
 
@@ -86,7 +86,7 @@
 }
 
 @beforeContent = {
-    @defining(request.uri) { _ =>
+    @defining(requestHeader.uri) { _ =>
         @if(!hideMenuBar) {
             @menu
         }

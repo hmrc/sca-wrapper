@@ -161,9 +161,9 @@ class WrapperService @Inject() (
 
     val wrapperDataResponse =
       getWrapperDataResponse(requestHeader).getOrElse(appConfig.fallbackWrapperDataResponse)
-    val unreadMessageCount = getMessageDataFromRequest(requestHeader)
+    val unreadMessageCount  = getMessageDataFromRequest(requestHeader)
 
-    val menuItemConfigWithSignout = setSignoutUrl(signoutUrl, wrapperDataResponse.menuItemConfig)
+    val menuItemConfigWithSignout            = setSignoutUrl(signoutUrl, wrapperDataResponse.menuItemConfig)
     val menuItemConfigWithUnreadMessageCount = setUnreadMessageCount(unreadMessageCount, menuItemConfigWithSignout)
 
     PtaMenuConfig(
@@ -176,10 +176,13 @@ class WrapperService @Inject() (
   private def setSignoutUrl(signoutUrl: Option[String], menuItemConfig: Seq[MenuItemConfig]): Seq[MenuItemConfig] =
     menuItemConfig.flatMap {
       case signout if signout.id == "signout" => signoutUrl.map(url => signout.copy(href = url))
-      case other => Some(other)
+      case other                              => Some(other)
     }
 
-  private def setUnreadMessageCount(unreadMessageCount: Option[Int], menuItemConfig: Seq[MenuItemConfig]): Seq[MenuItemConfig] =
+  private def setUnreadMessageCount(
+    unreadMessageCount: Option[Int],
+    menuItemConfig: Seq[MenuItemConfig]
+  ): Seq[MenuItemConfig] =
     Try {
       menuItemConfig.find(_.id == "messages").fold(menuItemConfig) { messageMenuItemConfig =>
         menuItemConfig.updated(
@@ -188,7 +191,7 @@ class WrapperService @Inject() (
         )
       }
     } match {
-      case Success(config) => config
+      case Success(config)    => config
       case Failure(exception) =>
         logger.error(
           s"[SCA Wrapper Library][WrapperService][setUnreadMessageCount] Set unread message count  exception: ${exception.getMessage}"
@@ -196,8 +199,8 @@ class WrapperService @Inject() (
         menuItemConfig
     }
 
-  private def getWrapperDataResponse(request: RequestHeader): Option[WrapperDataResponse] = {
-    val result = request.attrs.get(Keys.wrapperDataKey)
+  private def getWrapperDataResponse(requestHeader: RequestHeader): Option[WrapperDataResponse] = {
+    val result = requestHeader.attrs.get(Keys.wrapperDataKey)
     if (result.isEmpty) {
       logger.warn(
         s"[SCA Wrapper Library][WrapperService][getWrapperDataResponse]{ Expecting Wrapper Data in " +
@@ -207,8 +210,8 @@ class WrapperService @Inject() (
     result
   }
 
-  private def getMessageDataFromRequest(request: RequestHeader): Option[Int] = {
-    val result = request.attrs.get(Keys.messageDataKey)
+  private def getMessageDataFromRequest(requestHeader: RequestHeader): Option[Int] = {
+    val result = requestHeader.attrs.get(Keys.messageDataKey)
     if (result.isEmpty) {
       logger.warn(
         "[SCA Wrapper Library][WrapperService][getMessageDataFromRequest] Expecting Message Data in " +
@@ -218,20 +221,20 @@ class WrapperService @Inject() (
     result.flatten
   }
 
-  private def getUrBannerDetailsForPage(implicit request: RequestHeader): Option[UrBanner] = {
-    val wrapperDataResponse = getWrapperDataResponse(request)
+  private def getUrBannerDetailsForPage(implicit requestHeader: RequestHeader): Option[UrBanner] = {
+    val wrapperDataResponse = getWrapperDataResponse(requestHeader)
     wrapperDataResponse.flatMap { response =>
-      response.urBanners.find(_.page.equals(request.uri))
+      response.urBanners.find(_.page.equals(requestHeader.uri))
     }
   }
 
-  private def getUrBannerUrl(implicit request: RequestHeader): Option[String] =
+  private def getUrBannerUrl(implicit requestHeader: RequestHeader): Option[String] =
     getUrBannerDetailsForPage match {
       case Some(urBanner) => Some(urBanner.link)
       case None           => appConfig.helpImproveBannerUrl
     }
 
-  private def urBannerEnabled(config: BannerConfig)(implicit request: RequestHeader): Boolean =
+  private def urBannerEnabled(config: BannerConfig)(implicit requestHeader: RequestHeader): Boolean =
     getUrBannerDetailsForPage match {
       case Some(urBanner) => urBanner.isEnabled
       case None           => config.showHelpImproveBanner
