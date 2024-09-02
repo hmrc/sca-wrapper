@@ -36,7 +36,7 @@ import play.api.{Application, inject}
 import play.twirl.api.Html
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.filters.WrapperDataFilter
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, SmartAppBannerUrlConfigs, UrBanner, WrapperDataResponse}
 import uk.gov.hmrc.sca.utils.Keys
 
 import scala.concurrent.Future
@@ -202,10 +202,14 @@ object WrapperDataFilterSpec {
 
   lazy val defaultUrBanner: UrBanner = UrBanner("test-page", "test-link", isEnabled = true)
 
+  lazy val defaultSmartAppBanner: SmartAppBannerUrlConfigs =
+    SmartAppBannerUrlConfigs("/another-page", "campaign2", "iosArgs2")
+
   private val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
     Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
     ptaMenuConfig,
-    List(defaultUrBanner)
+    List(defaultUrBanner),
+    List(defaultSmartAppBanner)
   )
 
 }

@@ -35,7 +35,7 @@ import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
-import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMinMenuConfig, UrBanner, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{BannerConfig, BannerSettings, MenuItemConfig, PtaMinMenuConfig, SmartAppBannerUrlConfigs, UrBanner, WrapperDataResponse}
 import uk.gov.hmrc.sca.services.WrapperService
 import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
@@ -118,7 +118,7 @@ class WrapperServiceSpec extends BaseSpec {
         showSignOutInHeader = showSignOutInHeaderCaptor.capture(),
         scripts = scriptsCaptor.capture(),
         styleSheets = styleSheetsCaptor.capture(),
-        bannerConfig = bannerConfigCaptor.capture(),
+        bannerSettings = bannerSettingsCaptor.capture(),
         fullWidth = fullWidthCaptor.capture(),
         hideMenuBar = hideMenuBarCaptor.capture(),
         disableSessionExpired = disableSessionExpiredCaptor.capture(),
@@ -145,7 +145,7 @@ class WrapperServiceSpec extends BaseSpec {
       showSignOutInHeaderCaptor.getValue mustBe false
       scriptsCaptor.getValue mustBe Seq.empty
       styleSheetsCaptor.getValue mustBe Seq.empty
-      bannerConfigCaptor.getValue mustBe BannerConfig(
+      bannerSettingsCaptor.getValue.bannerConfig mustBe BannerConfig(
         showAlphaBanner = true,
         showBetaBanner = false,
         showHelpImproveBanner = true
@@ -193,7 +193,8 @@ class WrapperServiceSpec extends BaseSpec {
         hideMenuBar = hideMenuBarCaptor.capture(),
         disableSessionExpired = disableSessionExpiredCaptor.capture(),
         optTrustedHelper = optTrustedHelperCaptor.capture(),
-        urBannerUrl = urBannerUrlCaptor.capture()
+        urBannerUrl = urBannerUrlCaptor.capture(),
+        smartAppBannerConfig = smartAppBannerUrlConfigsCaptor.capture()
       )(contentCaptor.capture())(any(), any())
 
       verify(mockAppConfig, times(1)).showAlphaBanner
@@ -204,7 +205,7 @@ class WrapperServiceSpec extends BaseSpec {
       verify(mockAppConfig, times(1)).disableSessionExpired
       verify(mockAppConfig, times(0)).helpImproveBannerUrl
 
-      menuCaptor.getValue mustBe standardmenu
+      menuCaptor.getValue mustBe standardMenu
       serviceURLsCaptor.getValue mustBe serviceUrls
       serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
       pageTitleCaptor.getValue mustBe None
@@ -249,7 +250,7 @@ class WrapperServiceSpec extends BaseSpec {
       wrapperService.standardScaLayout(
         content = Html("Default-Content"),
         serviceURLs = serviceUrls,
-        bannerConfig = BannerConfig(false, true, true)
+        bannerConfig = BannerConfig(showAlphaBanner = false, showBetaBanner = true, showHelpImproveBanner = true)
       )(messages, request)
 
       verify(mockStandardScaLayout, times(1)).apply(
@@ -270,12 +271,13 @@ class WrapperServiceSpec extends BaseSpec {
         hideMenuBar = hideMenuBarCaptor.capture(),
         disableSessionExpired = disableSessionExpiredCaptor.capture(),
         optTrustedHelper = optTrustedHelperCaptor.capture(),
-        urBannerUrl = urBannerUrlCaptor.capture()
+        urBannerUrl = urBannerUrlCaptor.capture(),
+        smartAppBannerConfig = smartAppBannerUrlConfigsCaptor.capture()
       )(contentCaptor.capture())(any(), any())
 
       verify(mockAppConfig, times(1)).helpImproveBannerUrl
 
-      menuCaptor.getValue mustBe standardmenu
+      menuCaptor.getValue mustBe standardMenu
       serviceURLsCaptor.getValue mustBe serviceUrls
       serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
       pageTitleCaptor.getValue mustBe None
@@ -355,7 +357,7 @@ class WrapperServiceSpec extends BaseSpec {
         showSignOutInHeader = showSignOutInHeaderCaptor.capture(),
         scripts = scriptsCaptor.capture(),
         styleSheets = styleSheetsCaptor.capture(),
-        bannerConfig = bannerConfigCaptor.capture(),
+        bannerSettings = bannerSettingsCaptor.capture(),
         fullWidth = fullWidthCaptor.capture(),
         hideMenuBar = hideMenuBarCaptor.capture(),
         disableSessionExpired = disableSessionExpiredCaptor.capture(),
@@ -383,7 +385,7 @@ class WrapperServiceSpec extends BaseSpec {
       showSignOutInHeaderCaptor.getValue mustBe showSignOutInHeader
       scriptsCaptor.getValue mustBe scripts
       styleSheetsCaptor.getValue mustBe styleSheets
-      bannerConfigCaptor.getValue mustBe bannerConfig
+      bannerSettingsCaptor.getValue.bannerConfig mustBe bannerConfig
       optTrustedHelperCaptor.getValue mustBe optTrustedHelper
       fullWidthCaptor.getValue mustBe fullWidth
       hideMenuBarCaptor.getValue mustBe hideMenuBar
@@ -450,37 +452,43 @@ object WrapperServiceSpec {
   val menu: Html                      = Html(
     "\n<!-- ACCOUNT MENU -->\n<nav id=\"secondary-nav\" class=\"hmrc-account-menu\" aria-label=\"Account\" data-module=\"hmrc-account-menu\">\n<!-- LEFT ALIGNED ITEMS -->\n            \n                \n<a href=\"pertaxUrl\"\n   class=\"hmrc-account-menu__link hmrc-account-menu__link--home\n   \" id=\"menu.left.0\">\n \n <span class=\"hmrc-account-icon hmrc-account-icon--home\">\n Account home\n </span>\n \n</a>\n\n            \n<!-- LEFT ALIGNED ITEMS -->\n    <a id=\"menu.name\" href=\"#\" class=\"hmrc-account-menu__link hmrc-account-menu__link--menu js-hidden js-visible\" tabindex=\"-1\" aria-hidden=\"true\" aria-expanded=\"false\">\n        Account menu\n    </a>\n    <ul class=\"hmrc-account-menu__main\">\n        <li class=\"hmrc-account-menu__link--back hidden\" aria-hidden=\"false\">\n            <a id=\"menu.back\" href=\"#\" tabindex=\"-1\" class=\"hmrc-account-menu__link\">\n            Back\n            </a>\n        </li>\n<!-- RIGHT ALIGNED ITEMS -->\n        \n                \n<li>\n <a href=\"pertaxUrl-messages\" class=\"hmrc-account-menu__link \" id=\"menu.right.0\">\n \n  <span class=\"\">\n   Messages\n   \n    <span class=\"hmrc-notification-badge\">2</span>\n\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"trackingUrl-track\" class=\"hmrc-account-menu__link \" id=\"menu.right.1\">\n \n  <span class=\"\">\n   Check progress\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"pertaxUrl-profile-and-settings\" class=\"hmrc-account-menu__link \" id=\"menu.right.2\">\n \n  <span class=\"\">\n   Profile and settings\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"Signout-Url\" class=\"hmrc-account-menu__link \" id=\"menu.right.3\">\n \n  <span class=\"\">\n   Sign out\n   \n  </span>\n \n </a>\n</li>\n\n            \n<!-- RIGHT ALIGNED ITEMS -->\n    </ul>\n</nav>\n"
   )
-  val standardmenu: Html              = Html(
+  val standardMenu: Html              = Html(
     "\n<!-- ACCOUNT MENU -->\n<nav id=\"secondary-nav\" class=\"hmrc-account-menu\" aria-label=\"Account\" data-module=\"hmrc-account-menu\">\n<!-- LEFT ALIGNED ITEMS -->\n            \n                \n<a href=\"pertaxUrl\"\n   class=\"hmrc-account-menu__link hmrc-account-menu__link--home\n   \" id=\"menu.left.0\">\n \n <span class=\"hmrc-account-icon hmrc-account-icon--home\">\n Account home\n </span>\n \n</a>\n\n            \n<!-- LEFT ALIGNED ITEMS -->\n    <a id=\"menu.name\" href=\"#\" class=\"hmrc-account-menu__link hmrc-account-menu__link--menu js-hidden js-visible\" tabindex=\"-1\" aria-hidden=\"true\" aria-expanded=\"false\">\n        Account menu\n    </a>\n    <ul class=\"hmrc-account-menu__main\">\n        <li class=\"hmrc-account-menu__link--back hidden\" aria-hidden=\"false\">\n            <a id=\"menu.back\" href=\"#\" tabindex=\"-1\" class=\"hmrc-account-menu__link\">\n            Back\n            </a>\n        </li>\n<!-- RIGHT ALIGNED ITEMS -->\n        \n                \n<li>\n <a href=\"pertaxUrl-messages\" class=\"hmrc-account-menu__link \" id=\"menu.right.0\">\n \n  <span class=\"\">\n   Messages\n   \n    <span class=\"hmrc-notification-badge\">2</span>\n\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"trackingUrl-track\" class=\"hmrc-account-menu__link \" id=\"menu.right.1\">\n \n  <span class=\"\">\n   Check progress\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"pertaxUrl-profile-and-settings\" class=\"hmrc-account-menu__link \" id=\"menu.right.2\">\n \n  <span class=\"\">\n   Profile and settings\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"Signout-Url\" class=\"hmrc-account-menu__link \" id=\"menu.right.3\">\n \n  <span class=\"\">\n   Sign out\n   \n  </span>\n \n </a>\n</li>\n\n            \n<!-- RIGHT ALIGNED ITEMS -->\n    </ul>\n</nav>\n"
   )
 
   val defaultUrBanner: UrBanner = UrBanner("test-page", "test-link", isEnabled = true)
 
+  val defaultSmartAppBanner: SmartAppBannerUrlConfigs =
+    SmartAppBannerUrlConfigs("/another-page", "campaign2", "iosArgs2")
+
   private val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
     Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
     ptaMenuConfig,
-    List(defaultUrBanner)
+    List(defaultUrBanner),
+    List(defaultSmartAppBanner)
   )
 
-  val menuCaptor                  = ArgumentCaptor.forClass(classOf[Html])
-  val serviceURLsCaptor           = ArgumentCaptor.forClass(classOf[ServiceURLs])
-  val serviceNameKeyCaptor        = ArgumentCaptor.forClass(classOf[Option[String]])
-  val serviceNameUrlCaptor        = ArgumentCaptor.forClass(classOf[Option[String]])
-  val pageTitleCaptor             = ArgumentCaptor.forClass(classOf[Option[String]])
-  val sideBarContentCaptor        = ArgumentCaptor.forClass(classOf[Option[Html]])
-  val signoutUrlCaptor            = ArgumentCaptor.forClass(classOf[Option[String]])
-  val timeOutUrlCaptor            = ArgumentCaptor.forClass(classOf[Option[String]])
-  val keepAliveUrlCaptor          = ArgumentCaptor.forClass(classOf[String])
-  val showBackLinkJSCaptor        = ArgumentCaptor.forClass(classOf[Boolean])
-  val backLinkUrlCaptor           = ArgumentCaptor.forClass(classOf[Option[String]])
-  val showSignOutInHeaderCaptor   = ArgumentCaptor.forClass(classOf[Boolean])
-  val scriptsCaptor               = ArgumentCaptor.forClass(classOf[Seq[HtmlFormat.Appendable]])
-  val styleSheetsCaptor           = ArgumentCaptor.forClass(classOf[Seq[HtmlFormat.Appendable]])
-  val bannerConfigCaptor          = ArgumentCaptor.forClass(classOf[BannerConfig])
-  val optTrustedHelperCaptor      = ArgumentCaptor.forClass(classOf[Option[TrustedHelper]])
-  val fullWidthCaptor             = ArgumentCaptor.forClass(classOf[Boolean])
-  val hideMenuBarCaptor           = ArgumentCaptor.forClass(classOf[Boolean])
-  val disableSessionExpiredCaptor = ArgumentCaptor.forClass(classOf[Boolean])
-  val contentCaptor               = ArgumentCaptor.forClass(classOf[Html])
-  val urBannerUrlCaptor           = ArgumentCaptor.forClass(classOf[Option[String]])
+  val menuCaptor                     = ArgumentCaptor.forClass(classOf[Html])
+  val serviceURLsCaptor              = ArgumentCaptor.forClass(classOf[ServiceURLs])
+  val serviceNameKeyCaptor           = ArgumentCaptor.forClass(classOf[Option[String]])
+  val serviceNameUrlCaptor           = ArgumentCaptor.forClass(classOf[Option[String]])
+  val pageTitleCaptor                = ArgumentCaptor.forClass(classOf[Option[String]])
+  val sideBarContentCaptor           = ArgumentCaptor.forClass(classOf[Option[Html]])
+  val signoutUrlCaptor               = ArgumentCaptor.forClass(classOf[Option[String]])
+  val timeOutUrlCaptor               = ArgumentCaptor.forClass(classOf[Option[String]])
+  val keepAliveUrlCaptor             = ArgumentCaptor.forClass(classOf[String])
+  val showBackLinkJSCaptor           = ArgumentCaptor.forClass(classOf[Boolean])
+  val backLinkUrlCaptor              = ArgumentCaptor.forClass(classOf[Option[String]])
+  val showSignOutInHeaderCaptor      = ArgumentCaptor.forClass(classOf[Boolean])
+  val scriptsCaptor                  = ArgumentCaptor.forClass(classOf[Seq[HtmlFormat.Appendable]])
+  val styleSheetsCaptor              = ArgumentCaptor.forClass(classOf[Seq[HtmlFormat.Appendable]])
+  val bannerConfigCaptor             = ArgumentCaptor.forClass(classOf[BannerConfig])
+  val optTrustedHelperCaptor         = ArgumentCaptor.forClass(classOf[Option[TrustedHelper]])
+  val fullWidthCaptor                = ArgumentCaptor.forClass(classOf[Boolean])
+  val hideMenuBarCaptor              = ArgumentCaptor.forClass(classOf[Boolean])
+  val disableSessionExpiredCaptor    = ArgumentCaptor.forClass(classOf[Boolean])
+  val contentCaptor                  = ArgumentCaptor.forClass(classOf[Html])
+  val urBannerUrlCaptor              = ArgumentCaptor.forClass(classOf[Option[String]])
+  val smartAppBannerUrlConfigsCaptor = ArgumentCaptor.forClass(classOf[Option[SmartAppBannerUrlConfigs]])
+  val bannerSettingsCaptor           = ArgumentCaptor.forClass(classOf[BannerSettings])
 }

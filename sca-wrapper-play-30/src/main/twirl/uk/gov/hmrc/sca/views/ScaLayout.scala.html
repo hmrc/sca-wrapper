@@ -16,11 +16,9 @@
 
 @import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
-@import uk.gov.hmrc.http.HeaderCarrier
 @import uk.gov.hmrc.sca.config.AppConfig
-@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig}
+@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerSettings}
 @import uk.gov.hmrc.sca.views.html._
-@import uk.gov.hmrc.sca.views.html.PtaAttorneyBanner
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
 
 @this(
@@ -41,6 +39,7 @@
         twoThirdsMainContent: TwoThirdsMainContent
 )
 
+
 @(menu: HtmlFormat.Appendable,
         serviceNameKey: Option[String],
         serviceNameUrl: Option[String],
@@ -54,7 +53,7 @@
         showSignOutInHeader: Boolean,
         scripts: Seq[HtmlFormat.Appendable],
         styleSheets: Seq[HtmlFormat.Appendable],
-        bannerConfig: BannerConfig,
+        bannerSettings: BannerSettings,
         fullWidth: Boolean,
         hideMenuBar: Boolean,
         disableSessionExpired: Boolean,
@@ -80,7 +79,14 @@
     @ptaHead()
 }
 
+@iosAppBanner = {
+    @if(bannerSettings.smartAppBannerUrlConfigs.isDefined){
+        <meta name="@bannerSettings.smartAppBannerUrlConfigs.get.iosArgs" content="@bannerSettings.smartAppBannerUrlConfigs.get.campaignId"/>
+    }
+}
+
 @additionalScripts = {
+    @iosAppBanner
     @scripts
     @ptaScripts()
 }
@@ -136,10 +142,10 @@
     @hmrcReportTechnicalIssueHelper()
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
     @{
-        if(bannerConfig.showBetaBanner) {
+        if(bannerSettings.bannerConfig.showBetaBanner) {
             govukPhaseBanner(betaBanner(appConfig.feedbackUrl))
         } else {
-            if(bannerConfig.showAlphaBanner) {
+            if(bannerSettings.bannerConfig.showAlphaBanner) {
                 govukPhaseBanner(alphaBanner(appConfig.feedbackUrl))
             }
         }
@@ -159,7 +165,7 @@
     additionalHeadBlock = Some(headBlock),
     beforeContentBlock = Some(beforeContent),
     additionalScriptsBlock = Some(additionalScripts),
-    userResearchBannerUrl = if(bannerConfig.showHelpImproveBanner) {Some(appConfig.helpImproveBannerUrl.getOrElse("#"))} else {None},
+    userResearchBannerUrl = if(bannerSettings.bannerConfig.showHelpImproveBanner) {Some(appConfig.helpImproveBannerUrl.getOrElse("#"))} else None,
     mainContentLayout = Some(sidebarContent match {
         case Some(sidebarHtml) => twoThirdsOneThirdMainContent(sidebarHtml)
         case None =>

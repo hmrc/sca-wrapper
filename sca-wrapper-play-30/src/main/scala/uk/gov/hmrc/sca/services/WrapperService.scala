@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.sca.config.AppConfig
-import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMenuConfig, UrBanner, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{BannerConfig, BannerSettings, MenuItemConfig, PtaMenuConfig, SmartAppBannerUrlConfigs, UrBanner, WrapperDataResponse}
 import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
 
@@ -40,7 +40,7 @@ class WrapperService @Inject() (
   appConfig: AppConfig
 ) extends Logging {
 
-  lazy val defaultBannerConfig: BannerConfig = BannerConfig(
+  private lazy val defaultBannerConfig: BannerConfig = BannerConfig(
     showAlphaBanner = appConfig.showAlphaBanner,
     showBetaBanner = appConfig.showBetaBanner,
     showHelpImproveBanner = appConfig.showHelpImproveBanner
@@ -90,7 +90,7 @@ class WrapperService @Inject() (
       showSignOutInHeader = showSignOutInHeader,
       scripts = scripts,
       styleSheets = styleSheets,
-      bannerConfig = bannerConfig,
+      bannerSettings = BannerSettings(bannerConfig, getSmartAppBannerConfig),
       fullWidth = fullWidth,
       hideMenuBar = hideMenuBar,
       disableSessionExpired = disableSessionExpired,
@@ -142,7 +142,8 @@ class WrapperService @Inject() (
       hideMenuBar = hideMenuBar,
       disableSessionExpired = disableSessionExpired,
       optTrustedHelper = optTrustedHelper,
-      urBannerUrl = if (urBannerEnabled(bannerConfig)) getUrBannerUrl else None
+      urBannerUrl = if (urBannerEnabled(bannerConfig)) getUrBannerUrl else None,
+      smartAppBannerConfig = getSmartAppBannerConfig
     )(content)
   }
 
@@ -239,4 +240,16 @@ class WrapperService @Inject() (
       case Some(urBanner) => urBanner.isEnabled
       case None           => config.showHelpImproveBanner
     }
+
+  private def getSmartAppBannerDetailsForPage(implicit
+    requestHeader: RequestHeader
+  ): Option[SmartAppBannerUrlConfigs] = {
+    val wrapperDataResponse = getWrapperDataResponse(requestHeader)
+    wrapperDataResponse.flatMap { response =>
+      response.smartAppBannerUrlConfigs.find(_.url.equals(requestHeader.uri))
+    }
+  }
+
+  private def getSmartAppBannerConfig(implicit requestHeader: RequestHeader): Option[SmartAppBannerUrlConfigs] =
+    getSmartAppBannerDetailsForPage.map(smartAppBanner => smartAppBanner)
 }
