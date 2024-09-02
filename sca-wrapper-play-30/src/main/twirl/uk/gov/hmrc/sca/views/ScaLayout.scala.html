@@ -61,6 +61,12 @@
         accessibilityStatementUrl: Option[String]
 )(contentBlock: Html)(implicit requestHeader: RequestHeader, messages: Messages)
 
+@iosAppBanner = {
+@if(bannerSettings.smartAppBannerUrlConfigs.isDefined){
+    <meta name="@bannerSettings.smartAppBannerUrlConfigs.get.iosArgs" content="@bannerSettings.smartAppBannerUrlConfigs.get.campaignId"/>
+}
+}
+
 @headBlock = {
 
     @styleSheets
@@ -77,12 +83,7 @@
     }
 
     @ptaHead()
-}
-
-@iosAppBanner = {
-    @if(bannerSettings.smartAppBannerUrlConfigs.isDefined){
-        <meta name="@bannerSettings.smartAppBannerUrlConfigs.get.iosArgs" content="@bannerSettings.smartAppBannerUrlConfigs.get.campaignId"/>
-    }
+    @iosAppBanner
 }
 
 @additionalScripts = {

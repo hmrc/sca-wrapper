@@ -61,6 +61,13 @@
         urBannerUrl: Option[String],
         smartAppBannerConfig: Option[SmartAppBannerUrlConfigs])(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
 
+
+@iosAppBanner = {
+@if(smartAppBannerConfig.isDefined){
+    <meta name="@smartAppBannerConfig.get.iosArgs" content="@smartAppBannerConfig.get.campaignId"/>
+}
+}
+
 @headBlock = {
 
     @styleSheets
@@ -77,16 +84,10 @@
     }
 
     @ptaHead()
-}
-
-@iosAppBanner = {
-    @if(smartAppBannerConfig.isDefined){
-        <meta name="@smartAppBannerConfig.get.iosArgs" content="@smartAppBannerConfig.get.campaignId"/>
-    }
+    @iosAppBanner
 }
 
 @additionalScripts = {
-    @iosAppBanner
     @scripts
     @ptaScripts()
 }
