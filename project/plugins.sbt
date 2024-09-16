@@ -13,5 +13,5 @@ sys.env.get("PLAY_VERSION") match {
   case Some("2.9") =>
     addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.9.2")
   case _           =>
-    addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.3")
+    addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.5")
 }
