@@ -26,7 +26,7 @@ val scala3_3 = "3.3.3"
 // https://www.scala-sbt.org/1.x/docs/Parallel-Execution.html
 Global / concurrentRestrictions += Tags.limitSum(1, Tags.Test, Tags.Untagged)
 
-ThisBuild / scalaVersion       := scala3_3
+ThisBuild / scalaVersion       := scala2_13
 ThisBuild / majorVersion       := 2
 ThisBuild / isPublicArtefact   := true
 ThisBuild / libraryDependencySchemes ++= Seq(
