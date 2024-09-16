@@ -134,14 +134,10 @@
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
     @hmrcReportTechnicalIssueHelper()
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
-    @{
-        if(bannerConfig.showBetaBanner) {
-            govukPhaseBanner(betaBanner(appConfig.feedbackUrl))
-        } else {
-            if(bannerConfig.showAlphaBanner) {
-                govukPhaseBanner(alphaBanner(appConfig.feedbackUrl))
-            }
-        }
+    @if(bannerConfig.showBetaBanner) {
+      @govukPhaseBanner(betaBanner(appConfig.feedbackUrl))
+    } else if(bannerConfig.showAlphaBanner) {
+      @govukPhaseBanner(alphaBanner(appConfig.feedbackUrl))
     }
 </div>
 }
