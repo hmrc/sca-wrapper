@@ -26,8 +26,8 @@ val scala3_3 = "3.3.3"
 // https://www.scala-sbt.org/1.x/docs/Parallel-Execution.html
 Global / concurrentRestrictions += Tags.limitSum(1, Tags.Test, Tags.Untagged)
 
-ThisBuild / scalaVersion       := scala2_13
-ThisBuild / majorVersion       := 1
+ThisBuild / scalaVersion       := scala3_3
+ThisBuild / majorVersion       := 2
 ThisBuild / isPublicArtefact   := true
 ThisBuild / libraryDependencySchemes ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always)
@@ -40,12 +40,10 @@ lazy val projects: Seq[ProjectReference] = sys.env.get("PLAY_VERSION") match {
 }
 lazy val library = Project(libName, file("."))
   .settings(publish / skip := true)
-  .aggregate(projects: _*)
+  .aggregate(projects *)
 
-val buildScalacOptions = scalaVersion.toString() match {
-  case scala3_3 => Seq.empty
-  case _ =>
-  Seq(
+
+val buildScalacOptions = Seq(
     "-unchecked",
     "-feature",
     "-Xlint:_",
@@ -63,8 +61,7 @@ val buildScalacOptions = scalaVersion.toString() match {
     "-Wconf:cat=deprecation&msg=method apply in class HmrcLayout is deprecated:s",
     "-Wconf:cat=deprecation&msg=method layout in class WrapperService is deprecated:s",
     "-Wconf:cat=deprecation&msg=method safeSignoutUrl in class WrapperService is deprecated:s"
-  )
-}
+)
 
 def copyPlay30SourcesFor28(module: Project) =
   CopySources.copySources(
@@ -100,7 +97,7 @@ def copyPlay30Routes(module: Project) = Seq(
 lazy val play29 = Project(s"$libName-play-29", file(s"$libName-play-29"))
   .enablePlugins(PlayScala)
   .disablePlugins(PlayLayoutPlugin)
-  .settings(CodeCoverageSettings.settings: _*)
+  .settings(CodeCoverageSettings.settings *)
   .settings(
     TwirlKeys.templateImports := templateImports,
     crossScalaVersions := Seq(scala2_13),
@@ -125,7 +122,7 @@ lazy val play29Test = Project(s"$libName-test-play-29", file(s"$libName-test-pla
 lazy val play30 = Project(s"$libName-play-30", file(s"$libName-play-30"))
   .enablePlugins(PlayScala)
   .disablePlugins(PlayLayoutPlugin)
-  .settings(CodeCoverageSettings.settings: _*)
+  .settings(CodeCoverageSettings.settings *)
   .settings(
     TwirlKeys.templateImports := templateImports,
     crossScalaVersions := Seq(scala3_3, scala2_13),
@@ -134,7 +131,11 @@ lazy val play30 = Project(s"$libName-play-30", file(s"$libName-play-30"))
       val dirs = (Compile / unmanagedResourceDirectories).value
       (dirs * "routes").get ++ (dirs * "*.routes").get
     },
-    scalacOptions ++= buildScalacOptions,
+    scalacOptions ++= Seq(
+      "-unchecked",
+      "-feature",
+      "-Wvalue-discard"
+    ),
     Test / Keys.fork := true,
     Test / parallelExecution := true,
     Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
