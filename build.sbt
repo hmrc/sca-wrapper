@@ -19,14 +19,15 @@ import sbt.*
 
 val libName = "sca-wrapper"
 
-val scala2_13 = "2.13.12"
+val scala2_13 = "2.13.14"
+val scala3_3 = "3.3.3"
 
 // Disable multiple project tests running at the same time, since notablescan flag is a global setting.
 // https://www.scala-sbt.org/1.x/docs/Parallel-Execution.html
 Global / concurrentRestrictions += Tags.limitSum(1, Tags.Test, Tags.Untagged)
 
 ThisBuild / scalaVersion       := scala2_13
-ThisBuild / majorVersion       := 1
+ThisBuild / majorVersion       := 2
 ThisBuild / isPublicArtefact   := true
 ThisBuild / libraryDependencySchemes ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always)
@@ -39,27 +40,27 @@ lazy val projects: Seq[ProjectReference] = sys.env.get("PLAY_VERSION") match {
 }
 lazy val library = Project(libName, file("."))
   .settings(publish / skip := true)
-  .aggregate(projects: _*)
+  .aggregate(projects *)
+
 
 val buildScalacOptions = Seq(
-  "-unchecked",
-  "-feature",
-  "-Xlint:_",
-  "-Wdead-code",
-  "-Wunused:_",
-  "-Wextra-implicit",
-  "-Wvalue-discard",
-  "-Werror",
-  "-Wconf:cat=unused-imports&site=uk\\.gov\\.hmrc\\.sca\\.views.*:s",
-  "-Wconf:cat=unused-imports&site=<empty>:s",
-  "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
-  "-Wconf:cat=unused&src=.*Routes\\.scala:s",
-  "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s",
-  "-Wconf:cat=deprecation&site=uk\\.gov\\.hmrc\\.sca\\.views.*:s",
-  "-Wconf:cat=deprecation&msg=method apply in class HmrcLayout is deprecated:s",
-  "-Wconf:cat=deprecation&msg=method layout in class WrapperService is deprecated:s",
-  "-Wconf:cat=deprecation&msg=method safeSignoutUrl in class WrapperService is deprecated:s"
-
+    "-unchecked",
+    "-feature",
+    "-Xlint:_",
+    "-Wdead-code",
+    "-Wunused:_",
+    "-Wextra-implicit",
+    "-Wvalue-discard",
+    "-Werror",
+    "-Wconf:cat=unused-imports&site=uk\\.gov\\.hmrc\\.sca\\.views.*:s",
+    "-Wconf:cat=unused-imports&site=<empty>:s",
+    "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
+    "-Wconf:cat=unused&src=.*Routes\\.scala:s",
+    "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s",
+    "-Wconf:cat=deprecation&site=uk\\.gov\\.hmrc\\.sca\\.views.*:s",
+    "-Wconf:cat=deprecation&msg=method apply in class HmrcLayout is deprecated:s",
+    "-Wconf:cat=deprecation&msg=method layout in class WrapperService is deprecated:s",
+    "-Wconf:cat=deprecation&msg=method safeSignoutUrl in class WrapperService is deprecated:s"
 )
 
 def copyPlay30SourcesFor28(module: Project) =
@@ -96,7 +97,7 @@ def copyPlay30Routes(module: Project) = Seq(
 lazy val play29 = Project(s"$libName-play-29", file(s"$libName-play-29"))
   .enablePlugins(PlayScala)
   .disablePlugins(PlayLayoutPlugin)
-  .settings(CodeCoverageSettings.settings: _*)
+  .settings(CodeCoverageSettings.settings *)
   .settings(
     TwirlKeys.templateImports := templateImports,
     crossScalaVersions := Seq(scala2_13),
@@ -110,7 +111,9 @@ lazy val play29 = Project(s"$libName-play-29", file(s"$libName-play-29"))
   )
 
 lazy val play29Test = Project(s"$libName-test-play-29", file(s"$libName-test-play-29"))
-  .settings(libraryDependencies ++= Seq(
+  .settings(
+    crossScalaVersions := Seq(scala2_13),
+    libraryDependencies ++= Seq(
     "uk.gov.hmrc"         %% s"bootstrap-test-play-29"   % LibDependencies.bootstrapVersion)
   )
   .dependsOn(play29)
@@ -119,23 +122,29 @@ lazy val play29Test = Project(s"$libName-test-play-29", file(s"$libName-test-pla
 lazy val play30 = Project(s"$libName-play-30", file(s"$libName-play-30"))
   .enablePlugins(PlayScala)
   .disablePlugins(PlayLayoutPlugin)
-  .settings(CodeCoverageSettings.settings: _*)
+  .settings(CodeCoverageSettings.settings *)
   .settings(
     TwirlKeys.templateImports := templateImports,
-    crossScalaVersions := Seq(scala2_13),
+    crossScalaVersions := Seq(scala3_3, scala2_13),
     libraryDependencies ++= LibDependencies.play30 ++ LibDependencies.play30Test,
     Compile / routes / sources ++= {
       val dirs = (Compile / unmanagedResourceDirectories).value
       (dirs * "routes").get ++ (dirs * "*.routes").get
     },
-    scalacOptions ++= buildScalacOptions,
+    scalacOptions ++= Seq(
+      "-unchecked",
+      "-feature",
+      "-Wvalue-discard"
+    ),
     Test / Keys.fork := true,
     Test / parallelExecution := true,
     Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
   )
 
 lazy val play30Test = Project(s"$libName-test-play-30", file(s"$libName-test-play-30"))
-  .settings(libraryDependencies ++= Seq(
+  .settings(
+    crossScalaVersions := Seq(scala3_3, scala2_13),
+    libraryDependencies ++= Seq(
     "uk.gov.hmrc"         %% s"bootstrap-test-play-30"   % LibDependencies.bootstrapVersion)
   )
   .dependsOn(play30)

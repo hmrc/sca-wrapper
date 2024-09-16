@@ -133,9 +133,8 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       document
         .select(".govuk-phase-banner__content")
         .asScala
-        .exists(x =>
-          x.text().equals("Alpha This is a new service – your feedback will help us to improve it.")
-        ) mustBe true
+        .headOption
+        .map(_.text()) mustBe Some("Alpha This is a new service – your feedback will help us to improve it.")
       document.getElementsByTag("h2").asScala.exists(x => x.text().equals("Support links")) mustBe true
       document.select(".govuk-grid-column-two-thirds").asScala.nonEmpty mustBe true
       document
