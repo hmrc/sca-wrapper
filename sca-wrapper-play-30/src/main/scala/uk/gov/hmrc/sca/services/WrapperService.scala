@@ -18,7 +18,7 @@ package uk.gov.hmrc.sca.services
 
 import play.api.Logging
 import play.api.i18n.{Lang, Messages}
-import play.api.mvc.Request
+import play.api.mvc.RequestHeader
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.sca.config.AppConfig
-import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMenuConfig, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMenuConfig, UrBanner, WrapperDataResponse}
 import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
 
@@ -69,7 +69,7 @@ class WrapperService @Inject() (
     hideMenuBar: Boolean = false,
     disableSessionExpired: Boolean = appConfig.disableSessionExpired,
     accessibilityStatementUrl: Option[String] = None
-  )(implicit messages: Messages, hc: HeaderCarrier, request: Request[_]): HtmlFormat.Appendable = {
+  )(implicit messages: Messages, hc: HeaderCarrier, requestHeader: RequestHeader): HtmlFormat.Appendable = {
     val showSignOutInHeader = (signoutUrl, hideMenuBar) match {
       case (Some(_), false) => false
       case (Some(_), true)  => true // should we throw exception? if the menu is hidden the user must be unauthenticated
@@ -116,7 +116,7 @@ class WrapperService @Inject() (
     fullWidth: Boolean = true,
     hideMenuBar: Boolean = false,
     disableSessionExpired: Boolean = appConfig.disableSessionExpired
-  )(implicit messages: Messages, request: Request[_]): HtmlFormat.Appendable = {
+  )(implicit messages: Messages, requestHeader: RequestHeader): HtmlFormat.Appendable = {
     val showSignOutInHeader = (serviceURLs.signOutUrl, hideMenuBar) match {
       case (Some(_), false) => false
       case (Some(_), true)  => true // should we throw exception? if the menu is hidden the user must be unauthenticated
@@ -141,7 +141,8 @@ class WrapperService @Inject() (
       fullWidth = fullWidth,
       hideMenuBar = hideMenuBar,
       disableSessionExpired = disableSessionExpired,
-      optTrustedHelper = optTrustedHelper
+      optTrustedHelper = optTrustedHelper,
+      urBannerUrl = if (urBannerEnabled(bannerConfig)) getUrBannerUrl else None
     )(content)
   }
 
@@ -155,12 +156,12 @@ class WrapperService @Inject() (
     case _                                                          => appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
   }
 
-  private def sortMenuItemConfig(signoutUrl: Option[String])(implicit request: Request[_]): PtaMenuConfig = {
-    implicit val lang: Lang = Lang(request.cookies.get("PLAY_LANG").map(_.value).getOrElse("en"))
+  private def sortMenuItemConfig(signoutUrl: Option[String])(implicit requestHeader: RequestHeader): PtaMenuConfig = {
+    implicit val lang: Lang = Lang(requestHeader.cookies.get("PLAY_LANG").map(_.value).getOrElse("en"))
 
     val wrapperDataResponse =
-      getWrapperDataResponse(request).getOrElse(appConfig.fallbackWrapperDataResponse)
-    val unreadMessageCount  = getMessageDataFromRequest(request)
+      getWrapperDataResponse(requestHeader).getOrElse(appConfig.fallbackWrapperDataResponse)
+    val unreadMessageCount  = getMessageDataFromRequest(requestHeader)
 
     val menuItemConfigWithSignout            = setSignoutUrl(signoutUrl, wrapperDataResponse.menuItemConfig)
     val menuItemConfigWithUnreadMessageCount = setUnreadMessageCount(unreadMessageCount, menuItemConfigWithSignout)
@@ -172,13 +173,16 @@ class WrapperService @Inject() (
     )
   }
 
-  private def setSignoutUrl(signoutUrl: Option[String], menuItemConfig: Seq[MenuItemConfig]) =
+  private def setSignoutUrl(signoutUrl: Option[String], menuItemConfig: Seq[MenuItemConfig]): Seq[MenuItemConfig] =
     menuItemConfig.flatMap {
       case signout if signout.id == "signout" => signoutUrl.map(url => signout.copy(href = url))
       case other                              => Some(other)
     }
 
-  private def setUnreadMessageCount(unreadMessageCount: Option[Int], menuItemConfig: Seq[MenuItemConfig]) =
+  private def setUnreadMessageCount(
+    unreadMessageCount: Option[Int],
+    menuItemConfig: Seq[MenuItemConfig]
+  ): Seq[MenuItemConfig] =
     Try {
       menuItemConfig.find(_.id == "messages").fold(menuItemConfig) { messageMenuItemConfig =>
         menuItemConfig.updated(
@@ -195,8 +199,8 @@ class WrapperService @Inject() (
         menuItemConfig
     }
 
-  private def getWrapperDataResponse(request: Request[_]): Option[WrapperDataResponse] = {
-    val result = request.attrs.get(Keys.wrapperDataKey)
+  private def getWrapperDataResponse(requestHeader: RequestHeader): Option[WrapperDataResponse] = {
+    val result = requestHeader.attrs.get(Keys.wrapperDataKey)
     if (result.isEmpty) {
       logger.warn(
         s"[SCA Wrapper Library][WrapperService][getWrapperDataResponse]{ Expecting Wrapper Data in " +
@@ -206,8 +210,8 @@ class WrapperService @Inject() (
     result
   }
 
-  private def getMessageDataFromRequest(request: Request[_]): Option[Int] = {
-    val result = request.attrs.get(Keys.messageDataKey)
+  private def getMessageDataFromRequest(requestHeader: RequestHeader): Option[Int] = {
+    val result = requestHeader.attrs.get(Keys.messageDataKey)
     if (result.isEmpty) {
       logger.warn(
         "[SCA Wrapper Library][WrapperService][getMessageDataFromRequest] Expecting Message Data in " +
@@ -216,4 +220,23 @@ class WrapperService @Inject() (
     }
     result.flatten
   }
+
+  private def getUrBannerDetailsForPage(implicit requestHeader: RequestHeader): Option[UrBanner] = {
+    val wrapperDataResponse = getWrapperDataResponse(requestHeader)
+    wrapperDataResponse.flatMap { response =>
+      response.urBanners.find(_.page.equals(requestHeader.uri))
+    }
+  }
+
+  private def getUrBannerUrl(implicit requestHeader: RequestHeader): Option[String] =
+    getUrBannerDetailsForPage match {
+      case Some(urBanner) => Some(urBanner.link)
+      case None           => appConfig.helpImproveBannerUrl
+    }
+
+  private def urBannerEnabled(config: BannerConfig)(implicit requestHeader: RequestHeader): Boolean =
+    getUrBannerDetailsForPage match {
+      case Some(urBanner) => urBanner.isEnabled
+      case None           => config.showHelpImproveBanner
+    }
 }
