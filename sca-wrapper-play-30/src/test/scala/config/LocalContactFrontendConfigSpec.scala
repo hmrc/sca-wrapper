@@ -25,7 +25,7 @@ class LocalContactFrontendConfigSpec extends BaseSpec {
   "LocalContactFrontendConfig.url" must {
     "return correct url" in {
       sut.url mustBe Some(
-        "http://localhost:9250/contact/beta-feedback?service=%2FService+Id&backUrl=http%3A%2F%2Flocalhost%3A8420"
+        "http://localhost:8420/contact/beta-feedback?service=%2FService+Id&backUrl=http%3A%2F%2Flocalhost%3A8420"
       )
     }
   }
