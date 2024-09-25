@@ -24,15 +24,8 @@ import java.net.URLEncoder
 import javax.inject.Inject
 
 class LocalContactFrontendConfig @Inject() (config: Configuration) extends ContactFrontendConfig(config) {
-  private val platformHost: Option[String] =
-    config.getOptional[String]("platform.frontend.host")
-
-  private val host: String =
-    config.get[String]("sca-wrapper.host")
-
   override def referrerUrl(implicit request: RequestHeader): Option[String] =
-    Some(s"${platformHost
-      .getOrElse(host)}${request.uri}")
+    Some(s"${config.get[String]("platform.frontend.host")}${request.uri}")
 
   def url(implicit request: RequestHeader): Option[String] =
     for {
@@ -41,5 +34,4 @@ class LocalContactFrontendConfig @Inject() (config: Configuration) extends Conta
       serviceId              <- serviceId
       referrer               <- referrerUrl
     } yield s"$contactFrontendBaseUrl$path?service=${URLEncoder.encode(serviceId, "UTF-8")}&backUrl=${URLEncoder.encode(referrer, "UTF-8")}"
-
 }
