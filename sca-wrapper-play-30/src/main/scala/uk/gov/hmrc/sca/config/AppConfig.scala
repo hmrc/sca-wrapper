@@ -19,6 +19,8 @@ package uk.gov.hmrc.sca.config
 import play.api.{Configuration, Logging}
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.RequestHeader
+import uk.gov.hmrc.hmrcfrontend.config.ContactFrontendConfig
+import uk.gov.hmrc.hmrcfrontend.views.config.StandardPhaseBanner
 import uk.gov.hmrc.sca.controllers.routes
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 
@@ -28,9 +30,10 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class AppConfig @Inject() (
   configuration: Configuration,
-  messages: MessagesApi,
-  localContactFrontendConfig: LocalContactFrontendConfig
-) extends Logging {
+  messages: MessagesApi
+)(implicit contactFrontendConfig: ContactFrontendConfig)
+    extends Logging
+    with StandardPhaseBanner {
 
   //library manual update, MAJOR.MINOR.PATCH
   val versionNum: String = "1.0.3"
@@ -38,16 +41,11 @@ class AppConfig @Inject() (
   //config for service name in black bar
   val serviceNameKey: Option[String] = configuration.getOptional[String]("sca-wrapper.service-name.messages-key")
 
-  def feedbackUrl(implicit request: RequestHeader): String = localContactFrontendConfig.url.getOrElse {
-    val exception: RuntimeException =
-      new RuntimeException("empty contact-frontend url. Is contact-frontend.serviceId set?")
-    logger.error(exception.getMessage, exception)
-    ""
-  }
+  def alphaBannerFeedbackUrl(implicit request: RequestHeader): String = contactFrontendBetaFeedbackUrl()
 
   val timeoutHttpClientMillis: Int = configuration.get[Int]("sca-wrapper.timeoutHttpClientMillis")
 
-  val enc = URLEncoder.encode(_: String, "UTF-8")
+  val enc: String => String = URLEncoder.encode(_: String, "UTF-8")
 
   val exitSurveyOrigin: Option[String] = configuration.getOptional[String]("sca-wrapper.exit-survey-origin")
 
