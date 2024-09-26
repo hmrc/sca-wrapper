@@ -19,7 +19,7 @@ package views
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-import uk.gov.hmrc.sca.models.BannerConfig
+import uk.gov.hmrc.sca.models.{BannerConfig, BannerSettings, SmartAppBannerUrlConfigs}
 import uk.gov.hmrc.sca.views.html.ScaLayout
 import utils.ViewBaseSpec
 
@@ -38,6 +38,8 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
     showSignOutInHeader: Boolean = false,
     bannerConfig: BannerConfig =
       BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
+    smartAppBannerUrlConfigs: SmartAppBannerUrlConfigs =
+      SmartAppBannerUrlConfigs("/another-page", "campaign2", "iosArgs2"),
     fullWidth: Boolean = false,
     hideMenuBar: Boolean = false,
     disableSessionExpired: Boolean = false,
@@ -57,7 +59,7 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
       showSignOutInHeader,
       Seq(Html("<script src=/customscript.js></script>")),
       Seq(Html("<link href=/customStylesheet rel=stylesheet/>")),
-      bannerConfig,
+      BannerSettings(bannerConfig, Some(smartAppBannerUrlConfigs)),
       fullWidth,
       hideMenuBar,
       disableSessionExpired,

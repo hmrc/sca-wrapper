@@ -33,7 +33,7 @@ class AppConfig @Inject() (
 ) extends Logging {
 
   //library manual update, MAJOR.MINOR.PATCH
-  val versionNum: String = "1.0.3"
+  val versionNum: String = "1.0.4"
 
   //config for service name in black bar
   val serviceNameKey: Option[String] = configuration.getOptional[String]("sca-wrapper.service-name.messages-key")
@@ -47,7 +47,7 @@ class AppConfig @Inject() (
 
   val timeoutHttpClientMillis: Int = configuration.get[Int]("sca-wrapper.timeoutHttpClientMillis")
 
-  val enc = URLEncoder.encode(_: String, "UTF-8")
+  val enc: String => String = URLEncoder.encode(_: String, "UTF-8")
 
   val exitSurveyOrigin: Option[String] = configuration.getOptional[String]("sca-wrapper.exit-survey-origin")
 
@@ -135,6 +135,7 @@ class AppConfig @Inject() (
       menuName = messages("sca-wrapper.fallback.menu.name"),
       backName = messages("sca-wrapper.fallback.menu.back")
     ),
+    List.empty,
     List.empty
   )
 }

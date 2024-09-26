@@ -19,10 +19,10 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.Application
 import play.api.inject.bind
-import uk.gov.hmrc.http.test.HttpClientV2Support
 import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.test.HttpClientV2Support
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, SmartAppBannerUrlConfigs, UrBanner, WrapperDataResponse}
 import utils.BaseSpec
 
 class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientV2Support {
@@ -33,9 +33,11 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientV2Support {
     )
     .build()
 
-  val urlWrapperDataResponse    = "/single-customer-account-wrapper-data/wrapper-data?lang=en&version=1.0.3"
-  val urlMessageData            = "/single-customer-account-wrapper-data/message-data"
-  val defaultUrBanner: UrBanner = UrBanner("test-page", "test-link", isEnabled = true)
+  val urlWrapperDataResponse                          = "/single-customer-account-wrapper-data/wrapper-data?lang=en&version=1.0.3"
+  val urlMessageData                                  = "/single-customer-account-wrapper-data/message-data"
+  val defaultUrBanner: UrBanner                       = UrBanner("test-page", "test-link", isEnabled = true)
+  val defaultSmartAppBanner: SmartAppBannerUrlConfigs =
+    SmartAppBannerUrlConfigs("/another-page", "campaign2", "iosArgs2")
 
   private lazy val scaWrapperDataConnector: ScaWrapperDataConnector = app.injector.instanceOf[ScaWrapperDataConnector]
 
@@ -53,7 +55,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientV2Support {
       )
 
       val wrapperDataResponse: WrapperDataResponse =
-        WrapperDataResponse(Seq(menuItemConfig), ptaMenuConfig, List(defaultUrBanner))
+        WrapperDataResponse(Seq(menuItemConfig), ptaMenuConfig, List(defaultUrBanner), List(defaultSmartAppBanner))
       val wrapperDataJsonResponse                  =
         """
           |{
@@ -142,7 +144,8 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientV2Support {
       def fallbackWrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
         fallbackMenuConfig,
         PtaMinMenuConfig(menuName = "Account menu", backName = "Back"),
-        List(defaultUrBanner)
+        List(defaultUrBanner),
+        List(defaultSmartAppBanner)
       )
 
       server.stubFor(

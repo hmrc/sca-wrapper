@@ -20,7 +20,7 @@ import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
-import uk.gov.hmrc.sca.models.BannerConfig
+import uk.gov.hmrc.sca.models.{BannerConfig, SmartAppBannerUrlConfigs}
 import uk.gov.hmrc.sca.views.html.StandardScaLayout
 import utils.ViewBaseSpec
 import views.NewScaLayoutViewSpec.menu
@@ -43,6 +43,8 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
     ),
     bannerConfig: BannerConfig =
       BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
+    smartAppBannerUrlConfigs: SmartAppBannerUrlConfigs =
+      SmartAppBannerUrlConfigs("/another-page", "campaign2", "iosArgs2"),
     fullWidth: Boolean = false,
     hideMenuBar: Boolean = false,
     disableSessionExpired: Boolean = false,
@@ -66,7 +68,8 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       hideMenuBar,
       disableSessionExpired,
       optTrustedHelper,
-      Some("test-ur-banner-link")
+      Some("test-ur-banner-link"),
+      Some(smartAppBannerUrlConfigs)
     )(Html("Content-Block"))(fakeRequest, messages)
 
   "WrapperService layout" must {

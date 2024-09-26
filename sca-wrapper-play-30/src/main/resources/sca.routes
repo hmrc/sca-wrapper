@@ -1,2 +1,3 @@
 GET         /refresh-session                             uk.gov.hmrc.sca.controllers.KeepAliveController.keepAlive
+GET         /manifest.json                               uk.gov.hmrc.sca.controllers.Assets.at(path="/assets", file="manifest.json")
 GET         /assets/*file                                uk.gov.hmrc.sca.controllers.Assets.at(path="/assets", file)
