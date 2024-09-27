@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.sca.views.html._
 @import uk.gov.hmrc.sca.views.html.PtaAttorneyBanner
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
+@import uk.gov.hmrc.hmrcfrontend.config.ContactFrontendConfig
 
 @this(
         hmrcLayout: HmrcLayout,
@@ -39,7 +40,7 @@
         twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
         fullWidthMainContent: FullWidthMainContent,
         twoThirdsMainContent: TwoThirdsMainContent
-)
+)(implicit contactFrontendConfig: ContactFrontendConfig)
 
 @(menu: HtmlFormat.Appendable,
         serviceNameKey: Option[String],
@@ -137,10 +138,10 @@
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
     @{
         if(bannerConfig.showBetaBanner) {
-            govukPhaseBanner(betaBanner(appConfig.feedbackUrl))
+            govukPhaseBanner(betaBanner())
         } else {
             if(bannerConfig.showAlphaBanner) {
-                govukPhaseBanner(alphaBanner(appConfig.feedbackUrl))
+                govukPhaseBanner(alphaBanner(appConfig.alphaBannerFeedbackUrl))
             }
         }
     }
