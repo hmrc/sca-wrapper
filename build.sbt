@@ -141,7 +141,7 @@ lazy val play30 = Project(s"$libName-play-30", file(s"$libName-play-30"))
     scalacOptions ++= buildScalacOptions(scalaVersion.value),
     Test / Keys.fork := true,
     Test / parallelExecution := true,
-    Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
+    Test / scalacOptions --= Seq("-language:strictEquality", "-Wdead-code", "-Wvalue-discard")
   )
 
 lazy val play30Test = Project(s"$libName-test-play-30", file(s"$libName-test-play-30"))
