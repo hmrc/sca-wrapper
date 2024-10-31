@@ -44,7 +44,6 @@ def buildScalacOptions(scalaVersion: String): Seq[String] = {
   Seq(
     "-feature",
     "-unchecked",
-    //"-Werror", //FIXME this option is disabled because of "Flag -<flag_name> set repeatedly" error
     "-Wconf:src=routes/.*:s,src=twirl/.*:s",
     "-Wconf:cat=deprecation&msg=method apply in class HmrcLayout is deprecated:s",
     "-Wconf:cat=deprecation&msg=method layout in class WrapperService is deprecated:s",
@@ -61,7 +60,12 @@ def buildScalacOptions(scalaVersion: String): Seq[String] = {
           "-Werror",
         )
       case _ =>
-        Nil
+        Seq(
+          "-Ysafe-init",
+          "-Wunused:all",
+          "-language:noAutoTupling",
+          "-language:strictEquality",
+        )
     }
   }
 }
