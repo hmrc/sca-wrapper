@@ -137,9 +137,9 @@
     @hmrcReportTechnicalIssueHelper()
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
     @if(bannerConfig.showBetaBanner) {
-      govukPhaseBanner(betaBanner())
+      @govukPhaseBanner(betaBanner())
     } else if(bannerConfig.showAlphaBanner) {
-      govukPhaseBanner(alphaBanner(appConfig.alphaBannerFeedbackUrl))
+      @govukPhaseBanner(alphaBanner(appConfig.alphaBannerFeedbackUrl))
     }
 </div>
 }
