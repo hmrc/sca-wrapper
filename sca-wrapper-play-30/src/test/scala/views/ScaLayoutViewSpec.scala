@@ -67,7 +67,6 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
 
   "WrapperService layout" must {
     "return a Wrapper layout with default parameters in English" in {
-      println(createView().toString())
       val document = asDocument(createView().toString())
 
       document.title() mustBe "Page-Title"
