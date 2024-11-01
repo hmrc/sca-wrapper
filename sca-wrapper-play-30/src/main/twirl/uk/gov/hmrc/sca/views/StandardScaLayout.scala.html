@@ -23,6 +23,7 @@
 @import uk.gov.hmrc.sca.config.AppConfig
 @import uk.gov.hmrc.sca.models.BannerConfig
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
+@import uk.gov.hmrc.hmrcfrontend.config.ContactFrontendConfig
 
 @this(
         appConfig: AppConfig,
@@ -40,7 +41,7 @@
         twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
         fullWidthMainContent: FullWidthMainContent,
         twoThirdsMainContent: TwoThirdsMainContent
-)
+)(implicit contactFrontendConfig: ContactFrontendConfig)
 
 @(menu: HtmlFormat.Appendable,
         serviceURLs: ServiceURLs,
@@ -58,7 +59,8 @@
         fullWidth: Boolean,
         hideMenuBar: Boolean,
         disableSessionExpired: Boolean,
-        optTrustedHelper: Option[TrustedHelper])(contentBlock: Html)(implicit request: Request[_], messages: Messages)
+        optTrustedHelper: Option[TrustedHelper],
+        urBannerUrl: Option[String])(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
 
 @headBlock = {
 
@@ -133,14 +135,10 @@
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
     @hmrcReportTechnicalIssueHelper()
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
-    @{
-        if(bannerConfig.showBetaBanner) {
-            govukPhaseBanner(betaBanner(appConfig.feedbackUrl))
-        } else {
-            if(bannerConfig.showAlphaBanner) {
-                govukPhaseBanner(alphaBanner(appConfig.feedbackUrl))
-            }
-        }
+    @if(bannerConfig.showBetaBanner) {
+      @govukPhaseBanner(betaBanner())
+    } else if(bannerConfig.showAlphaBanner) {
+      @govukPhaseBanner(alphaBanner(appConfig.alphaBannerFeedbackUrl))
     }
 </div>
 }
@@ -154,7 +152,7 @@
         ),
         banners = Banners(
             displayHmrcBanner = false,
-            userResearchBanner = (if(bannerConfig.showHelpImproveBanner) {Some(appConfig.helpImproveBannerUrl.getOrElse("#"))} else {None}).map(url => UserResearchBanner(url = url)),
+            userResearchBanner = urBannerUrl.map{url => UserResearchBanner(url = url)},
         ),
         templateOverrides = TemplateOverrides(
             additionalHeadBlock = Some(headBlock),

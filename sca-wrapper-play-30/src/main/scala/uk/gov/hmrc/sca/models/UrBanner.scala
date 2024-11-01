@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package config
+package uk.gov.hmrc.sca.models
 
-import uk.gov.hmrc.sca.config.LocalContactFrontendConfig
-import utils.BaseSpec
+import play.api.libs.json.{Json, OFormat}
 
-class LocalContactFrontendConfigSpec extends BaseSpec {
-  val sut: LocalContactFrontendConfig = app.injector.instanceOf[LocalContactFrontendConfig]
+case class UrBanner(page: String, link: String, isEnabled: Boolean)
 
-  "LocalContactFrontendConfig.url" must {
-    "return correct url" in {
-      sut.url mustBe Some(
-        "http://localhost:9250/contact/beta-feedback?service=%2FService+Id&backUrl=http%3A%2F%2Flocalhost%3A8420"
-      )
-    }
-  }
+object UrBanner {
+  implicit val format: OFormat[UrBanner] = Json.format[UrBanner]
 }

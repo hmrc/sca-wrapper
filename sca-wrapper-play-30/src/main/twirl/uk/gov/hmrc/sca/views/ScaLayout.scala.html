@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.sca.views.html._
 @import uk.gov.hmrc.sca.views.html.PtaAttorneyBanner
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
+@import uk.gov.hmrc.hmrcfrontend.config.ContactFrontendConfig
 
 @this(
         hmrcLayout: HmrcLayout,
@@ -39,7 +40,7 @@
         twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
         fullWidthMainContent: FullWidthMainContent,
         twoThirdsMainContent: TwoThirdsMainContent
-)
+)(implicit contactFrontendConfig: ContactFrontendConfig)
 
 @(menu: HtmlFormat.Appendable,
         serviceNameKey: Option[String],
@@ -60,7 +61,7 @@
         disableSessionExpired: Boolean,
         optTrustedHelper: Option[TrustedHelper],
         accessibilityStatementUrl: Option[String]
-)(contentBlock: Html)(implicit request: Request[_], messages: Messages)
+)(contentBlock: Html)(implicit requestHeader: RequestHeader, messages: Messages)
 
 @headBlock = {
 
@@ -86,7 +87,7 @@
 }
 
 @beforeContent = {
-    @defining(request.uri) { _ =>
+    @defining(requestHeader.uri) { _ =>
         @if(!hideMenuBar) {
             @menu
         }
@@ -135,14 +136,10 @@
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
     @hmrcReportTechnicalIssueHelper()
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
-    @{
-        if(bannerConfig.showBetaBanner) {
-            govukPhaseBanner(betaBanner(appConfig.feedbackUrl))
-        } else {
-            if(bannerConfig.showAlphaBanner) {
-                govukPhaseBanner(alphaBanner(appConfig.feedbackUrl))
-            }
-        }
+    @if(bannerConfig.showBetaBanner) {
+      @govukPhaseBanner(betaBanner())
+    } else if(bannerConfig.showAlphaBanner) {
+      @govukPhaseBanner(alphaBanner(appConfig.alphaBannerFeedbackUrl))
     }
 </div>
 }

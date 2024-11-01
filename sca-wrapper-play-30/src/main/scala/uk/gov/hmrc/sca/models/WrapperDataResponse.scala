@@ -18,7 +18,11 @@ package uk.gov.hmrc.sca.models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class WrapperDataResponse(menuItemConfig: Seq[MenuItemConfig], ptaMinMenuConfig: PtaMinMenuConfig)
+case class WrapperDataResponse(
+  menuItemConfig: Seq[MenuItemConfig],
+  ptaMinMenuConfig: PtaMinMenuConfig,
+  urBanners: List[UrBanner]
+)
 object WrapperDataResponse {
   implicit val format: OFormat[WrapperDataResponse] = Json.format[WrapperDataResponse]
 }
