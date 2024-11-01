@@ -21,12 +21,10 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api
 import play.api.i18n.Messages
-import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
+import play.api.inject.guice.GuiceableModule
 import play.api.libs.typedmap.TypedMap
-import play.api.mvc.request.{Cell, RequestAttrKey}
 import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.baseApplicationBuilder.injector
 import play.api.test.Helpers.stubMessages
 import play.api.Application
 import play.twirl.api.{Html, HtmlFormat}
@@ -41,6 +39,9 @@ import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
 import utils.BaseSpec
 import api.inject.bind
+import play.api.mvc.request.{Cell, RequestAttrKey}
+
+import java.net.URLEncoder
 
 class WrapperServiceSpec extends BaseSpec {
 
@@ -71,12 +72,11 @@ class WrapperServiceSpec extends BaseSpec {
       bind[AppConfig].toInstance(mockAppConfig)
     )
 
-  val application: Application = new GuiceApplicationBuilder()
-    .configure(conf = "auditing.enabled" -> false, "metrics.enabled" -> false, "metrics.jvm" -> false)
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(modules: _*)
     .build()
 
-  private def wrapperService = application.injector.instanceOf[WrapperService]
+  private def wrapperService = app.injector.instanceOf[WrapperService]
 
   private val serviceUrls = ServiceURLs(
     serviceUrl = None,
@@ -400,7 +400,10 @@ class WrapperServiceSpec extends BaseSpec {
     }
 
     "return the exitSurveyOrigin if the continueUrl is None" in {
-      val appConfig: AppConfig = injector().instanceOf[AppConfig]
+      val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
+
+      when(mockAppConfig.exitSurveyOrigin).thenReturn(Some("origin"))
+      when(mockAppConfig.enc).thenReturn(URLEncoder.encode(_: String, "UTF-8"))
 
       val expectedUrl =
         appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
