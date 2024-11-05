@@ -40,7 +40,7 @@ class WrapperService @Inject() (
   appConfig: AppConfig
 ) extends Logging {
 
-  lazy val defaultBannerConfig: BannerConfig = BannerConfig(
+  private lazy val defaultBannerConfig: BannerConfig = BannerConfig(
     showAlphaBanner = appConfig.showAlphaBanner,
     showBetaBanner = appConfig.showBetaBanner,
     showHelpImproveBanner = appConfig.showHelpImproveBanner
@@ -57,7 +57,9 @@ class WrapperService @Inject() (
     serviceNameUrl: Option[String] = None,
     sidebarContent: Option[Html] = None,
     signoutUrl: Option[String] = None,
+    @deprecated("Please use appConfig for this setting rather than passing it as a parameter.", since = "3.0.0")
     timeOutUrl: Option[String] = appConfig.timeOutUrl,
+    @deprecated("Please use appConfig for this setting rather than passing it as a parameter.", since = "3.0.0")
     keepAliveUrl: String = appConfig.keepAliveUrl,
     showBackLinkJS: Boolean = false,
     backLinkUrl: Option[String] = None,
@@ -105,7 +107,9 @@ class WrapperService @Inject() (
     serviceURLs: ServiceURLs,
     serviceNameKey: Option[String] = appConfig.serviceNameKey,
     sidebarContent: Option[Html] = None,
+    @deprecated("Please use appConfig for this setting rather than passing it as a parameter.", since = "3.0.0")
     timeOutUrl: Option[String] = appConfig.timeOutUrl,
+    @deprecated("Please use appConfig for this setting rather than passing it as a parameter.", since = "3.0.0")
     keepAliveUrl: String = appConfig.keepAliveUrl,
     showBackLinkJS: Boolean = false,
     backLinkUrl: Option[String] = None,

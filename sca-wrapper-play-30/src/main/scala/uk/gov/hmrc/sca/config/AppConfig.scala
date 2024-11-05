@@ -77,6 +77,8 @@ class AppConfig @Inject() (
   val showBetaBanner: Boolean        = configuration.get[Boolean]("sca-wrapper.banners.show-beta")
   val showHelpImproveBanner: Boolean = configuration.get[Boolean]("sca-wrapper.banners.show-help-improve")
 
+  val synchroniseTabs: Boolean = configuration.get[Boolean]("sca-wrapper.synchronise-tabs")
+
   //fallback menu config in the event that wrapper data is offline
   private def fallbackMenuConfig(implicit lang: Lang): Seq[MenuItemConfig] = Seq(
     MenuItemConfig(

@@ -15,15 +15,13 @@
  *@
 
 @import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+@import uk.gov.hmrc.hmrcfrontend.config.ContactFrontendConfig
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
-@import uk.gov.hmrc.http.HeaderCarrier
+@import uk.gov.hmrc.sca.config.AppConfig
 @import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig}
 @import uk.gov.hmrc.sca.views.html._
-@import uk.gov.hmrc.sca.config.AppConfig
-@import uk.gov.hmrc.sca.models.BannerConfig
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
-@import uk.gov.hmrc.hmrcfrontend.config.ContactFrontendConfig
 
 @this(
         appConfig: AppConfig,
@@ -72,7 +70,8 @@
             countdown = Some(appConfig.countdown),
             keepAliveUrl = Some(keepAliveUrl),
             signOutUrl = serviceURLs.signOutUrl.getOrElse("#"),
-            timeoutUrl = timeOutUrl
+            timeoutUrl = timeOutUrl,
+            synchroniseTabs = Some(appConfig.synchroniseTabs)
 
         )
     }
