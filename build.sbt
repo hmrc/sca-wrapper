@@ -26,9 +26,9 @@ val scala3_3 = "3.3.4"
 // https://www.scala-sbt.org/1.x/docs/Parallel-Execution.html
 Global / concurrentRestrictions += Tags.limitSum(1, Tags.Test, Tags.Untagged)
 
-ThisBuild / scalaVersion       := scala2_13
-ThisBuild / majorVersion       := 2
-ThisBuild / isPublicArtefact   := true
+ThisBuild / scalaVersion := scala2_13
+ThisBuild / majorVersion := 2
+ThisBuild / isPublicArtefact := true
 ThisBuild / organization := "uk.gov.hmrc"
 ThisBuild / scalafmtOnCompile := true
 
@@ -47,7 +47,8 @@ def buildScalacOptions(scalaVersion: String): Seq[String] = {
     "-Wconf:src=routes/.*:s,src=twirl/.*:s",
     "-Wconf:cat=deprecation&msg=method apply in class HmrcLayout is deprecated:s",
     "-Wconf:cat=deprecation&msg=method layout in class WrapperService is deprecated:s",
-    "-Wconf:cat=deprecation&msg=method safeSignoutUrl in class WrapperService is deprecated:s"
+    "-Wconf:cat=deprecation&msg=method safeSignoutUrl in class WrapperService is deprecated:s",
+    "-Wconf:cat=deprecation&msg=Please use appConfig for this setting rather than passing it as a parameter:s"
   ) ++ {
     CrossVersion.partialVersion(scalaVersion) match {
       case Some((2, _)) =>
@@ -73,22 +74,22 @@ def buildScalacOptions(scalaVersion: String): Seq[String] = {
 def copyPlay30SourcesFor28(module: Project) =
   CopySources.copySources(
     module,
-    transformSource   = _.replace("org.apache.pekko", "akka")
+    transformSource = _.replace("org.apache.pekko", "akka")
       .replace("class Assets @Inject() (errorHandler: HttpErrorHandler, meta: AssetsMetadata, env: Environment)",
         "class Assets @Inject() (errorHandler: HttpErrorHandler, meta: AssetsMetadata)")
       .replace("extends AssetsBuilder(errorHandler, meta, env)",
         "extends AssetsBuilder(errorHandler, meta)")
       .replace("import play.api.Environment",
-      "")
-    .replace("src/main/resources/messages.en", "target/scala-2.13/resource_managed/main/messages.en")
-    .replace("src/main/resources/messages.cy", "target/scala-2.13/resource_managed/main/messages.cy"),
+        "")
+      .replace("src/main/resources/messages.en", "target/scala-2.13/resource_managed/main/messages.en")
+      .replace("src/main/resources/messages.cy", "target/scala-2.13/resource_managed/main/messages.cy"),
     transformResource = _.replace("pekko", "akka")
   )
 
 def copyPlay30Sources(module: Project) =
   CopySources.copySources(
     module,
-    transformSource   = _.replace("org.apache.pekko", "akka")
+    transformSource = _.replace("org.apache.pekko", "akka")
       .replace("src/main/resources/messages.en", "target/scala-2.13/resource_managed/main/messages.en")
       .replace("src/main/resources/messages.cy", "target/scala-2.13/resource_managed/main/messages.cy"),
     transformResource = _.replace("pekko", "akka")
@@ -121,7 +122,7 @@ lazy val play29Test = Project(s"$libName-test-play-29", file(s"$libName-test-pla
   .settings(
     crossScalaVersions := Seq(scala2_13),
     libraryDependencies ++= Seq(
-    "uk.gov.hmrc"         %% s"bootstrap-test-play-29"   % LibDependencies.bootstrapVersion)
+      "uk.gov.hmrc" %% s"bootstrap-test-play-29" % LibDependencies.bootstrapVersion)
   )
   .dependsOn(play29)
 
@@ -148,7 +149,7 @@ lazy val play30Test = Project(s"$libName-test-play-30", file(s"$libName-test-pla
   .settings(
     crossScalaVersions := Seq(scala3_3, scala2_13),
     libraryDependencies ++= Seq(
-    "uk.gov.hmrc"         %% s"bootstrap-test-play-30"   % LibDependencies.bootstrapVersion)
+      "uk.gov.hmrc" %% s"bootstrap-test-play-30" % LibDependencies.bootstrapVersion)
   )
   .dependsOn(play30)
 
