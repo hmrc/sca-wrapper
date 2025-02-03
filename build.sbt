@@ -19,8 +19,8 @@ import sbt.*
 
 val libName = "sca-wrapper"
 
-val scala2_13 = "2.13.15"
-val scala3_3 = "3.3.4"
+val scala2_13 = "2.13.16"
+val scala3_3 = "3.3.5"
 
 // Disable multiple project tests running at the same time, since notablescan flag is a global setting.
 // https://www.scala-sbt.org/1.x/docs/Parallel-Execution.html
