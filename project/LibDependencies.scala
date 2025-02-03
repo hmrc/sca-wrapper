@@ -1,7 +1,7 @@
 import sbt._
 
 object LibDependencies {
-  val bootstrapVersion = "9.5.0"
+  val bootstrapVersion = "9.7.0"
   private val playHmrcFrontendVersion = "11.2.0"
 
   val play29: Seq[ModuleID] = Seq(
