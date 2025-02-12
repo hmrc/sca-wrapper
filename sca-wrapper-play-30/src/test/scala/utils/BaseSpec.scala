@@ -27,7 +27,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.CSRFTokenHelper.CSRFRequest
 import play.api.test.{FakeRequest, Injecting}
-import uk.gov.hmrc.domain.{Nino, Generator => NinoGenerator}
+import uk.gov.hmrc.domain.{Generator => NinoGenerator, Nino}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.sca.config.AppConfig
 

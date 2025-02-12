@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import sbt.Keys.*
 import sbt.*
+import sbt.Keys.*
 
 val libName = "sca-wrapper"
 
@@ -45,7 +45,6 @@ def buildScalacOptions(scalaVersion: String): Seq[String] = {
     "-feature",
     "-unchecked",
     "-Wconf:src=routes/.*:s,src=twirl/.*:s",
-    "-Wconf:cat=deprecation&msg=method apply in class HmrcLayout is deprecated:s",
     "-Wconf:cat=deprecation&msg=method layout in class WrapperService is deprecated:s",
     "-Wconf:cat=deprecation&msg=method safeSignoutUrl in class WrapperService is deprecated:s",
     "-Wconf:cat=deprecation&msg=Please use appConfig for this setting rather than passing it as a parameter:s"
@@ -63,9 +62,11 @@ def buildScalacOptions(scalaVersion: String): Seq[String] = {
       case _ =>
         Seq(
           "-Ysafe-init",
-          "-Wunused:all",
           "-language:noAutoTupling",
           "-language:strictEquality",
+          "-Wconf:msg=Flag.*repeatedly:s",
+          "-Wvalue-discard",
+          "-Xfatal-warnings"
         )
     }
   }

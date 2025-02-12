@@ -17,7 +17,6 @@
 package filters
 
 import filters.WrapperDataFilterSpec.wrapperDataResponse
-import org.apache.pekko.stream.Materializer
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
@@ -70,9 +69,7 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
 
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/non-excluded-path")
 
-      implicit val materializer: Materializer = mock[Materializer]
-
-      val f: RequestHeader => Future[Result] = r => {
+      val f: RequestHeader => Future[Result] = r =>
         Future.successful(
           Ok(
             Json.obj(
@@ -81,7 +78,6 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
             )
           )
         )
-      }
 
       val result = wrapperDataFilter.apply(f)(request.withSession("authToken" -> "123abc"))
 
@@ -101,9 +97,7 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
 
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/non-excluded-path")
 
-      implicit val materializer: Materializer = mock[Materializer]
-
-      val f: RequestHeader => Future[Result] = r => {
+      val f: RequestHeader => Future[Result] = r =>
         Future.successful(
           Ok(
             Json.obj(
@@ -112,7 +106,6 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
             )
           )
         )
-      }
 
       val result = wrapperDataFilter.apply(f)(request)
 
@@ -131,10 +124,9 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
     wrapperDataFilter.excludedPaths.foreach { path =>
       s"return the request without calling the external api when request path contains $path" in {
 
-        implicit val materializer: Materializer                   = mock[Materializer]
         implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", path)
 
-        val f: RequestHeader => Future[Result] = r => {
+        val f: RequestHeader => Future[Result] = r =>
           Future.successful(
             Ok(
               Json.obj(
@@ -143,7 +135,6 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
               )
             )
           )
-        }
 
         val result = wrapperDataFilter.apply(f)(request)
 

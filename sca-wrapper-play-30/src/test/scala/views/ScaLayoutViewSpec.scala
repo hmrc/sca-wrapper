@@ -22,14 +22,13 @@ import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.sca.models.BannerConfig
 import uk.gov.hmrc.sca.views.html.ScaLayout
 import utils.ViewBaseSpec
+import views.ScaLayoutViewSpec._
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class ScaLayoutViewSpec extends ViewBaseSpec {
 
-  import ScaLayoutViewSpec._
-
-  private val scaLayout = inject[ScaLayout]
+  private lazy val scaLayout = inject[ScaLayout]
 
   private def createView(
     sidebarContent: Option[Html] = None,

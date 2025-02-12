@@ -1,11 +1,11 @@
 import sbt._
 
 object LibDependencies {
-  val bootstrapVersion = "9.7.0"
+  val bootstrapVersion = "9.8.0"
   private val playHmrcFrontendVersion = "11.11.0"
 
   val play29: Seq[ModuleID] = Seq(
-    "com.typesafe.play"           %% "play-json"                       % "2.10.5",
+    "com.typesafe.play"           %% "play-json"                       % "2.10.6",
     "uk.gov.hmrc"                 %% "domain-play-29"                  % "10.0.0",
     "uk.gov.hmrc"                 %% "play-frontend-hmrc-play-29"      % playHmrcFrontendVersion,
     "uk.gov.hmrc"                 %% "bootstrap-frontend-play-29"      % bootstrapVersion,
