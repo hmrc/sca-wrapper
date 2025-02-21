@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.sca.config.AppConfig
-import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMenuConfig, UrBanner, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMenuConfig, UrBanner, Webchat, WrapperDataResponse}
 import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
 
@@ -146,7 +146,8 @@ class WrapperService @Inject() (
       hideMenuBar = hideMenuBar,
       disableSessionExpired = disableSessionExpired,
       optTrustedHelper = optTrustedHelper,
-      urBannerUrl = if (urBannerEnabled(bannerConfig)) getUrBannerUrl else None
+      urBannerUrl = if (urBannerEnabled(bannerConfig)) getUrBannerUrl else None,
+      webchatEnabled = getWebchatEnabled
     )(content)
   }
 
@@ -242,5 +243,18 @@ class WrapperService @Inject() (
     getUrBannerDetailsForPage match {
       case Some(urBanner) => urBanner.isEnabled
       case None           => config.showHelpImproveBanner
+    }
+
+  private def getWebchatDetailsForPage(implicit requestHeader: RequestHeader): Option[Webchat] = {
+    val wrapperDataResponse = getWrapperDataResponse(requestHeader)
+    wrapperDataResponse.flatMap { response =>
+      response.webchatPages.find(_.page.equals(requestHeader.uri))
+    }
+  }
+
+  private def getWebchatEnabled(implicit requestHeader: RequestHeader): Boolean =
+    getWebchatDetailsForPage match {
+      case Some(webchat) => webchat.isEnabled
+      case None          => false
     }
 }

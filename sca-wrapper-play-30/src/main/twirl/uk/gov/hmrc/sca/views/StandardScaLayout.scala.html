@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig}
 @import uk.gov.hmrc.sca.views.html._
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
+@import uk.gov.hmrc.webchat.client.WebChatClient
 
 @this(
         appConfig: AppConfig,
@@ -38,7 +39,8 @@
         ptaAttorneyBanner: PtaAttorneyBanner,
         twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
         fullWidthMainContent: FullWidthMainContent,
-        twoThirdsMainContent: TwoThirdsMainContent
+        twoThirdsMainContent: TwoThirdsMainContent,
+        webChatClient: WebChatClient
 )(implicit contactFrontendConfig: ContactFrontendConfig)
 
 @(menu: HtmlFormat.Appendable,
@@ -58,7 +60,8 @@
         hideMenuBar: Boolean,
         disableSessionExpired: Boolean,
         optTrustedHelper: Option[TrustedHelper],
-        urBannerUrl: Option[String])(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
+        urBannerUrl: Option[String],
+        webchatEnabled: Boolean)(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
 
 @headBlock = {
 
@@ -82,6 +85,10 @@
 @additionalScripts = {
     @scripts
     @ptaScripts()
+    @if(webchatEnabled) {
+        @webChatClient.loadRequiredElements()(request.withBody(""))
+        @webChatClient.loadHMRCChatSkinElement("popup")(request.withBody(""))
+    }
 }
 
 @beforeContent = {
