@@ -110,7 +110,12 @@ lazy val play29 = Project(s"$libName-play-29", file(s"$libName-play-29"))
   .settings(
     TwirlKeys.templateImports := templateImports,
     crossScalaVersions := Seq(scala2_13),
-    libraryDependencies ++= LibDependencies.play29 ++ LibDependencies.play29Test,
+    libraryDependencies ++= LibDependencies.play29 ++ LibDependencies.play29Test++ {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, _)) => Seq("uk.gov.hmrc" %% "digital-engagement-platform-chat-30" % "1.6.0")
+        case _ => Seq.empty
+      }
+    },
     scalacOptions ++= buildScalacOptions(scalaVersion.value),
     copyPlay30Sources(play30),
     copyPlay30Routes(play30),
