@@ -29,6 +29,7 @@ import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMenuConfig, UrBanner, Webchat, WrapperDataResponse}
 import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
+import uk.gov.hmrc.webchat.client.WebChatClient
 
 import javax.inject.Inject
 import scala.util.{Failure, Success, Try}
@@ -37,6 +38,7 @@ class WrapperService @Inject() (
   ptaMenuBar: PtaMenuBar,
   scaLayout: ScaLayout,
   newScaLayout: StandardScaLayout,
+  webChatClient: WebChatClient,
   appConfig: AppConfig
 ) extends Logging {
 
@@ -139,15 +141,22 @@ class WrapperService @Inject() (
       showBackLinkJS = showBackLinkJS,
       backLinkUrl = backLinkUrl,
       showSignOutInHeader = showSignOutInHeader,
-      scripts = scripts,
+      scripts =
+        if (!getWebchatEnabled(requestHeader)) scripts
+        else {
+          scripts ++ {
+            val x = webChatClient.loadRequiredElements()(requestHeader.withBody("")).getOrElse(Html(""))
+            val y = webChatClient.loadHMRCChatSkinElement("popup")(requestHeader.withBody("")).getOrElse(Html(""))
+            Seq(x, y)
+          }
+        },
       styleSheets = styleSheets,
       bannerConfig = bannerConfig,
       fullWidth = fullWidth,
       hideMenuBar = hideMenuBar,
       disableSessionExpired = disableSessionExpired,
       optTrustedHelper = optTrustedHelper,
-      urBannerUrl = if (urBannerEnabled(bannerConfig)) getUrBannerUrl else None,
-      webchatEnabled = getWebchatEnabled
+      urBannerUrl = if (urBannerEnabled(bannerConfig)) getUrBannerUrl else None
     )(content)
   }
 
@@ -253,7 +262,7 @@ class WrapperService @Inject() (
   }
 
   private def getWebchatEnabled(implicit requestHeader: RequestHeader): Boolean =
-    getWebchatDetailsForPage match {
+    getWebchatDetailsForPage(requestHeader) match {
       case Some(webchat) => webchat.isEnabled
       case None          => false
     }
