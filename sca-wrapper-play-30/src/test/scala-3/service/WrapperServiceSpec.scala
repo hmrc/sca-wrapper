@@ -33,7 +33,7 @@ import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
-import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMinMenuConfig, UrBanner, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
 import uk.gov.hmrc.sca.services.WrapperService
 import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
@@ -409,7 +409,8 @@ class WrapperServiceSpec extends BaseSpec {
         appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
 
       val response =
-        new WrapperService(mockPtaMenuBar, mockScaLayout, mockStandardScaLayout, appConfig).safeSignoutUrl(None)
+        new WrapperService(mockPtaMenuBar, mockScaLayout, mockStandardScaLayout, appConfig)
+          .safeSignoutUrl(None)
 
       response mustBe expectedUrl
     }
@@ -457,12 +458,14 @@ object WrapperServiceSpec {
     "\n<!-- ACCOUNT MENU -->\n<nav id=\"secondary-nav\" class=\"hmrc-account-menu\" aria-label=\"Account\" data-module=\"hmrc-account-menu\">\n<!-- LEFT ALIGNED ITEMS -->\n            \n                \n<a href=\"pertaxUrl\"\n   class=\"hmrc-account-menu__link hmrc-account-menu__link--home\n   \" id=\"menu.left.0\">\n \n <span class=\"hmrc-account-icon hmrc-account-icon--home\">\n Account home\n </span>\n \n</a>\n\n            \n<!-- LEFT ALIGNED ITEMS -->\n    <a id=\"menu.name\" href=\"#\" class=\"hmrc-account-menu__link hmrc-account-menu__link--menu js-hidden js-visible\" tabindex=\"-1\" aria-hidden=\"true\" aria-expanded=\"false\">\n        Account menu\n    </a>\n    <ul class=\"hmrc-account-menu__main\">\n        <li class=\"hmrc-account-menu__link--back hidden\" aria-hidden=\"false\">\n            <a id=\"menu.back\" href=\"#\" tabindex=\"-1\" class=\"hmrc-account-menu__link\">\n            Back\n            </a>\n        </li>\n<!-- RIGHT ALIGNED ITEMS -->\n        \n                \n<li>\n <a href=\"pertaxUrl-messages\" class=\"hmrc-account-menu__link \" id=\"menu.right.0\">\n \n  <span class=\"\">\n   Messages\n   \n    <span class=\"hmrc-notification-badge\">2</span>\n\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"trackingUrl-track\" class=\"hmrc-account-menu__link \" id=\"menu.right.1\">\n \n  <span class=\"\">\n   Check progress\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"pertaxUrl-profile-and-settings\" class=\"hmrc-account-menu__link \" id=\"menu.right.2\">\n \n  <span class=\"\">\n   Profile and settings\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"Signout-Url\" class=\"hmrc-account-menu__link \" id=\"menu.right.3\">\n \n  <span class=\"\">\n   Sign out\n   \n  </span>\n \n </a>\n</li>\n\n            \n<!-- RIGHT ALIGNED ITEMS -->\n    </ul>\n</nav>\n"
   )
 
-  val defaultUrBanner: UrBanner = UrBanner("test-page", "test-link", isEnabled = true)
+  val defaultUrBanner: UrBanner   = UrBanner("test-page", "test-link", isEnabled = true)
+  val defaultWebchatPage: Webchat = Webchat(defaultUrBanner.page, isEnabled = true)
 
   private val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
     Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
     ptaMenuConfig,
-    List(defaultUrBanner)
+    List(defaultUrBanner),
+    List(defaultWebchatPage)
   )
 
   val menuCaptor                  = ArgumentCaptor.forClass(classOf[Html])

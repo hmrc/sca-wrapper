@@ -22,7 +22,7 @@ import play.api.inject.bind
 import uk.gov.hmrc.http.test.HttpClientV2Support
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
 import utils.BaseSpec
 
 class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientV2Support {
@@ -36,6 +36,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientV2Support {
   val urlWrapperDataResponse    = "/single-customer-account-wrapper-data/wrapper-data?lang=en&version=1.0.3"
   val urlMessageData            = "/single-customer-account-wrapper-data/message-data"
   val defaultUrBanner: UrBanner = UrBanner("test-page", "test-link", isEnabled = true)
+  val defaultWebchat: Webchat   = Webchat("test-page", isEnabled = true)
 
   private lazy val scaWrapperDataConnector: ScaWrapperDataConnector = app.injector.instanceOf[ScaWrapperDataConnector]
 
@@ -53,7 +54,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientV2Support {
       )
 
       val wrapperDataResponse: WrapperDataResponse =
-        WrapperDataResponse(Seq(menuItemConfig), ptaMenuConfig, List(defaultUrBanner))
+        WrapperDataResponse(Seq(menuItemConfig), ptaMenuConfig, List(defaultUrBanner), List(defaultWebchat))
       val wrapperDataJsonResponse                  =
         """
           |{
@@ -142,7 +143,8 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientV2Support {
       def fallbackWrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
         fallbackMenuConfig,
         PtaMinMenuConfig(menuName = "Account menu", backName = "Back"),
-        List(defaultUrBanner)
+        List(defaultUrBanner),
+        List.empty
       )
 
       server.stubFor(
