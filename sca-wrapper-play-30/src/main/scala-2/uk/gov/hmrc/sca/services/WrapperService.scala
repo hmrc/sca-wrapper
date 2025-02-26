@@ -144,11 +144,8 @@ class WrapperService @Inject() (
       scripts =
         if (!getWebchatEnabled(requestHeader)) scripts
         else {
-          scripts ++ {
-            val x = webChatClient.loadRequiredElements()(requestHeader.withBody("")).getOrElse(Html(""))
-            val y = webChatClient.loadHMRCChatSkinElement("popup")(requestHeader.withBody("")).getOrElse(Html(""))
-            Seq(x, y)
-          }
+          scripts ++ webChatClient.loadRequiredElements()(requestHeader.withBody("")) ++ webChatClient
+            .loadHMRCChatSkinElement("popup")(requestHeader.withBody(""))
         },
       styleSheets = styleSheets,
       bannerConfig = bannerConfig,
