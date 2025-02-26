@@ -193,8 +193,7 @@ class WrapperServiceSpec extends BaseSpec {
         hideMenuBar = hideMenuBarCaptor.capture(),
         disableSessionExpired = disableSessionExpiredCaptor.capture(),
         optTrustedHelper = optTrustedHelperCaptor.capture(),
-        urBannerUrl = urBannerUrlCaptor.capture(),
-        webchatEnabled = webchatEnabledCaptor.capture()
+        urBannerUrl = urBannerUrlCaptor.capture()
       )(contentCaptor.capture())(any(), any())
 
       verify(mockAppConfig, times(1)).showAlphaBanner
@@ -226,7 +225,6 @@ class WrapperServiceSpec extends BaseSpec {
       hideMenuBarCaptor.getValue mustBe false
       disableSessionExpiredCaptor.getValue mustBe false
       urBannerUrlCaptor.getValue mustBe Some(defaultUrBanner.link)
-      webchatEnabledCaptor.getValue mustBe true
       contentCaptor.getValue mustBe Html("Default-Content")
     }
 
@@ -272,8 +270,7 @@ class WrapperServiceSpec extends BaseSpec {
         hideMenuBar = hideMenuBarCaptor.capture(),
         disableSessionExpired = disableSessionExpiredCaptor.capture(),
         optTrustedHelper = optTrustedHelperCaptor.capture(),
-        urBannerUrl = urBannerUrlCaptor.capture(),
-        webchatEnabled = webchatEnabledCaptor.capture()
+        urBannerUrl = urBannerUrlCaptor.capture()
       )(contentCaptor.capture())(any(), any())
 
       verify(mockAppConfig, times(1)).helpImproveBannerUrl
@@ -299,7 +296,6 @@ class WrapperServiceSpec extends BaseSpec {
       hideMenuBarCaptor.getValue mustBe false
       disableSessionExpiredCaptor.getValue mustBe false
       urBannerUrlCaptor.getValue mustBe Some("config link")
-      webchatEnabledCaptor.getValue mustBe false
       contentCaptor.getValue mustBe Html("Default-Content")
     }
 
@@ -413,7 +409,8 @@ class WrapperServiceSpec extends BaseSpec {
         appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
 
       val response =
-        new WrapperService(mockPtaMenuBar, mockScaLayout, mockStandardScaLayout, appConfig).safeSignoutUrl(None)
+        new WrapperService(mockPtaMenuBar, mockScaLayout, mockStandardScaLayout, appConfig)
+          .safeSignoutUrl(None)
 
       response mustBe expectedUrl
     }
@@ -492,5 +489,4 @@ object WrapperServiceSpec {
   val disableSessionExpiredCaptor = ArgumentCaptor.forClass(classOf[Boolean])
   val contentCaptor               = ArgumentCaptor.forClass(classOf[Html])
   val urBannerUrlCaptor           = ArgumentCaptor.forClass(classOf[Option[String]])
-  val webchatEnabledCaptor        = ArgumentCaptor.forClass(classOf[Boolean])
 }

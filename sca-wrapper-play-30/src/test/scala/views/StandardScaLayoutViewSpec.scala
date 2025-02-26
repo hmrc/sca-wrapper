@@ -66,8 +66,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       hideMenuBar,
       disableSessionExpired,
       optTrustedHelper,
-      Some("test-ur-banner-link"),
-      true
+      Some("test-ur-banner-link")
     )(Html("Content-Block"))(fakeRequest, messages)
 
   "WrapperService layout" must {
