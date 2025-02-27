@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.sca.config.AppConfig
-import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMenuConfig, UrBanner, WrapperDataResponse}
+import uk.gov.hmrc.sca.models._
 import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
 
@@ -203,27 +203,11 @@ class WrapperService @Inject() (
         menuItemConfig
     }
 
-  private def getWrapperDataResponse(requestHeader: RequestHeader): Option[WrapperDataResponse] = {
-    val result = requestHeader.attrs.get(Keys.wrapperDataKey)
-    if (result.isEmpty) {
-      logger.warn(
-        s"[SCA Wrapper Library][WrapperService][getWrapperDataResponse]{ Expecting Wrapper Data in " +
-          s"the request but none was there [${appConfig.serviceUrl}]"
-      )
-    }
-    result
-  }
+  private def getWrapperDataResponse(requestHeader: RequestHeader): Option[WrapperDataResponse] =
+    requestHeader.attrs.get(Keys.wrapperDataKey)
 
-  private def getMessageDataFromRequest(requestHeader: RequestHeader): Option[Int] = {
-    val result = requestHeader.attrs.get(Keys.messageDataKey)
-    if (result.isEmpty) {
-      logger.warn(
-        "[SCA Wrapper Library][WrapperService][getMessageDataFromRequest] Expecting Message Data in " +
-          "the request but none was there"
-      )
-    }
-    result.flatten
-  }
+  private def getMessageDataFromRequest(requestHeader: RequestHeader): Option[Int] =
+    requestHeader.attrs.get(Keys.messageDataKey).flatten
 
   private def getUrBannerDetailsForPage(implicit requestHeader: RequestHeader): Option[UrBanner] = {
     val wrapperDataResponse = getWrapperDataResponse(requestHeader)

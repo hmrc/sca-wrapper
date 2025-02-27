@@ -33,7 +33,7 @@ class WrapperDataFilter @Inject() (scaWrapperDataConnector: ScaWrapperDataConnec
 ) extends Filter
     with Logging {
 
-  val excludedPaths = Seq("/assets", "/ping/ping")
+  private val excludedPaths: Seq[String] = Seq("/assets", "/ping/ping")
 
   override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {
 

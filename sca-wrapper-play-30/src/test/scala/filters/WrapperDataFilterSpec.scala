@@ -121,7 +121,7 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
 
     }
 
-    wrapperDataFilter.excludedPaths.foreach { path =>
+    Seq("/assets", "/ping/ping").foreach { path =>
       s"return the request without calling the external api when request path contains $path" in {
 
         implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", path)
