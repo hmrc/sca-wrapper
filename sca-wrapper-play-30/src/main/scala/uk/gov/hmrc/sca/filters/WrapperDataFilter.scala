@@ -51,7 +51,8 @@ class WrapperDataFilter @Inject() (scaWrapperDataConnector: ScaWrapperDataConnec
       }
 
     val updatedRH = rh.addAttr(Keys.wrapperAuthenticationStatusKey, authenticationStatus)
-    if (authenticationStatus == Unauthenticated) {
+
+    if (authenticationStatus.toString == Unauthenticated.toString) {
       f(updatedRH)
     } else {
       for {
