@@ -22,6 +22,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.logging.Logging
+import uk.gov.hmrc.sca.models.{Authenticated, Unauthenticated}
 import uk.gov.hmrc.sca.utils.Keys
 
 import javax.inject.Inject
@@ -40,21 +41,29 @@ class WrapperDataFilter @Inject() (scaWrapperDataConnector: ScaWrapperDataConnec
     implicit val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(rh, rh.session)
     implicit val head: RequestHeader          = rh
 
-    if (rh.session.get("authToken").isEmpty || excludedPaths.exists(excludedPath => rh.path.contains(excludedPath))) {
-      if (rh.session.get("authToken").isEmpty) {
-        logger.info(s"[SCA Wrapper Data Filter][Auth Token Empty]")
+    val authenticationStatus =
+      (rh.session.get("authToken").isEmpty, excludedPaths.exists(rh.path.contains(_))) match {
+        case (_, true) => Unauthenticated
+        case (true, _) =>
+          logger.info(s"[SCA Wrapper Data Filter][Auth Token Empty]")
+          Unauthenticated
+        case _         => Authenticated
       }
-      f(rh)
+
+    val updatedRH = rh.addAttr(Keys.wrapperAuthenticationStatusKey, authenticationStatus)
+    if (authenticationStatus == Unauthenticated) {
+      f(updatedRH)
     } else {
       for {
         wrapperDataResponse <- scaWrapperDataConnector.wrapperData()
         messageDataResponse <- scaWrapperDataConnector.messageData()
-        result              <- f(
-                                 rh.addAttr(Keys.wrapperDataKey, wrapperDataResponse)
-                                   .addAttr(Keys.messageDataKey, messageDataResponse)
-                               )
+        result              <-
+          f(
+            updatedRH
+              .addAttr(Keys.wrapperDataKey, wrapperDataResponse)
+              .addAttr(Keys.messageDataKey, messageDataResponse)
+          )
       } yield result
     }
   }
-
 }

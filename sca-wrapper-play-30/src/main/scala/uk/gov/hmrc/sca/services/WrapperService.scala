@@ -165,6 +165,13 @@ class WrapperService @Inject() (
       getWrapperDataResponse(requestHeader).getOrElse(appConfig.fallbackWrapperDataResponse)
     val unreadMessageCount  = getMessageDataFromRequest(requestHeader)
 
+    if (requestHeader.attrs.get(Keys.wrapperAuthenticationStatusKey).isEmpty) {
+      logger.warn(
+        s"[SCA Wrapper Library][WrapperService][sortMenuItemConfig]{Expecting Wrapper Data in " +
+          s"the request but none was there due to missing/ misconfigured wrapper data filter}]"
+      )
+    }
+
     val menuItemConfigWithSignout            = setSignoutUrl(signoutUrl, wrapperDataResponse.menuItemConfig)
     val menuItemConfigWithUnreadMessageCount = setUnreadMessageCount(unreadMessageCount, menuItemConfigWithSignout)
 
