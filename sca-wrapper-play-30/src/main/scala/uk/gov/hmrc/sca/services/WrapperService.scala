@@ -79,7 +79,7 @@ class WrapperService @Inject() (
       case (None, true)     => false
     }
     scaLayout(
-      menu = ptaMenuBar(sortMenuItemConfig(signoutUrl)),
+      menu = if (hideMenuBar) None else Some(ptaMenuBar(sortMenuItemConfig(signoutUrl))),
       serviceNameKey = serviceNameKey,
       serviceNameUrl = serviceNameUrl,
       pageTitle = pageTitle,
@@ -94,7 +94,6 @@ class WrapperService @Inject() (
       styleSheets = styleSheets,
       bannerConfig = bannerConfig,
       fullWidth = fullWidth,
-      hideMenuBar = hideMenuBar,
       disableSessionExpired = disableSessionExpired,
       optTrustedHelper = optTrustedHelper,
       accessibilityStatementUrl = accessibilityStatementUrl
@@ -129,7 +128,7 @@ class WrapperService @Inject() (
     }
 
     newScaLayout(
-      menu = ptaMenuBar(sortMenuItemConfig(serviceURLs.signOutUrl)),
+      menu = if (hideMenuBar) None else Some(ptaMenuBar(sortMenuItemConfig(serviceURLs.signOutUrl))),
       serviceURLs = serviceURLs,
       serviceNameKey = serviceNameKey,
       pageTitle = pageTitle,
@@ -143,7 +142,6 @@ class WrapperService @Inject() (
       styleSheets = styleSheets,
       bannerConfig = bannerConfig,
       fullWidth = fullWidth,
-      hideMenuBar = hideMenuBar,
       disableSessionExpired = disableSessionExpired,
       optTrustedHelper = optTrustedHelper,
       urBannerUrl = if (urBannerEnabled(bannerConfig)) getUrBannerUrl else None
