@@ -22,11 +22,12 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.logging.Logging
-import uk.gov.hmrc.sca.models.{Authenticated, Unauthenticated}
+import uk.gov.hmrc.sca.models.{Authenticated, Unauthenticated, WrapperAuthenticationStatus, WrapperDataResponse}
 import uk.gov.hmrc.sca.utils.Keys
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.chaining.scalaUtilChainingOps
 
 class WrapperDataFilter @Inject() (scaWrapperDataConnector: ScaWrapperDataConnector)(implicit
   val executionContext: ExecutionContext,
@@ -36,35 +37,47 @@ class WrapperDataFilter @Inject() (scaWrapperDataConnector: ScaWrapperDataConnec
 
   private val excludedPaths: Seq[String] = Seq("/assets", "/ping/ping")
 
-  override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {
+  private def retrieveAuthenticationStatus(requestHeader: RequestHeader): WrapperAuthenticationStatus =
+    (requestHeader.session.get("authToken").isEmpty, excludedPaths.exists(requestHeader.path.contains(_))) match {
+      case (_, true) => Unauthenticated
+      case (true, _) =>
+        logger.info(s"[SCA Wrapper Data Filter][Auth Token Empty]")
+        Unauthenticated
+      case _         => Authenticated
+    }
 
-    implicit val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(rh, rh.session)
-    implicit val head: RequestHeader          = rh
-
-    val authenticationStatus =
-      (rh.session.get("authToken").isEmpty, excludedPaths.exists(rh.path.contains(_))) match {
-        case (_, true) => Unauthenticated
-        case (true, _) =>
-          logger.info(s"[SCA Wrapper Data Filter][Auth Token Empty]")
-          Unauthenticated
-        case _         => Authenticated
-      }
-
-    val updatedRH = rh.addAttr(Keys.wrapperAuthenticationStatusKey, authenticationStatus)
-
+  private def retrieveWrapperData(
+    authenticationStatus: WrapperAuthenticationStatus
+  )(implicit rh: RequestHeader, headerCarrier: HeaderCarrier): Future[(Option[WrapperDataResponse], Option[Int])] =
     if (authenticationStatus.toString == Unauthenticated.toString) {
-      f(updatedRH)
+      Future.successful(Tuple2(None, None))
     } else {
       for {
-        wrapperDataResponse <- scaWrapperDataConnector.wrapperData()
-        messageDataResponse <- scaWrapperDataConnector.messageData()
-        result              <-
-          f(
-            updatedRH
-              .addAttr(Keys.wrapperDataKey, wrapperDataResponse)
-              .addAttr(Keys.messageDataKey, messageDataResponse)
-          )
-      } yield result
+        optWrapperDataResponse <- scaWrapperDataConnector.wrapperData()
+        optMessageDataResponse <- scaWrapperDataConnector.messageData()
+      } yield (optWrapperDataResponse, optMessageDataResponse)
     }
+
+  private def updateRequestHeader(
+    requestHeader: RequestHeader,
+    authenticationStatus: WrapperAuthenticationStatus,
+    optWrapperDataResponse: Option[WrapperDataResponse],
+    optMessageDataResponse: Option[Int]
+  ): RequestHeader =
+    requestHeader
+      .addAttr(Keys.wrapperAuthenticationStatusKey, authenticationStatus)
+      .pipe[RequestHeader](rh => optWrapperDataResponse.fold(rh)(wdr => rh.addAttr(Keys.wrapperDataKey, wdr)))
+      .pipe[RequestHeader](rh => optMessageDataResponse.fold(rh)(mdr => rh.addAttr(Keys.messageDataKey, mdr)))
+
+  override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {
+    implicit val headerCarrier: HeaderCarrier         = HeaderCarrierConverter.fromRequestAndSession(rh, rh.session)
+    implicit val implicitRequestHeader: RequestHeader = rh
+
+    val authenticationStatus = retrieveAuthenticationStatus(rh)
+    for {
+      (optWrapperData, optMessageData) <- retrieveWrapperData(authenticationStatus)
+      updatedRequestHeader              = updateRequestHeader(rh, authenticationStatus, optWrapperData, optMessageData)
+      result                           <- f(updatedRequestHeader)
+    } yield result
   }
 }

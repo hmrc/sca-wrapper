@@ -52,7 +52,7 @@ class WrapperServiceSpec extends BaseSpec {
     .withAttrs(
       TypedMap(
         Keys.wrapperDataKey    -> wrapperDataResponse,
-        Keys.messageDataKey    -> Some(2),
+        Keys.messageDataKey    -> 2,
         RequestAttrKey.Cookies -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
       )
     )
@@ -159,7 +159,7 @@ class WrapperServiceSpec extends BaseSpec {
         .withAttrs(
           TypedMap(
             Keys.wrapperDataKey    -> wrapperDataResponse,
-            Keys.messageDataKey    -> Some(2),
+            Keys.messageDataKey    -> 2,
             RequestAttrKey.Cookies -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
           )
         )
@@ -229,7 +229,7 @@ class WrapperServiceSpec extends BaseSpec {
         .withAttrs(
           TypedMap(
             Keys.wrapperDataKey    -> wrapperDataResponse,
-            Keys.messageDataKey    -> Some(2),
+            Keys.messageDataKey    -> 2,
             RequestAttrKey.Cookies -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
           )
         )

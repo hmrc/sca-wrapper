@@ -166,9 +166,16 @@ class WrapperService @Inject() (
     val unreadMessageCount  = getMessageDataFromRequest(requestHeader)
 
     if (requestHeader.attrs.get(Keys.wrapperAuthenticationStatusKey).isEmpty) {
+      println("\n\n*** IN WRAPPER SERVICE: missing/ misconfigured wrapper data filter")
       logger.warn(
         s"[SCA Wrapper Library][WrapperService][sortMenuItemConfig]{Expecting Wrapper Data in " +
           s"the request but none was there due to missing/ misconfigured wrapper data filter}]"
+      )
+    } else {
+      println(
+        "\n\n*** IN WRAPPER SERVICE: found wrapper data filter = " + requestHeader.attrs.get(
+          Keys.wrapperAuthenticationStatusKey
+        )
       )
     }
 
@@ -212,7 +219,7 @@ class WrapperService @Inject() (
     requestHeader.attrs.get(Keys.wrapperDataKey)
 
   private def getMessageDataFromRequest(requestHeader: RequestHeader): Option[Int] =
-    requestHeader.attrs.get(Keys.messageDataKey).flatten
+    requestHeader.attrs.get(Keys.messageDataKey)
 
   private def getUrBannerDetailsForPage(implicit requestHeader: RequestHeader): Option[UrBanner] = {
     val wrapperDataResponse = getWrapperDataResponse(requestHeader)

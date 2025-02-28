@@ -22,5 +22,5 @@ import uk.gov.hmrc.sca.models.{WrapperAuthenticationStatus, WrapperDataResponse}
 object Keys {
   lazy val wrapperAuthenticationStatusKey: TypedKey[WrapperAuthenticationStatus] = TypedKey[WrapperAuthenticationStatus]
   lazy val wrapperDataKey: TypedKey[WrapperDataResponse]                         = TypedKey[WrapperDataResponse]
-  lazy val messageDataKey: TypedKey[Option[Int]]                                 = TypedKey[Option[Int]]
+  lazy val messageDataKey: TypedKey[Int]                                         = TypedKey[Int]
 }

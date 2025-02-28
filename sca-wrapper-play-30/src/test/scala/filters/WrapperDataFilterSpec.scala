@@ -57,7 +57,7 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
   override def beforeEach(): Unit = {
     reset(mockScaWrapperDataConnector)
     when(mockScaWrapperDataConnector.wrapperData()(any(), any(), any()))
-      .thenReturn(Future.successful(wrapperDataResponse))
+      .thenReturn(Future.successful(Some(wrapperDataResponse)))
     when(mockScaWrapperDataConnector.messageData()(any(), any())).thenReturn(Future.successful(Some(2)))
   }
 
