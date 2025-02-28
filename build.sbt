@@ -28,7 +28,6 @@ Global / concurrentRestrictions += Tags.limitSum(1, Tags.Test, Tags.Untagged)
 
 ThisBuild / scalaVersion := scala2_13
 ThisBuild / majorVersion := 2
-ThisBuild / version := "2.5.0"
 ThisBuild / isPublicArtefact := true
 ThisBuild / organization := "uk.gov.hmrc"
 ThisBuild / scalafmtOnCompile := true
