@@ -22,7 +22,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.logging.Logging
-import uk.gov.hmrc.sca.models.{Authenticated, Unauthenticated, WrapperAuthenticationStatus, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.WrapperDataResponse
 import uk.gov.hmrc.sca.utils.Keys
 
 import javax.inject.Inject
@@ -37,35 +37,35 @@ class WrapperDataFilter @Inject() (scaWrapperDataConnector: ScaWrapperDataConnec
 
   private val excludedPaths: Seq[String] = Seq("/assets", "/ping/ping")
 
-  private def retrieveAuthenticationStatus(requestHeader: RequestHeader): WrapperAuthenticationStatus =
+  private def checkIsAuthenticated(requestHeader: RequestHeader): Boolean =
     (requestHeader.session.get("authToken").isEmpty, excludedPaths.exists(requestHeader.path.contains(_))) match {
-      case (_, true) => Unauthenticated
+      case (_, true) => false
       case (true, _) =>
         logger.info(s"[SCA Wrapper Data Filter][Auth Token Empty]")
-        Unauthenticated
-      case _         => Authenticated
+        false
+      case _         => true
     }
 
   private def retrieveWrapperData(
-    authenticationStatus: WrapperAuthenticationStatus
+    isAuthenticated: Boolean
   )(implicit rh: RequestHeader, headerCarrier: HeaderCarrier): Future[(Option[WrapperDataResponse], Option[Int])] =
-    if (authenticationStatus.toString == Unauthenticated.toString) {
-      Future.successful(Tuple2(None, None))
-    } else {
+    if (isAuthenticated) {
       for {
         optWrapperDataResponse <- scaWrapperDataConnector.wrapperData()
         optMessageDataResponse <- scaWrapperDataConnector.messageData()
       } yield (optWrapperDataResponse, optMessageDataResponse)
+    } else {
+      Future.successful(Tuple2(None, None))
     }
 
   private def updateRequestHeader(
     requestHeader: RequestHeader,
-    authenticationStatus: WrapperAuthenticationStatus,
+    isAuthenticated: Boolean,
     optWrapperDataResponse: Option[WrapperDataResponse],
     optMessageDataResponse: Option[Int]
   ): RequestHeader =
     requestHeader
-      .addAttr(Keys.wrapperAuthenticationStatusKey, authenticationStatus)
+      .addAttr(Keys.wrapperIsAuthenticatedKey, isAuthenticated)
       .pipe[RequestHeader](rh => optWrapperDataResponse.fold(rh)(wdr => rh.addAttr(Keys.wrapperDataKey, wdr)))
       .pipe[RequestHeader](rh => optMessageDataResponse.fold(rh)(mdr => rh.addAttr(Keys.messageDataKey, mdr)))
 
@@ -73,10 +73,10 @@ class WrapperDataFilter @Inject() (scaWrapperDataConnector: ScaWrapperDataConnec
     implicit val headerCarrier: HeaderCarrier         = HeaderCarrierConverter.fromRequestAndSession(rh, rh.session)
     implicit val implicitRequestHeader: RequestHeader = rh
 
-    val authenticationStatus = retrieveAuthenticationStatus(rh)
+    val isAuthenticated = checkIsAuthenticated(rh)
     for {
-      (optWrapperData, optMessageData) <- retrieveWrapperData(authenticationStatus)
-      updatedRequestHeader              = updateRequestHeader(rh, authenticationStatus, optWrapperData, optMessageData)
+      (optWrapperData, optMessageData) <- retrieveWrapperData(isAuthenticated)
+      updatedRequestHeader              = updateRequestHeader(rh, isAuthenticated, optWrapperData, optMessageData)
       result                           <- f(updatedRequestHeader)
     } yield result
   }
