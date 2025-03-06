@@ -6,7 +6,7 @@ resolvers += Resolver.typesafeRepo("releases")
 
 addSbtPlugin("uk.gov.hmrc"   % "sbt-auto-build" % "3.24.0")
 addSbtPlugin("org.scoverage" % "sbt-scoverage"      % "2.3.0")
-addSbtPlugin("uk.gov.hmrc"   % "sbt-distributables" % "2.5.0")
+addSbtPlugin("uk.gov.hmrc"   % "sbt-distributables" % "2.6.0")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt"       % "2.5.4")
 
 sys.env.get("PLAY_VERSION") match {

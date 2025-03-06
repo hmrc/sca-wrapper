@@ -20,6 +20,7 @@ import play.api.libs.typedmap.TypedKey
 import uk.gov.hmrc.sca.models.WrapperDataResponse
 
 object Keys {
-  lazy val wrapperDataKey = TypedKey[WrapperDataResponse]
-  lazy val messageDataKey = TypedKey[Option[Int]]
+  lazy val wrapperIsAuthenticatedKey: TypedKey[Boolean]  = TypedKey[Boolean]
+  lazy val wrapperDataKey: TypedKey[WrapperDataResponse] = TypedKey[WrapperDataResponse]
+  lazy val messageDataKey: TypedKey[Int]                 = TypedKey[Int]
 }

@@ -19,15 +19,14 @@ package uk.gov.hmrc.sca.connectors
 import com.google.inject.Inject
 import play.api.Logging
 import play.api.http.Status.{NO_CONTENT, OK}
-import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models.WrapperDataResponse
-import scala.concurrent.duration.DurationInt
 
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 class ScaWrapperDataConnector @Inject() (http: HttpClientV2, appConfig: AppConfig) extends Logging {
@@ -36,7 +35,7 @@ class ScaWrapperDataConnector @Inject() (http: HttpClientV2, appConfig: AppConfi
     ec: ExecutionContext,
     hc: HeaderCarrier,
     request: RequestHeader
-  ): Future[WrapperDataResponse] = {
+  ): Future[Option[WrapperDataResponse]] = {
     val lang = request.cookies.get("PLAY_LANG").map(_.value).getOrElse("en")
     logger.info(
       s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperData] Requesting menu config from Wrapper Data- lang: $lang"
@@ -47,11 +46,12 @@ class ScaWrapperDataConnector @Inject() (http: HttpClientV2, appConfig: AppConfi
       )
       .transform(_.withRequestTimeout(appConfig.timeoutHttpClientMillis.millis))
       .execute[WrapperDataResponse]
+      .map(Some(_))
       .recover { case ex: Exception =>
         logger.error(
           s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperData] Exception while calling Wrapper Data: ${ex.getMessage}"
         )
-        appConfig.fallbackWrapperDataResponse(Lang(lang))
+        None
       }
   }
 

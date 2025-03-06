@@ -40,7 +40,7 @@
         twoThirdsMainContent: TwoThirdsMainContent
 )(implicit contactFrontendConfig: ContactFrontendConfig)
 
-@(menu: HtmlFormat.Appendable,
+@(menu: Option[HtmlFormat.Appendable],
         serviceNameKey: Option[String],
         serviceNameUrl: Option[String],
         pageTitle: Option[String],
@@ -55,7 +55,6 @@
         styleSheets: Seq[HtmlFormat.Appendable],
         bannerConfig: BannerConfig,
         fullWidth: Boolean,
-        hideMenuBar: Boolean,
         disableSessionExpired: Boolean,
         optTrustedHelper: Option[TrustedHelper],
         accessibilityStatementUrl: Option[String]
@@ -86,9 +85,7 @@
 
 @beforeContent = {
     @defining(requestHeader.uri) { _ =>
-        @if(!hideMenuBar) {
-            @menu
-        }
+        @menu
     }
 
     @defining(appConfig.welshToggle) { welshEnabled =>
