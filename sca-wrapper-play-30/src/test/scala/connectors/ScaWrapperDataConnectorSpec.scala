@@ -36,7 +36,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientV2Support {
   val urlWrapperDataResponse    = "/single-customer-account-wrapper-data/wrapper-data?lang=en&version=1.0.3"
   val urlMessageData            = "/single-customer-account-wrapper-data/message-data"
   val defaultUrBanner: UrBanner = UrBanner("test-page", "test-link", isEnabled = true)
-  val defaultWebchat: Webchat   = Webchat("test-page", isEnabled = true)
+  val defaultWebchat: Webchat   = Webchat("test-page", "popup", isEnabled = true)
 
   private lazy val scaWrapperDataConnector: ScaWrapperDataConnector = app.injector.instanceOf[ScaWrapperDataConnector]
 

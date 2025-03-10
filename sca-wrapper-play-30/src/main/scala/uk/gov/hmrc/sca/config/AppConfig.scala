@@ -59,7 +59,6 @@ class AppConfig @Inject() (
   val timeOutUrl: Option[String] = configuration.getOptional[String]("sca-wrapper.signin.url")
 
   // internal
-  val serviceUrl: String   = configuration.get[String]("sca-wrapper.service.url")
   val keepAliveUrl: String = routes.KeepAliveController.keepAlive.url
 
   // service urls

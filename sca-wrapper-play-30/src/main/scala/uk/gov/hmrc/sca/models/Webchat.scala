@@ -18,7 +18,7 @@ package uk.gov.hmrc.sca.models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class Webchat(page: String, isEnabled: Boolean)
+case class Webchat(pattern: String, skinElement: String, isEnabled: Boolean)
 
 object Webchat {
   implicit val format: OFormat[Webchat] = Json.format[Webchat]

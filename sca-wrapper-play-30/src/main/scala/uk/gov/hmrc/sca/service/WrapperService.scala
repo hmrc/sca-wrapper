@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.sca.services
+package uk.gov.hmrc.sca.service
 
 import play.api.Logging
 import play.api.i18n.{Lang, Messages}
@@ -26,10 +26,9 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.sca.config.AppConfig
-import uk.gov.hmrc.sca.models.{BannerConfig, MenuItemConfig, PtaMenuConfig, UrBanner, Webchat, WrapperDataResponse}
-import uk.gov.hmrc.sca.utils.Keys
+import uk.gov.hmrc.sca.models._
+import uk.gov.hmrc.sca.utils.{Keys, WebchatUtil}
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
-import uk.gov.hmrc.webchat.client.WebChatClient
 
 import javax.inject.Inject
 import scala.util.{Failure, Success, Try}
@@ -38,7 +37,7 @@ class WrapperService @Inject() (
   ptaMenuBar: PtaMenuBar,
   scaLayout: ScaLayout,
   newScaLayout: StandardScaLayout,
-  webChatClient: WebChatClient,
+  webchatUtil: WebchatUtil,
   appConfig: AppConfig
 ) extends Logging {
 
@@ -81,7 +80,7 @@ class WrapperService @Inject() (
       case (None, true)     => false
     }
     scaLayout(
-      menu = ptaMenuBar(sortMenuItemConfig(signoutUrl)),
+      menu = if (hideMenuBar) None else Some(ptaMenuBar(sortMenuItemConfig(signoutUrl))),
       serviceNameKey = serviceNameKey,
       serviceNameUrl = serviceNameUrl,
       pageTitle = pageTitle,
@@ -92,11 +91,10 @@ class WrapperService @Inject() (
       showBackLinkJS = showBackLinkJS,
       backLinkUrl = backLinkUrl,
       showSignOutInHeader = showSignOutInHeader,
-      scripts = scripts,
+      scripts = scripts ++ webchatUtil.getWebchatScripts,
       styleSheets = styleSheets,
       bannerConfig = bannerConfig,
       fullWidth = fullWidth,
-      hideMenuBar = hideMenuBar,
       disableSessionExpired = disableSessionExpired,
       optTrustedHelper = optTrustedHelper,
       accessibilityStatementUrl = accessibilityStatementUrl
@@ -131,7 +129,7 @@ class WrapperService @Inject() (
     }
 
     newScaLayout(
-      menu = ptaMenuBar(sortMenuItemConfig(serviceURLs.signOutUrl)),
+      menu = if (hideMenuBar) None else Some(ptaMenuBar(sortMenuItemConfig(serviceURLs.signOutUrl))),
       serviceURLs = serviceURLs,
       serviceNameKey = serviceNameKey,
       pageTitle = pageTitle,
@@ -141,16 +139,10 @@ class WrapperService @Inject() (
       showBackLinkJS = showBackLinkJS,
       backLinkUrl = backLinkUrl,
       showSignOutInHeader = showSignOutInHeader,
-      scripts =
-        if (!getWebchatEnabled(requestHeader)) scripts
-        else {
-          scripts ++ webChatClient.loadRequiredElements()(requestHeader.withBody("")) ++ webChatClient
-            .loadHMRCChatSkinElement("popup")(requestHeader.withBody(""))
-        },
+      scripts = scripts ++ webchatUtil.getWebchatScripts,
       styleSheets = styleSheets,
       bannerConfig = bannerConfig,
       fullWidth = fullWidth,
-      hideMenuBar = hideMenuBar,
       disableSessionExpired = disableSessionExpired,
       optTrustedHelper = optTrustedHelper,
       urBannerUrl = if (urBannerEnabled(bannerConfig)) getUrBannerUrl else None
@@ -173,6 +165,13 @@ class WrapperService @Inject() (
     val wrapperDataResponse =
       getWrapperDataResponse(requestHeader).getOrElse(appConfig.fallbackWrapperDataResponse)
     val unreadMessageCount  = getMessageDataFromRequest(requestHeader)
+
+    if (requestHeader.attrs.get(Keys.wrapperIsAuthenticatedKey).isEmpty) {
+      logger.warn(
+        s"[SCA Wrapper Library][WrapperService][sortMenuItemConfig]{Expecting Wrapper Data in " +
+          s"the request but none was there due to missing/ misconfigured wrapper data filter}]"
+      )
+    }
 
     val menuItemConfigWithSignout            = setSignoutUrl(signoutUrl, wrapperDataResponse.menuItemConfig)
     val menuItemConfigWithUnreadMessageCount = setUnreadMessageCount(unreadMessageCount, menuItemConfigWithSignout)
@@ -210,27 +209,11 @@ class WrapperService @Inject() (
         menuItemConfig
     }
 
-  private def getWrapperDataResponse(requestHeader: RequestHeader): Option[WrapperDataResponse] = {
-    val result = requestHeader.attrs.get(Keys.wrapperDataKey)
-    if (result.isEmpty) {
-      logger.warn(
-        s"[SCA Wrapper Library][WrapperService][getWrapperDataResponse]{ Expecting Wrapper Data in " +
-          s"the request but none was there [${appConfig.serviceUrl}]"
-      )
-    }
-    result
-  }
+  private def getWrapperDataResponse(requestHeader: RequestHeader): Option[WrapperDataResponse] =
+    requestHeader.attrs.get(Keys.wrapperDataKey)
 
-  private def getMessageDataFromRequest(requestHeader: RequestHeader): Option[Int] = {
-    val result = requestHeader.attrs.get(Keys.messageDataKey)
-    if (result.isEmpty) {
-      logger.warn(
-        "[SCA Wrapper Library][WrapperService][getMessageDataFromRequest] Expecting Message Data in " +
-          "the request but none was there"
-      )
-    }
-    result.flatten
-  }
+  private def getMessageDataFromRequest(requestHeader: RequestHeader): Option[Int] =
+    requestHeader.attrs.get(Keys.messageDataKey)
 
   private def getUrBannerDetailsForPage(implicit requestHeader: RequestHeader): Option[UrBanner] = {
     val wrapperDataResponse = getWrapperDataResponse(requestHeader)
@@ -251,16 +234,4 @@ class WrapperService @Inject() (
       case None           => config.showHelpImproveBanner
     }
 
-  private def getWebchatDetailsForPage(implicit requestHeader: RequestHeader): Option[Webchat] = {
-    val wrapperDataResponse = getWrapperDataResponse(requestHeader)
-    wrapperDataResponse.flatMap { response =>
-      response.webchatPages.find(_.page.equals(requestHeader.uri))
-    }
-  }
-
-  private def getWebchatEnabled(implicit requestHeader: RequestHeader): Boolean =
-    getWebchatDetailsForPage(requestHeader) match {
-      case Some(webchat) => webchat.isEnabled
-      case None          => false
-    }
 }

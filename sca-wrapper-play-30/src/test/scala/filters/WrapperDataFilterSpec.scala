@@ -57,7 +57,7 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
   override def beforeEach(): Unit = {
     reset(mockScaWrapperDataConnector)
     when(mockScaWrapperDataConnector.wrapperData()(any(), any(), any()))
-      .thenReturn(Future.successful(wrapperDataResponse))
+      .thenReturn(Future.successful(Some(wrapperDataResponse)))
     when(mockScaWrapperDataConnector.messageData()(any(), any())).thenReturn(Future.successful(Some(2)))
   }
 
@@ -121,7 +121,7 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
 
     }
 
-    wrapperDataFilter.excludedPaths.foreach { path =>
+    Seq("/assets", "/ping/ping").foreach { path =>
       s"return the request without calling the external api when request path contains $path" in {
 
         implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", path)
