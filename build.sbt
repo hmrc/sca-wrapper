@@ -72,21 +72,6 @@ def buildScalacOptions(scalaVersion: String): Seq[String] = {
   }
 }
 
-def copyPlay30SourcesFor28(module: Project) =
-  CopySources.copySources(
-    module,
-    transformSource = _.replace("org.apache.pekko", "akka")
-      .replace("class Assets @Inject() (errorHandler: HttpErrorHandler, meta: AssetsMetadata, env: Environment)",
-        "class Assets @Inject() (errorHandler: HttpErrorHandler, meta: AssetsMetadata)")
-      .replace("extends AssetsBuilder(errorHandler, meta, env)",
-        "extends AssetsBuilder(errorHandler, meta)")
-      .replace("import play.api.Environment",
-        "")
-      .replace("src/main/resources/messages.en", "target/scala-2.13/resource_managed/main/messages.en")
-      .replace("src/main/resources/messages.cy", "target/scala-2.13/resource_managed/main/messages.cy"),
-    transformResource = _.replace("pekko", "akka")
-  )
-
 def copyPlay30Sources(module: Project) =
   CopySources.copySources(
     module,

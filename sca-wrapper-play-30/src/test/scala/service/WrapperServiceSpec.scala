@@ -36,7 +36,8 @@ import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models._
 import uk.gov.hmrc.sca.service.WrapperService
-import uk.gov.hmrc.sca.utils.{Keys, WebchatUtil}
+import uk.gov.hmrc.sca.utils.Keys
+import uk.gov.hmrc.sca.utils2or3.WebchatUtil
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
 import utils.BaseSpec
 
