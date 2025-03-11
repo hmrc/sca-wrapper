@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.sca.service
+package uk.gov.hmrc.sca.services
 
 import play.api.Logging
 import play.api.i18n.{Lang, Messages}
