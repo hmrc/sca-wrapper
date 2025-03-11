@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.sca.utils
+package uk.gov.hmrc.sca.utils2or3
 
 import play.api.mvc.RequestHeader
 import play.twirl.api.{Html, HtmlFormat}
