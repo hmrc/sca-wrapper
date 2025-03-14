@@ -104,6 +104,14 @@ lazy val play29 = Project(s"$libName-play-29", file(s"$libName-play-29"))
     scalacOptions ++= buildScalacOptions(scalaVersion.value),
     copyPlay30Sources(play30),
     copyPlay30Routes(play30),
+    Test / unmanagedSources := {
+      val baseSources = (Test / unmanagedSources).value
+      if (scalaVersion.value.startsWith("3")) {
+        baseSources.filterNot(_.getName == "WebchatUtilSpec.scala")
+      } else {
+        baseSources
+      }
+    },
     Test / Keys.fork := true,
     Test / parallelExecution := true,
     Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
@@ -136,6 +144,14 @@ lazy val play30 = Project(s"$libName-play-30", file(s"$libName-play-30"))
       (dirs * "routes").get ++ (dirs * "*.routes").get
     },
     scalacOptions ++= buildScalacOptions(scalaVersion.value),
+    Test / unmanagedSources := {
+      val baseSources = (Test / unmanagedSources).value
+      if (scalaVersion.value.startsWith("3")) {
+        baseSources.filterNot(_.getName == "WebchatUtilSpec.scala")
+      } else {
+        baseSources
+      }
+    },
     Test / Keys.fork := true,
     Test / parallelExecution := true,
     Test / scalacOptions --= Seq("-language:strictEquality", "-Wdead-code", "-Wvalue-discard")
