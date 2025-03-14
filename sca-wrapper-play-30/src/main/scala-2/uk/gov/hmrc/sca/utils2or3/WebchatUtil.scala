@@ -28,7 +28,7 @@ class WebchatUtil @Inject() (webChatClient: WebChatClient) {
   def getWebchatScripts(implicit requestHeader: RequestHeader): Seq[HtmlFormat.Appendable] = {
     val wrapperDataResponse: Option[WrapperDataResponse] = requestHeader.attrs.get(Keys.wrapperDataKey)
     wrapperDataResponse.fold(Seq.empty[Html]) { response =>
-      response.webchatPages.find(webchat => requestHeader.uri.matches(webchat.pattern)).fold(Seq.empty[Html]) {
+      response.webchatPages.find(webchat => requestHeader.path.matches(webchat.pattern)).fold(Seq.empty[Html]) {
         webchatConfig =>
           if (webchatConfig.isEnabled) {
             Seq(
