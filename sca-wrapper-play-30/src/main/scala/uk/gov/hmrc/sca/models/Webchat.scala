@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,8 @@ package uk.gov.hmrc.sca.models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class WrapperDataResponse(
-  menuItemConfig: Seq[MenuItemConfig],
-  ptaMinMenuConfig: PtaMinMenuConfig,
-  urBanners: List[UrBanner],
-  webchatPages: List[Webchat]
-)
-object WrapperDataResponse {
-  implicit val format: OFormat[WrapperDataResponse] = Json.format[WrapperDataResponse]
+case class Webchat(pattern: String, skinElement: String, isEnabled: Boolean)
+
+object Webchat {
+  implicit val format: OFormat[Webchat] = Json.format[Webchat]
 }

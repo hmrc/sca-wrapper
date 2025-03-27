@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.sca.models
+package uk.gov.hmrc.sca.utils2or3
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.mvc.RequestHeader
+import play.twirl.api.{Html, HtmlFormat}
 
-case class WrapperDataResponse(
-  menuItemConfig: Seq[MenuItemConfig],
-  ptaMinMenuConfig: PtaMinMenuConfig,
-  urBanners: List[UrBanner],
-  webchatPages: List[Webchat]
-)
-object WrapperDataResponse {
-  implicit val format: OFormat[WrapperDataResponse] = Json.format[WrapperDataResponse]
+import javax.inject.Inject
+
+class WebchatUtil @Inject() () {
+  def getWebchatScripts(implicit requestHeader: RequestHeader): Seq[HtmlFormat.Appendable] = Seq.empty[Html]
 }

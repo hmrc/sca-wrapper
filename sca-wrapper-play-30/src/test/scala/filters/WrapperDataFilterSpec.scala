@@ -196,7 +196,8 @@ object WrapperDataFilterSpec {
   private val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
     Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
     ptaMenuConfig,
-    List(defaultUrBanner)
+    List(defaultUrBanner),
+    List.empty
   )
 
 }

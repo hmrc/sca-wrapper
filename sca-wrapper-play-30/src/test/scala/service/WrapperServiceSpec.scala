@@ -37,6 +37,7 @@ import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models._
 import uk.gov.hmrc.sca.services.WrapperService
 import uk.gov.hmrc.sca.utils.Keys
+import uk.gov.hmrc.sca.utils2or3.WebchatUtil
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
 import utils.BaseSpec
 
@@ -62,13 +63,15 @@ class WrapperServiceSpec extends BaseSpec {
   private val mockAppConfig               = mock[AppConfig]
   private val mockPtaMenuBar              = mock[PtaMenuBar]
   private val mockStandardScaLayout       = mock[StandardScaLayout]
+  private val mockWebchatUtil             = mock[WebchatUtil]
 
   val modules: Seq[GuiceableModule] =
     Seq(
       bind[ScaLayout].toInstance(mockScaLayout),
       bind[StandardScaLayout].toInstance(mockStandardScaLayout),
       bind[ScaWrapperDataConnector].toInstance(mockScaWrapperDataConnector),
-      bind[AppConfig].toInstance(mockAppConfig)
+      bind[AppConfig].toInstance(mockAppConfig),
+      bind[WebchatUtil].toInstance(mockWebchatUtil)
     )
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
@@ -88,6 +91,7 @@ class WrapperServiceSpec extends BaseSpec {
     reset(mockStandardScaLayout)
     reset(mockScaWrapperDataConnector)
     reset(mockAppConfig)
+    reset(mockWebchatUtil)
   }
 
   "WrapperService" must {
@@ -100,6 +104,7 @@ class WrapperServiceSpec extends BaseSpec {
       when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
       when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
       when(mockAppConfig.disableSessionExpired).thenReturn(false)
+      when(mockWebchatUtil.getWebchatScripts(any())).thenReturn(Seq.empty[Html])
 
       wrapperService.layout(signoutUrl = Some("Signout-Url"), content = Html("Default-Content"))
 
@@ -130,6 +135,7 @@ class WrapperServiceSpec extends BaseSpec {
       verify(mockAppConfig, times(1)).serviceNameKey
       verify(mockAppConfig, times(1)).keepAliveUrl
       verify(mockAppConfig, times(1)).disableSessionExpired
+      verify(mockWebchatUtil, times(1)).getWebchatScripts(any())
 
       menuCaptor.getValue mustBe menu
       serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
@@ -169,6 +175,7 @@ class WrapperServiceSpec extends BaseSpec {
       when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
       when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
       when(mockAppConfig.disableSessionExpired).thenReturn(false)
+      when(mockWebchatUtil.getWebchatScripts(any())).thenReturn(Seq.empty[Html])
 
       wrapperService.standardScaLayout(content = Html("Default-Content"), serviceURLs = serviceUrls)(messages, request)
 
@@ -199,6 +206,7 @@ class WrapperServiceSpec extends BaseSpec {
       verify(mockAppConfig, times(1)).keepAliveUrl
       verify(mockAppConfig, times(1)).disableSessionExpired
       verify(mockAppConfig, times(0)).helpImproveBannerUrl
+      verify(mockWebchatUtil, times(1)).getWebchatScripts(any())
 
       menuCaptor.getValue mustBe standardmenu
       serviceURLsCaptor.getValue mustBe serviceUrls
@@ -240,6 +248,7 @@ class WrapperServiceSpec extends BaseSpec {
       when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
       when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
       when(mockAppConfig.disableSessionExpired).thenReturn(false)
+      when(mockWebchatUtil.getWebchatScripts(any())).thenReturn(Seq.empty[Html])
 
       wrapperService.standardScaLayout(
         content = Html("Default-Content"),
@@ -268,6 +277,7 @@ class WrapperServiceSpec extends BaseSpec {
       )(contentCaptor.capture())(any(), any())
 
       verify(mockAppConfig, times(1)).helpImproveBannerUrl
+      verify(mockWebchatUtil, times(1)).getWebchatScripts(any())
 
       menuCaptor.getValue mustBe standardmenu
       serviceURLsCaptor.getValue mustBe serviceUrls
@@ -313,6 +323,8 @@ class WrapperServiceSpec extends BaseSpec {
       val fullWidth             = true
       val hideMenuBar           = true
       val disableSessionExpired = true
+
+      when(mockWebchatUtil.getWebchatScripts(any())).thenReturn(Seq.empty[Html])
 
       wrapperService.layout(
         content,
@@ -361,6 +373,7 @@ class WrapperServiceSpec extends BaseSpec {
       verify(mockAppConfig, never).serviceNameKey
       verify(mockAppConfig, never).keepAliveUrl
       verify(mockAppConfig, never).disableSessionExpired
+      verify(mockWebchatUtil, times(1)).getWebchatScripts(any())
 
       menuCaptor.getValue mustBe None
       serviceNameKeyCaptor.getValue mustBe serviceNameKey
@@ -400,7 +413,8 @@ class WrapperServiceSpec extends BaseSpec {
         appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
 
       val response =
-        new WrapperService(mockPtaMenuBar, mockScaLayout, mockStandardScaLayout, appConfig).safeSignoutUrl(None)
+        new WrapperService(mockPtaMenuBar, mockScaLayout, mockStandardScaLayout, mockWebchatUtil, appConfig)
+          .safeSignoutUrl(None)
 
       response mustBe expectedUrl
     }
@@ -453,11 +467,13 @@ object WrapperServiceSpec {
   )
 
   val defaultUrBanner: UrBanner = UrBanner("test-page", "test-link", isEnabled = true)
+  val defaultWebchat: Webchat   = Webchat("test-page", "popup", isEnabled = true)
 
   private val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
     Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
     ptaMenuConfig,
-    List(defaultUrBanner)
+    List(defaultUrBanner),
+    List(defaultWebchat)
   )
 
   val menuCaptor: ArgumentCaptor[Option[Html]] = ArgumentCaptor.forClass(classOf[Option[Html]])
