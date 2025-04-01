@@ -62,14 +62,16 @@ class AppConfig @Inject() (
   val keepAliveUrl: String = routes.KeepAliveController.keepAlive.url
 
   // service urls
-  private val pertaxUrl: String            =
+  private val pertaxUrl: String                    =
     s"${configuration.get[String]("sca-wrapper.services.pertax-frontend.url")}/personal-account"
-  private val trackingUrl: String          = s"${configuration.get[String]("sca-wrapper.services.tracking-frontend.url")}"
-  val feedbackFrontendUrl: String          =
+  private val trackingUrl: String                  = s"${configuration.get[String]("sca-wrapper.services.tracking-frontend.url")}"
+  val feedbackFrontendUrl: String                  =
     s"${configuration.get[String]("sca-wrapper.services.feedback-frontend.url")}/feedback"
-  val scaWrapperDataUrl                    =
+  val scaWrapperDataUrl                            =
     s"${configuration.get[String]("sca-wrapper.services.single-customer-account-wrapper-data.url")}/single-customer-account-wrapper-data"
-  val helpImproveBannerUrl: Option[String] =
+  val trustedHelpersReturnToYourAccountUrl: String =
+    configuration.get[String]("sca-wrapper.services.trusted-helpers.return-to-your-account.url")
+  val helpImproveBannerUrl: Option[String]         =
     configuration.getOptional[String]("sca-wrapper.services.help-improve-banner.url")
 
   // banners
