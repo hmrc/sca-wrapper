@@ -135,6 +135,7 @@ class AppConfig @Inject() (
       menuName = messages("sca-wrapper.fallback.menu.name"),
       backName = messages("sca-wrapper.fallback.menu.back")
     ),
+    List.empty,
     List.empty
   )
 }

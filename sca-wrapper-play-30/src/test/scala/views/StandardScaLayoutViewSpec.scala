@@ -221,6 +221,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         .nonEmpty mustBe true
 
     }
+
   }
 }
 

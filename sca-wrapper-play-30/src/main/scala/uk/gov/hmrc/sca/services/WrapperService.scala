@@ -28,6 +28,7 @@ import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models._
 import uk.gov.hmrc.sca.utils.Keys
+import uk.gov.hmrc.sca.utils2or3.WebchatUtil
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
 
 import javax.inject.Inject
@@ -37,6 +38,7 @@ class WrapperService @Inject() (
   ptaMenuBar: PtaMenuBar,
   scaLayout: ScaLayout,
   newScaLayout: StandardScaLayout,
+  webchatUtil: WebchatUtil,
   appConfig: AppConfig
 ) extends Logging {
 
@@ -90,7 +92,7 @@ class WrapperService @Inject() (
       showBackLinkJS = showBackLinkJS,
       backLinkUrl = backLinkUrl,
       showSignOutInHeader = showSignOutInHeader,
-      scripts = scripts,
+      scripts = scripts ++ webchatUtil.getWebchatScripts,
       styleSheets = styleSheets,
       bannerConfig = bannerConfig,
       fullWidth = fullWidth,
@@ -138,7 +140,7 @@ class WrapperService @Inject() (
       showBackLinkJS = showBackLinkJS,
       backLinkUrl = backLinkUrl,
       showSignOutInHeader = showSignOutInHeader,
-      scripts = scripts,
+      scripts = scripts ++ webchatUtil.getWebchatScripts,
       styleSheets = styleSheets,
       bannerConfig = bannerConfig,
       fullWidth = fullWidth,
@@ -232,4 +234,5 @@ class WrapperService @Inject() (
       case Some(urBanner) => urBanner.isEnabled
       case None           => config.showHelpImproveBanner
     }
+
 }
