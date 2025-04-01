@@ -70,7 +70,7 @@ class AppConfig @Inject() (
   val scaWrapperDataUrl                            =
     s"${configuration.get[String]("sca-wrapper.services.single-customer-account-wrapper-data.url")}/single-customer-account-wrapper-data"
   val trustedHelpersReturnToYourAccountUrl: String =
-    configuration.get[String]("sca-wrapper.services.trusted-helpers.return-to-your-account.url")
+    s"${configuration.get[String]("sca-wrapper.services.fandf-frontend.url")}/trusted-helpers/redirect-to-trusted-helpers"
   val helpImproveBannerUrl: Option[String]         =
     configuration.getOptional[String]("sca-wrapper.services.help-improve-banner.url")
 
