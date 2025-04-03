@@ -120,7 +120,7 @@
 
 @attorneyBanner = @{
     optTrustedHelper.map { helper =>
-        ptaAttorneyBanner(AttorneyBanner(name = helper.principalName, classes = "govuk-!-margin-top-2", accountUrl = helper.returnLinkUrl))
+        ptaAttorneyBanner(AttorneyBanner(name = helper.principalName, classes = "govuk-!-margin-top-2", accountUrl = appConfig.trustedHelpersReturnToYourAccountUrl))
     }
 }
 
