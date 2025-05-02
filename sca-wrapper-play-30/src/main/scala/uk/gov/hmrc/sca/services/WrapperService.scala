@@ -167,10 +167,16 @@ class WrapperService @Inject() (
       getWrapperDataResponse(requestHeader).getOrElse(appConfig.fallbackWrapperDataResponse)
     val unreadMessageCount  = getMessageDataFromRequest(requestHeader)
 
-    if (requestHeader.attrs.get(Keys.wrapperIsAuthenticatedKey).isEmpty) {
-      logger.warn(
+    if (requestHeader.attrs.get(Keys.wrapperFilterHasRun).isEmpty) {
+      logger.error(
         s"[SCA Wrapper Library][WrapperService][sortMenuItemConfig]{Expecting Wrapper Data in " +
           s"the request but none was there due to missing/ misconfigured wrapper data filter}]"
+      )
+    }
+
+    if (requestHeader.attrs.get(Keys.wrapperIsAuthenticatedKey).isEmpty) {
+      logger.warn(
+        s"[SCA Wrapper Library][WrapperService][sortMenuItemConfig]{The user is not authenticated, the menu should not be used. The default menu was returned}"
       )
     }
 

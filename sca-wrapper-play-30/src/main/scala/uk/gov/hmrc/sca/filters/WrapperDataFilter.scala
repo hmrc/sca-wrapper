@@ -65,7 +65,8 @@ class WrapperDataFilter @Inject() (scaWrapperDataConnector: ScaWrapperDataConnec
     optMessageDataResponse: Option[Int]
   ): RequestHeader =
     requestHeader
-      .addAttr(Keys.wrapperIsAuthenticatedKey, isAuthenticated)
+      .addAttr(Keys.wrapperFilterHasRun, true)
+      .pipe[RequestHeader](rh => rh.addAttr(Keys.wrapperIsAuthenticatedKey, isAuthenticated))
       .pipe[RequestHeader](rh => optWrapperDataResponse.fold(rh)(wdr => rh.addAttr(Keys.wrapperDataKey, wdr)))
       .pipe[RequestHeader](rh => optMessageDataResponse.fold(rh)(mdr => rh.addAttr(Keys.messageDataKey, mdr)))
 
