@@ -21,6 +21,7 @@ import uk.gov.hmrc.sca.models.WrapperDataResponse
 
 object Keys {
   lazy val wrapperIsAuthenticatedKey: TypedKey[Boolean]  = TypedKey[Boolean]
+  lazy val wrapperFilterHasRun: TypedKey[Boolean]        = TypedKey[Boolean]
   lazy val wrapperDataKey: TypedKey[WrapperDataResponse] = TypedKey[WrapperDataResponse]
   lazy val messageDataKey: TypedKey[Int]                 = TypedKey[Int]
 }
