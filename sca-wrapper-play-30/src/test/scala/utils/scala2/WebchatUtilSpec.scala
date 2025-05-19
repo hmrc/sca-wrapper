@@ -25,8 +25,7 @@ import play.api.test.FakeRequest
 import play.twirl.api.Html
 import service.WrapperServiceSpec.{defaultUrBanner, menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5, ptaMenuConfig}
 import uk.gov.hmrc.sca.models.{Webchat, WrapperDataResponse}
-import uk.gov.hmrc.sca.utils.Keys
-import uk.gov.hmrc.sca.utils2or3.WebchatUtil
+import uk.gov.hmrc.sca.utils.{Keys, WebchatUtil}
 import uk.gov.hmrc.webchat.client.WebChatClient
 import utils.BaseSpec
 

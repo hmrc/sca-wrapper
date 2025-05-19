@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.sca.utils2or3
+package uk.gov.hmrc.sca.utils
 
 import play.api.mvc.RequestHeader
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.sca.models.WrapperDataResponse
-import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.webchat.client.WebChatClient
 
 import javax.inject.Inject
