@@ -27,8 +27,7 @@ import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models._
-import uk.gov.hmrc.sca.utils.Keys
-import uk.gov.hmrc.sca.utils2or3.WebchatUtil
+import uk.gov.hmrc.sca.utils.{Keys, WebchatUtil}
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
 
 import javax.inject.Inject
