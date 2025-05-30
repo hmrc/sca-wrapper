@@ -95,23 +95,10 @@ lazy val play29 = Project(s"$libName-play-29", file(s"$libName-play-29"))
   .settings(
     TwirlKeys.templateImports := templateImports,
     crossScalaVersions := Seq(scala2_13),
-    libraryDependencies ++= LibDependencies.play29 ++ LibDependencies.play29Test ++ {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, _)) => Seq("uk.gov.hmrc" %% "digital-engagement-platform-chat-29" % "1.6.0")
-        case _ => Seq.empty
-      }
-    },
+    libraryDependencies ++= LibDependencies.play29 ++ LibDependencies.play29Test,
     scalacOptions ++= buildScalacOptions(scalaVersion.value),
     copyPlay30Sources(play30),
     copyPlay30Routes(play30),
-    Test / unmanagedSources := {
-      val baseSources = (Test / unmanagedSources).value
-      if (scalaVersion.value.startsWith("3")) {
-        baseSources.filterNot(_.getName == "WebchatUtilSpec.scala")
-      } else {
-        baseSources
-      }
-    },
     Test / Keys.fork := true,
     Test / parallelExecution := true,
     Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
@@ -133,25 +120,12 @@ lazy val play30 = Project(s"$libName-play-30", file(s"$libName-play-30"))
   .settings(
     TwirlKeys.templateImports := templateImports,
     crossScalaVersions := Seq(scala3_3, scala2_13),
-    libraryDependencies ++= LibDependencies.play30 ++ LibDependencies.play30Test ++ {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, _)) => Seq("uk.gov.hmrc" %% "digital-engagement-platform-chat-30" % "1.6.0")
-        case _ => Seq.empty
-      }
-    },
+    libraryDependencies ++= LibDependencies.play30 ++ LibDependencies.play30Test,
     Compile / routes / sources ++= {
       val dirs = (Compile / unmanagedResourceDirectories).value
       (dirs * "routes").get ++ (dirs * "*.routes").get
     },
     scalacOptions ++= buildScalacOptions(scalaVersion.value),
-    Test / unmanagedSources := {
-      val baseSources = (Test / unmanagedSources).value
-      if (scalaVersion.value.startsWith("3")) {
-        baseSources.filterNot(_.getName == "WebchatUtilSpec.scala")
-      } else {
-        baseSources
-      }
-    },
     Test / Keys.fork := true,
     Test / parallelExecution := true,
     Test / scalacOptions --= Seq("-language:strictEquality", "-Wdead-code", "-Wvalue-discard")
