@@ -33,7 +33,6 @@ ThisBuild / organization := "uk.gov.hmrc"
 ThisBuild / scalafmtOnCompile := true
 
 lazy val projects: Seq[ProjectReference] = sys.env.get("PLAY_VERSION") match {
-  case Some("2.9") => Seq(play29, play29Test)
   case _ => Seq(play30, play30Test)
 }
 lazy val library = Project(libName, file("."))
@@ -71,47 +70,6 @@ def buildScalacOptions(scalaVersion: String): Seq[String] = {
     }
   }
 }
-
-def copyPlay30Sources(module: Project) =
-  CopySources.copySources(
-    module,
-    transformSource = _.replace("org.apache.pekko", "akka")
-      .replace("src/main/resources/messages.en", "target/scala-2.13/resource_managed/main/messages.en")
-      .replace("src/main/resources/messages.cy", "target/scala-2.13/resource_managed/main/messages.cy"),
-    transformResource = _.replace("pekko", "akka")
-  )
-
-def copyPlay30Routes(module: Project) = Seq(
-  Compile / routes / sources ++= {
-    val dirs = (module / Compile / unmanagedResourceDirectories).value
-    (dirs * "routes").get ++ (dirs * "*.routes").get
-  }
-)
-
-lazy val play29 = Project(s"$libName-play-29", file(s"$libName-play-29"))
-  .enablePlugins(PlayScala)
-  .disablePlugins(PlayLayoutPlugin)
-  .settings(CodeCoverageSettings.settings *)
-  .settings(
-    TwirlKeys.templateImports := templateImports,
-    crossScalaVersions := Seq(scala2_13),
-    libraryDependencies ++= LibDependencies.play29 ++ LibDependencies.play29Test,
-    scalacOptions ++= buildScalacOptions(scalaVersion.value),
-    copyPlay30Sources(play30),
-    copyPlay30Routes(play30),
-    Test / Keys.fork := true,
-    Test / parallelExecution := true,
-    Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
-  )
-
-lazy val play29Test = Project(s"$libName-test-play-29", file(s"$libName-test-play-29"))
-  .settings(
-    crossScalaVersions := Seq(scala2_13),
-    libraryDependencies ++= Seq(
-      "uk.gov.hmrc" %% s"bootstrap-test-play-29" % LibDependencies.bootstrapVersion)
-  )
-  .dependsOn(play29)
-
 
 lazy val play30 = Project(s"$libName-play-30", file(s"$libName-play-30"))
   .enablePlugins(PlayScala)

@@ -6,19 +6,6 @@ object LibDependencies {
   private val webchatVersion = "1.7.0"
 
 
-  val play29: Seq[ModuleID] = Seq(
-    "com.typesafe.play"           %% "play-json"                       % "2.10.6",
-    "uk.gov.hmrc"                 %% "domain-play-29"                  % "11.0.0",
-    "uk.gov.hmrc"                 %% "play-frontend-hmrc-play-29"      % playHmrcFrontendVersion,
-    "uk.gov.hmrc"                 %% "bootstrap-frontend-play-29"      % bootstrapVersion,
-    "uk.gov.hmrc"                 %% "play-partials-play-29"           % "10.0.0",
-    "uk.gov.hmrc" %% "digital-engagement-platform-chat-30" % webchatVersion
-  )
-
-  val play29Test: Seq[ModuleID] = Seq(
-    "uk.gov.hmrc"                   %% "bootstrap-test-play-29"        % bootstrapVersion % Test
-  )
-
   val play30: Seq[ModuleID] = Seq(
     "org.playframework"           %% "play-json"                        % "3.0.4",
     "uk.gov.hmrc"                 %% "play-frontend-hmrc-play-30"       % playHmrcFrontendVersion,
