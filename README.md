@@ -10,7 +10,7 @@ anything (e.g button position on the menu bar, href links, button names etc. can
 
 ## Using the library with your service
 
-- Import the SCA Library in your SBT Dependencies: "uk.gov.hmrc" %% "sca-wrapper-[play version]" % "[latest version]", where [play version] is one of `play28`, `play29` or `play30`
+- Import the SCA Library in your SBT Dependencies: "uk.gov.hmrc" %% "sca-wrapper-[play version]" % "[latest version]", where [play version] is one of `play30`
 - Check the `application.conf` file and override the default values
 - Inject `WrapperService` and call `standardScaLayout()`. The 'layout()' method is deprecated and hence it is recommended to use the 'standardScaLayout()'
 - Pass your HTML view into the method, and override any parameters as needed
@@ -24,11 +24,7 @@ anything (e.g button position on the menu bar, href links, button names etc. can
 - Edit the build.sbt file and add `-SNAPSHOT` to the end of the `version` field
 - Run `sbt publishLocal`, this will publish the library on your local machine
 
-`runTests.sh` and `publishLocal.sh` are provided to quickly test and publish versions of the library for Play 2.9 and 3.0.
-
-Play 3.0 is used by default. The version can be overridden by providing an environment variable, `PLAY_VERSION`:
-
-`env PLAY_VERSION=2.9 sbt clean test`
+`runTests.sh` and `publishLocal.sh` are provided to quickly test and publish versions of the library for Play 3.0.
 
 ## Working example
 
