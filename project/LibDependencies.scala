@@ -1,7 +1,7 @@
 import sbt._
 
 object LibDependencies {
-  val bootstrapVersion = "9.12.0"
+  val bootstrapVersion = "9.13.0"
   private val playHmrcFrontendVersion = "12.5.0"
   private val webchatVersion = "1.7.0"
 
