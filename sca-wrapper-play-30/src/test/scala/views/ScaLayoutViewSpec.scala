@@ -206,6 +206,11 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
         .html()
         .nonEmpty mustBe true
 
+      document
+        .getElementById("attorneyBanner")
+        .getElementsByAttribute("href")
+        .attr("href") mustBe "returnLinkUrl"
+
     }
   }
 }
