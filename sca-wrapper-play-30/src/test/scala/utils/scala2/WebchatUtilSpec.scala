@@ -18,27 +18,45 @@ package utils.scala2
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
+import play.api.Application
+import play.api.inject.bind
+import play.api.inject.guice.GuiceableModule
 import play.api.libs.typedmap.TypedMap
 import play.api.mvc.request.{Cell, RequestAttrKey}
 import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies}
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import service.WrapperServiceSpec.{defaultUrBanner, menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5, ptaMenuConfig}
+import service.WrapperServiceSpec._
+import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models.{Webchat, WrapperDataResponse}
 import uk.gov.hmrc.sca.utils.{Keys, WebchatUtil}
 import uk.gov.hmrc.webchat.client.WebChatClient
 import utils.BaseSpec
 
 class WebchatUtilSpec extends BaseSpec {
-
+  private val mockAppConfig            = mock[AppConfig]
   val mockWebChatClient: WebChatClient = mock[WebChatClient]
-  val sut                              = new WebchatUtil(mockWebChatClient)
+
+  val modules: Seq[GuiceableModule] =
+    Seq(
+      bind[AppConfig].toInstance(mockAppConfig),
+      bind[WebChatClient].toInstance(mockWebChatClient)
+    )
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .overrides(modules: _*)
+    .build()
+
+  val sut = new WebchatUtil(mockAppConfig, app.injector)
 
   override def beforeEach(): Unit = {
     reset(mockWebChatClient)
+    super.beforeEach()
     when(mockWebChatClient.loadRequiredElements()(any())).thenReturn(Some(Html("some1")))
     when(mockWebChatClient.loadHMRCChatSkinElement(any())(any())).thenReturn(Some(Html("some2")))
-    super.beforeEach()
+    when(mockAppConfig.webChatHashingKey).thenReturn(Some("value"))
+    when(mockAppConfig.webChatKey).thenReturn(Some("value"))
+
   }
 
   "WebchatUtil.getWebchatScripts" should {
@@ -62,6 +80,48 @@ class WebchatUtilSpec extends BaseSpec {
 
       val result = sut.getWebchatScripts(request)
       result mustBe Seq(Html("some1"), Html("some2"))
+    }
+
+    "throw runtime exception when config missing and enabled" in {
+      val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
+        Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
+        ptaMenuConfig,
+        List(defaultUrBanner),
+        List(Webchat("/test-page", "popup", isEnabled = true))
+      )
+
+      val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/test-page")
+        .withAttrs(
+          TypedMap(
+            Keys.wrapperDataKey    -> wrapperDataResponse,
+            Keys.messageDataKey    -> 2,
+            RequestAttrKey.Cookies -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
+          )
+        )
+      when(mockAppConfig.webChatHashingKey).thenReturn(None)
+      when(mockAppConfig.webChatKey).thenReturn(None)
+      a[RuntimeException] mustBe thrownBy(sut.getWebchatScripts(request))
+    }
+    "return empty list when config missing and disabled" in {
+      val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
+        Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
+        ptaMenuConfig,
+        List(defaultUrBanner),
+        List(Webchat("/test-page", "popup", isEnabled = false))
+      )
+
+      val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/test-page")
+        .withAttrs(
+          TypedMap(
+            Keys.wrapperDataKey    -> wrapperDataResponse,
+            Keys.messageDataKey    -> 2,
+            RequestAttrKey.Cookies -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
+          )
+        )
+      when(mockAppConfig.webChatHashingKey).thenReturn(None)
+      when(mockAppConfig.webChatKey).thenReturn(None)
+      val result                                       = sut.getWebchatScripts(request)
+      result mustBe Nil
     }
   }
 
