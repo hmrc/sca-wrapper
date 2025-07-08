@@ -73,6 +73,8 @@ class AppConfig @Inject() (
     s"${configuration.get[String]("sca-wrapper.services.fandf-frontend.url")}/trusted-helpers/redirect-to-trusted-helpers"
   val helpImproveBannerUrl: Option[String]         =
     configuration.getOptional[String]("sca-wrapper.services.help-improve-banner.url")
+  val webChatHashingKey: Option[String]            = configuration.getOptional[String]("request-body-encryption.hashing-key")
+  val webChatKey: Option[String]                   = configuration.getOptional[String]("request-body-encryption.key")
 
   // banners
   val showAlphaBanner: Boolean       = configuration.get[Boolean]("sca-wrapper.banners.show-alpha")
