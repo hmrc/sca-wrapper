@@ -20,7 +20,6 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import play.api.Application
 import play.api.inject.bind
-import play.api.inject.guice.GuiceableModule
 import play.api.libs.typedmap.TypedMap
 import play.api.mvc.request.{Cell, RequestAttrKey}
 import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies}
@@ -34,28 +33,25 @@ import uk.gov.hmrc.webchat.client.WebChatClient
 import utils.BaseSpec
 
 class WebchatUtilSpec extends BaseSpec {
-  private val mockAppConfig            = mock[AppConfig]
-  val mockWebChatClient: WebChatClient = mock[WebChatClient]
+  private val mockAppConfig                    = mock[AppConfig]
+  private val mockWebChatClient: WebChatClient = mock[WebChatClient]
 
-  val modules: Seq[GuiceableModule] =
-    Seq(
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .overrides(
       bind[AppConfig].toInstance(mockAppConfig),
       bind[WebChatClient].toInstance(mockWebChatClient)
     )
-
-  override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .overrides(modules: _*)
     .build()
 
-  val sut = new WebchatUtil(mockAppConfig, app.injector)
+  private val sut = new WebchatUtil(mockAppConfig, app.injector)
 
   override def beforeEach(): Unit = {
     reset(mockWebChatClient)
     super.beforeEach()
     when(mockWebChatClient.loadRequiredElements()(any())).thenReturn(Some(Html("some1")))
     when(mockWebChatClient.loadHMRCChatSkinElement(any())(any())).thenReturn(Some(Html("some2")))
-    when(mockAppConfig.webChatHashingKey).thenReturn(Some("value"))
-    when(mockAppConfig.webChatKey).thenReturn(Some("value"))
+    when(mockAppConfig.webChatHashingKey).thenReturn(Some("value1"))
+    when(mockAppConfig.webChatKey).thenReturn(Some("value2"))
 
   }
 
