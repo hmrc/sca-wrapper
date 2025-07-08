@@ -32,19 +32,17 @@ class WebchatUtil @Inject() (appConfig: AppConfig, injector: Injector) {
       response.webchatPages.find(webchat => requestHeader.path.matches(webchat.pattern)).fold(Seq.empty[Html]) {
         webchatConfig =>
           if (webchatConfig.isEnabled) {
-            (appConfig.webChatHashingKey, appConfig.webChatKey) match {
-              case (h, k) if h.isEmpty | k.isEmpty =>
-                throw new RuntimeException(
-                  "Missing webchat key(s). Keys request-body-encryption.hashing-key and request-body-encryption.key must be present in application.conf if Webchat is enabled."
-                )
-              case _                               => (): Unit
+            if (appConfig.webChatHashingKey.isEmpty || appConfig.webChatKey.isEmpty) {
+              throw new RuntimeException(
+                "Missing webchat key(s). Keys request-body-encryption.hashing-key and request-body-encryption.key must both be present in application.conf if Webchat is enabled."
+              )
+            } else {
+              val webChatClient: WebChatClient = injector.instanceOf[WebChatClient]
+              Seq(
+                webChatClient.loadRequiredElements()(requestHeader.withBody("")),
+                webChatClient.loadHMRCChatSkinElement(webchatConfig.skinElement)(requestHeader.withBody(""))
+              ).flatten
             }
-
-            val webChatClient: WebChatClient = injector.instanceOf[WebChatClient]
-            Seq(
-              webChatClient.loadRequiredElements()(requestHeader.withBody("")),
-              webChatClient.loadHMRCChatSkinElement(webchatConfig.skinElement)(requestHeader.withBody(""))
-            ).flatten
           } else Seq.empty[Html]
       }
     }
