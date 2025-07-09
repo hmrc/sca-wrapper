@@ -78,7 +78,7 @@ class WebchatUtilSpec extends BaseSpec {
       result mustBe Seq(Html("some1"), Html("some2"))
     }
 
-    "throw runtime exception when config missing and enabled" in {
+    "return no items when config missing and enabled" in {
       val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
         Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
         ptaMenuConfig,
@@ -96,7 +96,8 @@ class WebchatUtilSpec extends BaseSpec {
         )
       when(mockAppConfig.webChatHashingKey).thenReturn(None)
       when(mockAppConfig.webChatKey).thenReturn(None)
-      a[RuntimeException] mustBe thrownBy(sut.getWebchatScripts(request))
+      val result                                       = sut.getWebchatScripts(request)
+      result mustBe Nil
     }
     "return empty list when config missing and disabled" in {
       val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
