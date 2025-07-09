@@ -34,7 +34,7 @@ class WebchatUtil @Inject() (appConfig: AppConfig, injector: Injector) {
           if (webchatConfig.isEnabled) {
             if (appConfig.webChatHashingKey.isEmpty || appConfig.webChatKey.isEmpty) {
               throw new RuntimeException(
-                "Missing webchat key(s). Keys request-body-encryption.hashing-key and request-body-encryption.key must both be present in application.conf if Webchat is enabled."
+                "Webchat enabled but there is one or more missing webchat key(s). Keys request-body-encryption.hashing-key and request-body-encryption.key must both be present in application.conf."
               )
             } else {
               val webChatClient: WebChatClient = injector.instanceOf[WebChatClient]
