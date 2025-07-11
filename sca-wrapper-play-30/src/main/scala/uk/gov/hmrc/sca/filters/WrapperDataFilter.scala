@@ -29,7 +29,9 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.chaining.scalaUtilChainingOps
 
-class WrapperDataFilter @Inject() (scaWrapperDataConnector: ScaWrapperDataConnector)(implicit
+class WrapperDataFilter @Inject() (
+  scaWrapperDataConnector: ScaWrapperDataConnector
+)(implicit
   val executionContext: ExecutionContext,
   val mat: Materializer
 ) extends Filter
@@ -48,37 +50,37 @@ class WrapperDataFilter @Inject() (scaWrapperDataConnector: ScaWrapperDataConnec
 
   private def retrieveWrapperData(
     isAuthenticated: Boolean
-  )(implicit rh: RequestHeader, headerCarrier: HeaderCarrier): Future[(Option[WrapperDataResponse], Option[Int])] =
+  )(implicit rh: RequestHeader, headerCarrier: HeaderCarrier): Future[Option[WrapperDataResponse]] =
     if (isAuthenticated) {
-      for {
-        optWrapperDataResponse <- scaWrapperDataConnector.wrapperData()
-        optMessageDataResponse <- scaWrapperDataConnector.messageData()
-      } yield (optWrapperDataResponse, optMessageDataResponse)
+      scaWrapperDataConnector.wrapperDataWithMessages()
     } else {
-      Future.successful(Tuple2(None, None))
+      Future.successful(None)
     }
 
   private def updateRequestHeader(
     requestHeader: RequestHeader,
     isAuthenticated: Boolean,
-    optWrapperDataResponse: Option[WrapperDataResponse],
-    optMessageDataResponse: Option[Int]
-  ): RequestHeader =
+    optWrapperDataResponse: Option[WrapperDataResponse]
+  ): RequestHeader = {
+    val unreadMessageCount: Option[Int] = optWrapperDataResponse.flatMap(_.unreadMessageCount)
+
     requestHeader
       .addAttr(Keys.wrapperFilterHasRun, true)
-      .pipe[RequestHeader](rh => rh.addAttr(Keys.wrapperIsAuthenticatedKey, isAuthenticated))
-      .pipe[RequestHeader](rh => optWrapperDataResponse.fold(rh)(wdr => rh.addAttr(Keys.wrapperDataKey, wdr)))
-      .pipe[RequestHeader](rh => optMessageDataResponse.fold(rh)(mdr => rh.addAttr(Keys.messageDataKey, mdr)))
+      .pipe(_.addAttr(Keys.wrapperIsAuthenticatedKey, isAuthenticated))
+      .pipe(rh => optWrapperDataResponse.fold(rh)(wdr => rh.addAttr(Keys.wrapperDataKey, wdr)))
+      .pipe(rh => unreadMessageCount.fold(rh)(count => rh.addAttr(Keys.messageDataKey, count)))
+  }
 
   override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {
     implicit val headerCarrier: HeaderCarrier         = HeaderCarrierConverter.fromRequestAndSession(rh, rh.session)
     implicit val implicitRequestHeader: RequestHeader = rh
 
     val isAuthenticated = checkIsAuthenticated(rh)
+
     for {
-      (optWrapperData, optMessageData) <- retrieveWrapperData(isAuthenticated)
-      updatedRequestHeader              = updateRequestHeader(rh, isAuthenticated, optWrapperData, optMessageData)
-      result                           <- f(updatedRequestHeader)
+      optWrapperData      <- retrieveWrapperData(isAuthenticated)
+      updatedRequestHeader = updateRequestHeader(rh, isAuthenticated, optWrapperData)
+      result              <- f(updatedRequestHeader)
     } yield result
   }
 }
