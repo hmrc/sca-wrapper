@@ -16,6 +16,12 @@ anything (e.g button position on the menu bar, href links, button names etc. can
 - Pass your HTML view into the method, and override any parameters as needed
 - Provide the sca route in the app.routes class in order to load the JS and CSS provided by wrapper.
 
+## Enabling Webchat
+
+- Enable webchat for your microservice in the single-customer-account-wrapper microservice application.conf
+- Add to sca-wrapper application.conf mock values for the keys request-body-encryption.hashing-key and request-body-encryption.key
+- Add the above two keys to app-config-<env> as well - they should be random values added using the Jenkins encryption job
+
 ## Testing the library locally and making changes to it
 
 - Import the SCA Library in your SBT Dependencies: "uk.gov.hmrc" %% "sca-wrapper-[play version]" % "[latest version]-SNAPSHOT"
