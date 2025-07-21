@@ -49,7 +49,7 @@ class WebchatUtilSpec extends BaseSpec {
     reset(mockWebChatClient)
     super.beforeEach()
     when(mockWebChatClient.loadRequiredElements()(any())).thenReturn(Some(Html("some1")))
-    when(mockWebChatClient.loadHMRCChatSkinElement(any())(any())).thenReturn(Some(Html("some2")))
+    when(mockWebChatClient.loadHMRCChatSkinElement(any(), any())(any())).thenReturn(Some(Html("some2")))
     when(mockAppConfig.webChatHashingKey).thenReturn(Some("value1"))
     when(mockAppConfig.webChatKey).thenReturn(Some("value2"))
 
