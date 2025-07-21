@@ -84,7 +84,8 @@ class WebchatUtilSpec extends BaseSpec {
         Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
         ptaMenuConfig,
         List(defaultUrBanner),
-        List(Webchat("/test-page", "popup", isEnabled = true))
+        List(Webchat("/test-page", "popup", isEnabled = true)),
+        None
       )
 
       val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/test-page")
@@ -105,7 +106,8 @@ class WebchatUtilSpec extends BaseSpec {
         Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
         ptaMenuConfig,
         List(defaultUrBanner),
-        List(Webchat("/test-page", "popup", isEnabled = false))
+        List(Webchat("/test-page", "popup", isEnabled = false)),
+        None
       )
 
       val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/test-page")

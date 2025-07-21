@@ -69,8 +69,8 @@ class AppConfig @Inject() (
     s"${configuration.get[String]("sca-wrapper.services.single-customer-account-wrapper-data.url")}/single-customer-account-wrapper-data"
   val helpImproveBannerUrl: Option[String] =
     configuration.getOptional[String]("sca-wrapper.services.help-improve-banner.url")
-  val webChatHashingKey: Option[String]            = configuration.getOptional[String]("request-body-encryption.hashing-key")
-  val webChatKey: Option[String]                   = configuration.getOptional[String]("request-body-encryption.key")
+  val webChatHashingKey: Option[String]    = configuration.getOptional[String]("request-body-encryption.hashing-key")
+  val webChatKey: Option[String]           = configuration.getOptional[String]("request-body-encryption.key")
 
   // banners
   val showAlphaBanner: Boolean       = configuration.get[Boolean]("sca-wrapper.banners.show-alpha")
