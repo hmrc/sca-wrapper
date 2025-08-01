@@ -27,7 +27,7 @@ val scala3_3 = "3.3.5"
 Global / concurrentRestrictions += Tags.limitSum(1, Tags.Test, Tags.Untagged)
 
 ThisBuild / scalaVersion := scala2_13
-ThisBuild / majorVersion := 2
+ThisBuild / majorVersion := 3
 ThisBuild / isPublicArtefact := true
 ThisBuild / organization := "uk.gov.hmrc"
 ThisBuild / scalafmtOnCompile := true

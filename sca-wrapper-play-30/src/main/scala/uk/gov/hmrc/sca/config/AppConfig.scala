@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.sca.config
 
+import play.api.Configuration
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.RequestHeader
-import play.api.{Configuration, Logging}
 import uk.gov.hmrc.hmrcfrontend.config.ContactFrontendConfig
 import uk.gov.hmrc.hmrcfrontend.views.config.StandardPhaseBanner
 import uk.gov.hmrc.sca.controllers.routes
@@ -32,8 +32,7 @@ class AppConfig @Inject() (
   configuration: Configuration,
   messages: MessagesApi
 )(implicit contactFrontendConfig: ContactFrontendConfig)
-    extends Logging
-    with StandardPhaseBanner {
+    extends StandardPhaseBanner {
 
   // library manual update, MAJOR.MINOR.PATCH
   val versionNum: String = "1.0.3"
@@ -43,10 +42,8 @@ class AppConfig @Inject() (
 
   def alphaBannerFeedbackUrl(implicit request: RequestHeader): String = contactFrontendBetaFeedbackUrl()
 
-  val timeoutHttpClientMillis: Int = configuration.get[Int]("sca-wrapper.timeoutHttpClientMillis")
-
-  val enc: String => String = URLEncoder.encode(_: String, "UTF-8")
-
+  val timeoutHttpClientMillis: Int     = configuration.get[Int]("sca-wrapper.timeoutHttpClientMillis")
+  val enc: String => String            = URLEncoder.encode(_: String, "UTF-8")
   val exitSurveyOrigin: Option[String] = configuration.getOptional[String]("sca-wrapper.exit-survey-origin")
 
   // service config
@@ -64,15 +61,16 @@ class AppConfig @Inject() (
   // service urls
   private val pertaxUrl: String            =
     s"${configuration.get[String]("sca-wrapper.services.pertax-frontend.url")}/personal-account"
-  private val trackingUrl: String          = s"${configuration.get[String]("sca-wrapper.services.tracking-frontend.url")}"
+  private val trackingUrl: String          =
+    s"${configuration.get[String]("sca-wrapper.services.tracking-frontend.url")}"
   val feedbackFrontendUrl: String          =
     s"${configuration.get[String]("sca-wrapper.services.feedback-frontend.url")}/feedback"
-  val scaWrapperDataUrl                    =
+  val scaWrapperDataUrl: String            =
     s"${configuration.get[String]("sca-wrapper.services.single-customer-account-wrapper-data.url")}/single-customer-account-wrapper-data"
   val helpImproveBannerUrl: Option[String] =
     configuration.getOptional[String]("sca-wrapper.services.help-improve-banner.url")
-  val webChatHashingKey: Option[String]            = configuration.getOptional[String]("request-body-encryption.hashing-key")
-  val webChatKey: Option[String]                   = configuration.getOptional[String]("request-body-encryption.key")
+  val webChatHashingKey: Option[String]    = configuration.getOptional[String]("request-body-encryption.hashing-key")
+  val webChatKey: Option[String]           = configuration.getOptional[String]("request-body-encryption.key")
 
   // banners
   val showAlphaBanner: Boolean       = configuration.get[Boolean]("sca-wrapper.banners.show-alpha")
@@ -86,7 +84,7 @@ class AppConfig @Inject() (
     MenuItemConfig(
       "home",
       messages("sca-wrapper.fallback.menu.home"),
-      s"$pertaxUrl",
+      pertaxUrl,
       leftAligned = true,
       position = 0,
       Some("hmrc-account-icon hmrc-account-icon--home"),
@@ -138,6 +136,7 @@ class AppConfig @Inject() (
       backName = messages("sca-wrapper.fallback.menu.back")
     ),
     List.empty,
-    List.empty
+    List.empty,
+    None
   )
 }

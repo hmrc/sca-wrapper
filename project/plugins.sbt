@@ -8,4 +8,4 @@ addSbtPlugin("org.scoverage" % "sbt-scoverage"      % "2.3.1")
 addSbtPlugin("uk.gov.hmrc"   % "sbt-distributables" % "2.6.0")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt"       % "2.5.4")
 
-addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.7")
+addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.8")
