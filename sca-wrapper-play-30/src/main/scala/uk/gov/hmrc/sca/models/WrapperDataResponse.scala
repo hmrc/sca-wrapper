@@ -22,7 +22,8 @@ case class WrapperDataResponse(
   menuItemConfig: Seq[MenuItemConfig],
   ptaMinMenuConfig: PtaMinMenuConfig,
   urBanners: List[UrBanner],
-  webchatPages: List[Webchat]
+  webchatPages: List[Webchat],
+  unreadMessageCount: Option[Int]
 )
 object WrapperDataResponse {
   implicit val format: OFormat[WrapperDataResponse] = Json.format[WrapperDataResponse]
