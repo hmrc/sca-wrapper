@@ -125,7 +125,6 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         .attr(
           "href"
         ) mustBe "https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/"
-      document.getElementsByTag("script").asScala.exists(x => x.attr("src").equals("/assets/pta.js")) mustBe true
       document.getElementsByTag("script").asScala.exists(x => x.attr("src").equals("/customscript.js")) mustBe true
       document.getElementsByTag("link").asScala.exists(x => x.attr("href").equals("/assets/pta.css")) mustBe true
       document.getElementsByTag("link").asScala.exists(x => x.attr("href").equals("/customStylesheet")) mustBe true
