@@ -40,19 +40,3 @@
   border-left: 3px solid red;
   background-color: #ecc3c7;
 }
-
-.pta-attorney-banner--fixed {
-  top: 0;
-  width: calc(100% - 1.85rem);
-  position: fixed;
-  padding: 0.5em 0.75em;
-  max-width: 960px;
-}
-
-@media (min-width: 40.0625em) {
-  .pta-attorney-banner--fixed {
-    width: calc(100% - 3.7rem);
-    padding: 10px;
-    flex-direction: row;
-  }
-}
