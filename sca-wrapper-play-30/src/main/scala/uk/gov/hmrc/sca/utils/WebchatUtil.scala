@@ -21,12 +21,18 @@ import play.api.inject.Injector
 import play.api.mvc.RequestHeader
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.sca.config.AppConfig
-import uk.gov.hmrc.sca.models.WrapperDataResponse
+import uk.gov.hmrc.sca.models.{Webchat, WrapperDataResponse}
 import uk.gov.hmrc.webchat.client.WebChatClient
 
 import javax.inject.Inject
 
 class WebchatUtil @Inject() (appConfig: AppConfig, injector: Injector) extends Logging {
+
+  private def getChatType(webchat: Webchat, webChatClient: WebChatClient)(implicit requestHeader: RequestHeader) =
+    if (webchat.chatType.equals("loadWebChatContainer"))
+      webChatClient.loadWebChatContainer(webchat.skinElement)(requestHeader.withBody(""))
+    else webChatClient.loadHMRCChatSkinElement(webchat.skinElement)(requestHeader.withBody(""))
+
   def getWebchatScripts(implicit requestHeader: RequestHeader): Seq[HtmlFormat.Appendable] = {
     val wrapperDataResponse: Option[WrapperDataResponse] = requestHeader.attrs.get(Keys.wrapperDataKey)
     wrapperDataResponse.fold(Seq.empty[Html]) { response =>
@@ -44,7 +50,7 @@ class WebchatUtil @Inject() (appConfig: AppConfig, injector: Injector) extends L
               val webChatClient: WebChatClient = injector.instanceOf[WebChatClient]
               Seq(
                 webChatClient.loadRequiredElements()(requestHeader.withBody("")),
-                webChatClient.loadHMRCChatSkinElement(webchatConfig.skinElement)(requestHeader.withBody(""))
+                getChatType(webchatConfig, webChatClient)
               ).flatten
             }
           } else Seq.empty[Html]
