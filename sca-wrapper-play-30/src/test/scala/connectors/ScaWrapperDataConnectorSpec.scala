@@ -37,7 +37,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientV2Support {
   private lazy val scaWrapperDataConnector: ScaWrapperDataConnector = app.injector.instanceOf[ScaWrapperDataConnector]
 
   val defaultUrBanner: UrBanner = UrBanner("test-page", "test-link", isEnabled = true)
-  val defaultWebchat: Webchat   = Webchat("test-page", "popup", isEnabled = true)
+  val defaultWebchat: Webchat   = Webchat("test-page", "popup", isEnabled = true, chatType = "loadHMRCChatSkinElement")
 
   "ScaWrapperDataConnector" must {
 
@@ -89,7 +89,8 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientV2Support {
            |    {
            |      "page": "test-page",
            |      "skin": "popup",
-           |      "isEnabled": true
+           |      "isEnabled": true,
+           |      "chatType": "loadHMRCChatSkinElement"
            |    }
            |  ],
            |  "unreadMessageCount": 2
