@@ -58,7 +58,8 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with HttpClientV2Support {
         ptaMenuConfig,
         List(defaultUrBanner),
         List(defaultWebchat),
-        Some(2)
+        Some(2),
+        None
       )
 
       val jsonResponse =

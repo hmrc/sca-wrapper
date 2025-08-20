@@ -473,6 +473,7 @@ object WrapperServiceSpec {
     ptaMenuConfig,
     List(defaultUrBanner),
     List(defaultWebchat),
+    None,
     None
   )
 

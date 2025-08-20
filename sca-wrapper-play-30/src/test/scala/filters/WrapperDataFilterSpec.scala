@@ -31,6 +31,7 @@ import play.api.mvc.{AnyContentAsEmpty, RequestHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
 import play.api.{Application, inject}
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.filters.WrapperDataFilter
 import uk.gov.hmrc.sca.utils.Keys
@@ -137,6 +138,7 @@ object WrapperDataFilterSpec {
     ptaMinMenuConfig = PtaMinMenuConfig(menuName = "Account menu", backName = "Back"),
     urBanners = List(UrBanner("test-page", "test-link", isEnabled = true)),
     webchatPages = List.empty,
-    unreadMessageCount = Some(3)
+    unreadMessageCount = Some(3),
+    trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", Some("principalNino")))
   )
 }
