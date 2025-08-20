@@ -18,7 +18,6 @@ package uk.gov.hmrc.sca.filters
 
 import org.apache.pekko.stream.Materializer
 import play.api.mvc.{Filter, RequestHeader, Result}
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
@@ -63,15 +62,13 @@ class WrapperDataFilter @Inject() (
     isAuthenticated: Boolean,
     optWrapperDataResponse: Option[WrapperDataResponse]
   ): RequestHeader = {
-    val unreadMessageCount: Option[Int]      = optWrapperDataResponse.flatMap(_.unreadMessageCount)
-    val trustedHelper: Option[TrustedHelper] = optWrapperDataResponse.flatMap(_.trustedHelper)
+    val unreadMessageCount: Option[Int] = optWrapperDataResponse.flatMap(_.unreadMessageCount)
 
     requestHeader
       .addAttr(Keys.wrapperFilterHasRun, true)
       .pipe(_.addAttr(Keys.wrapperIsAuthenticatedKey, isAuthenticated))
       .pipe(rh => optWrapperDataResponse.fold(rh)(wdr => rh.addAttr(Keys.wrapperDataKey, wdr)))
       .pipe(rh => unreadMessageCount.fold(rh)(count => rh.addAttr(Keys.messageDataKey, count)))
-      .pipe(rh => trustedHelper.fold(rh)(th => rh.addAttr(Keys.trustedHelperKey, th)))
   }
 
   override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {

@@ -17,7 +17,6 @@
 package uk.gov.hmrc.sca.utils
 
 import play.api.libs.typedmap.TypedKey
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.sca.models.WrapperDataResponse
 
 object Keys {
@@ -25,5 +24,4 @@ object Keys {
   lazy val wrapperFilterHasRun: TypedKey[Boolean]        = TypedKey[Boolean]
   lazy val wrapperDataKey: TypedKey[WrapperDataResponse] = TypedKey[WrapperDataResponse]
   lazy val messageDataKey: TypedKey[Int]                 = TypedKey[Int]
-  lazy val trustedHelperKey: TypedKey[TrustedHelper]     = TypedKey[TrustedHelper]
 }
