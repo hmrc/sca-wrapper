@@ -16,15 +16,20 @@
 
 package uk.gov.hmrc.sca.models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Format, Json, OFormat}
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 
 case class WrapperDataResponse(
   menuItemConfig: Seq[MenuItemConfig],
   ptaMinMenuConfig: PtaMinMenuConfig,
   urBanners: List[UrBanner],
   webchatPages: List[Webchat],
-  unreadMessageCount: Option[Int]
+  unreadMessageCount: Option[Int],
+  trustedHelper: Option[TrustedHelper]
 )
 object WrapperDataResponse {
-  implicit val format: OFormat[WrapperDataResponse] = Json.format[WrapperDataResponse]
+  implicit val format: OFormat[WrapperDataResponse] = {
+    implicit val format: Format[TrustedHelper] = Json.format[TrustedHelper]
+    Json.format[WrapperDataResponse]
+  }
 }

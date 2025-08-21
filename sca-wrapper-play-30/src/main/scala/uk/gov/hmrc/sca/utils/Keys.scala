@@ -17,11 +17,20 @@
 package uk.gov.hmrc.sca.utils
 
 import play.api.libs.typedmap.TypedKey
+import play.api.mvc.RequestHeader
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.sca.models.WrapperDataResponse
+
+import scala.annotation.unused
 
 object Keys {
   lazy val wrapperIsAuthenticatedKey: TypedKey[Boolean]  = TypedKey[Boolean]
   lazy val wrapperFilterHasRun: TypedKey[Boolean]        = TypedKey[Boolean]
   lazy val wrapperDataKey: TypedKey[WrapperDataResponse] = TypedKey[WrapperDataResponse]
   lazy val messageDataKey: TypedKey[Int]                 = TypedKey[Int]
+
+  // Utility method to get trusted helper for the use of frontend services.
+  @unused
+  def getTrustedHelperFromRequest(rh: RequestHeader): Option[TrustedHelper] =
+    rh.attrs.get(Keys.wrapperDataKey).flatMap(_.trustedHelper)
 }
