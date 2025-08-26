@@ -48,15 +48,6 @@ class WrapperServiceSpec extends BaseSpec {
 
   private implicit val messages: Messages = stubMessages()
 
-  private implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-    .withAttrs(
-      TypedMap(
-        Keys.wrapperDataKey    -> wrapperDataResponse,
-        Keys.messageDataKey    -> 2,
-        RequestAttrKey.Cookies -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
-      )
-    )
-
   private val mockScaLayout               = mock[ScaLayout]
   private val mockScaWrapperDataConnector = mock[ScaWrapperDataConnector]
   private val mockAppConfig               = mock[AppConfig]
@@ -94,70 +85,6 @@ class WrapperServiceSpec extends BaseSpec {
   }
 
   "WrapperService" must {
-
-    "return default layout" in {
-
-      when(mockAppConfig.showAlphaBanner).thenReturn(true)
-      when(mockAppConfig.showBetaBanner).thenReturn(false)
-      when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
-      when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
-      when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
-      when(mockAppConfig.disableSessionExpired).thenReturn(false)
-      when(mockWebchatUtil.getWebchatScripts(any())).thenReturn(Seq.empty[Html])
-
-      wrapperService.layout(signoutUrl = Some("Signout-Url"), content = Html("Default-Content"))
-
-      verify(mockScaLayout, times(1)).apply(
-        menu = menuCaptor.capture(),
-        serviceNameKey = serviceNameKeyCaptor.capture(),
-        serviceNameUrl = serviceNameUrlCaptor.capture(),
-        pageTitle = pageTitleCaptor.capture(),
-        sidebarContent = sideBarContentCaptor.capture(),
-        signoutUrl = signoutUrlCaptor.capture(),
-        timeOutUrl = timeOutUrlCaptor.capture(),
-        keepAliveUrl = keepAliveUrlCaptor.capture(),
-        showBackLinkJS = showBackLinkJSCaptor.capture(),
-        backLinkUrl = backLinkUrlCaptor.capture(),
-        showSignOutInHeader = showSignOutInHeaderCaptor.capture(),
-        scripts = scriptsCaptor.capture(),
-        styleSheets = styleSheetsCaptor.capture(),
-        bannerConfig = bannerConfigCaptor.capture(),
-        fullWidth = fullWidthCaptor.capture(),
-        disableSessionExpired = disableSessionExpiredCaptor.capture(),
-        optTrustedHelper = optTrustedHelperCaptor.capture(),
-        accessibilityStatementUrl = any()
-      )(contentCaptor.capture())(any(), any())
-
-      verify(mockAppConfig, times(1)).showAlphaBanner
-      verify(mockAppConfig, times(1)).showBetaBanner
-      verify(mockAppConfig, times(1)).showHelpImproveBanner
-      verify(mockAppConfig, times(1)).serviceNameKey
-      verify(mockAppConfig, times(1)).keepAliveUrl
-      verify(mockAppConfig, times(1)).disableSessionExpired
-      verify(mockWebchatUtil, times(1)).getWebchatScripts(any())
-
-      menuCaptor.getValue mustBe menu
-      serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
-      serviceNameUrlCaptor.getValue mustBe None
-      pageTitleCaptor.getValue mustBe None
-      sideBarContentCaptor.getValue mustBe None
-      signoutUrlCaptor.getValue mustBe Some("Signout-Url")
-      keepAliveUrlCaptor.getValue mustBe "/refresh-session"
-      showBackLinkJSCaptor.getValue mustBe false
-      backLinkUrlCaptor.getValue mustBe None
-      showSignOutInHeaderCaptor.getValue mustBe false
-      scriptsCaptor.getValue mustBe Seq.empty
-      styleSheetsCaptor.getValue mustBe Seq.empty
-      bannerConfigCaptor.getValue mustBe BannerConfig(
-        showAlphaBanner = true,
-        showBetaBanner = false,
-        showHelpImproveBanner = true
-      )
-      optTrustedHelperCaptor.getValue mustBe None
-      fullWidthCaptor.getValue mustBe true
-      disableSessionExpiredCaptor.getValue mustBe false
-      contentCaptor.getValue mustBe Html("Default-Content")
-    }
 
     "return default New Sca layout with UR banner link from new data response" in {
       val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", defaultUrBanner.page)
@@ -301,99 +228,6 @@ class WrapperServiceSpec extends BaseSpec {
       contentCaptor.getValue mustBe Html("Default-Content")
     }
 
-    "return layout" in {
-
-      val content               = Html("Content")
-      val pageTitle             = Some("Page-Title")
-      val serviceNameKey        = Some("Service-Name-Key")
-      val serviceNameUrl        = Some("Service-Name-Url")
-      val sidebarContent        = Some(Html("Sidebar-Content"))
-      val signoutUrl            = Some("Signout-Url")
-      val timeOutUrl            = Some("Timeout-Url")
-      val keepAliveUrl          = "Keep-Alive-Url"
-      val showBackLinkJS        = true
-      val backLinkUrl           = Some("Backlink-Url")
-      val showSignOutInHeader   = true
-      val scripts               = Seq(Html("Scripts"))
-      val styleSheets           = Seq(Html("StyleSheets"))
-      val bannerConfig          = BannerConfig(showAlphaBanner = false, showBetaBanner = true, showHelpImproveBanner = false)
-      val optTrustedHelper      =
-        Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", Some("principalNino")))
-      val fullWidth             = true
-      val hideMenuBar           = true
-      val disableSessionExpired = true
-
-      when(mockWebchatUtil.getWebchatScripts(any())).thenReturn(Seq.empty[Html])
-
-      wrapperService.layout(
-        content,
-        pageTitle,
-        serviceNameKey,
-        serviceNameUrl,
-        sidebarContent,
-        signoutUrl,
-        timeOutUrl,
-        keepAliveUrl,
-        showBackLinkJS,
-        backLinkUrl,
-        scripts,
-        styleSheets,
-        bannerConfig,
-        optTrustedHelper,
-        fullWidth,
-        hideMenuBar,
-        disableSessionExpired
-      )
-
-      verify(mockScaLayout, times(1)).apply(
-        menu = menuCaptor.capture(),
-        serviceNameKey = serviceNameKeyCaptor.capture(),
-        serviceNameUrl = serviceNameUrlCaptor.capture(),
-        pageTitle = pageTitleCaptor.capture(),
-        sidebarContent = sideBarContentCaptor.capture(),
-        signoutUrl = signoutUrlCaptor.capture(),
-        timeOutUrl = timeOutUrlCaptor.capture(),
-        keepAliveUrl = keepAliveUrlCaptor.capture(),
-        showBackLinkJS = showBackLinkJSCaptor.capture(),
-        backLinkUrl = backLinkUrlCaptor.capture(),
-        showSignOutInHeader = showSignOutInHeaderCaptor.capture(),
-        scripts = scriptsCaptor.capture(),
-        styleSheets = styleSheetsCaptor.capture(),
-        bannerConfig = bannerConfigCaptor.capture(),
-        fullWidth = fullWidthCaptor.capture(),
-        disableSessionExpired = disableSessionExpiredCaptor.capture(),
-        optTrustedHelper = optTrustedHelperCaptor.capture(),
-        any()
-      )(contentCaptor.capture())(any(), any())
-
-      verify(mockAppConfig, never).showAlphaBanner
-      verify(mockAppConfig, never).showBetaBanner
-      verify(mockAppConfig, never).showHelpImproveBanner
-      verify(mockAppConfig, never).serviceNameKey
-      verify(mockAppConfig, never).keepAliveUrl
-      verify(mockAppConfig, never).disableSessionExpired
-      verify(mockWebchatUtil, times(1)).getWebchatScripts(any())
-
-      menuCaptor.getValue mustBe None
-      serviceNameKeyCaptor.getValue mustBe serviceNameKey
-      serviceNameUrlCaptor.getValue mustBe serviceNameUrl
-      pageTitleCaptor.getValue mustBe pageTitle
-      sideBarContentCaptor.getValue mustBe sidebarContent
-      signoutUrlCaptor.getValue mustBe signoutUrl
-      timeOutUrlCaptor.getValue mustBe timeOutUrl
-      keepAliveUrlCaptor.getValue mustBe keepAliveUrl
-      showBackLinkJSCaptor.getValue mustBe showBackLinkJS
-      backLinkUrlCaptor.getValue mustBe backLinkUrl
-      showSignOutInHeaderCaptor.getValue mustBe showSignOutInHeader
-      scriptsCaptor.getValue mustBe scripts
-      styleSheetsCaptor.getValue mustBe styleSheets
-      bannerConfigCaptor.getValue mustBe bannerConfig
-      optTrustedHelperCaptor.getValue mustBe optTrustedHelper
-      fullWidthCaptor.getValue mustBe fullWidth
-      disableSessionExpiredCaptor.getValue mustBe disableSessionExpired
-      contentCaptor.getValue mustBe content
-    }
-
     "return the continueUrl if it is a valid relative URL" in {
       val continueUrl = Some(RedirectUrl("/url"))
 
@@ -412,7 +246,7 @@ class WrapperServiceSpec extends BaseSpec {
         appConfig.exitSurveyOrigin.map(origin => appConfig.feedbackFrontendUrl + "/" + appConfig.enc(origin))
 
       val response =
-        new WrapperService(mockPtaMenuBar, mockScaLayout, mockStandardScaLayout, mockWebchatUtil, appConfig)
+        new WrapperService(mockPtaMenuBar, mockStandardScaLayout, mockWebchatUtil, appConfig)
           .safeSignoutUrl(None)
 
       response mustBe expectedUrl
