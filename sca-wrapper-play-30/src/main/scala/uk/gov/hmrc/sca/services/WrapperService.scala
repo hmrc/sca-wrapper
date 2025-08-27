@@ -22,20 +22,18 @@ import play.api.mvc.RequestHeader
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models._
 import uk.gov.hmrc.sca.utils.{Keys, WebchatUtil}
-import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
+import uk.gov.hmrc.sca.views.html.{PtaMenuBar, StandardScaLayout}
 
 import javax.inject.Inject
 import scala.util.{Failure, Success, Try}
 
 class WrapperService @Inject() (
   ptaMenuBar: PtaMenuBar,
-  scaLayout: ScaLayout,
   newScaLayout: StandardScaLayout,
   webchatUtil: WebchatUtil,
   appConfig: AppConfig
@@ -46,60 +44,6 @@ class WrapperService @Inject() (
     showBetaBanner = appConfig.showBetaBanner,
     showHelpImproveBanner = appConfig.showHelpImproveBanner
   )
-
-  @deprecated(
-    "Use standardScaLayout method instead - this is support the HMRCStandardPage template instead of deprecated HmrcLayout",
-    since = "1.0.48"
-  )
-  def layout(
-    content: HtmlFormat.Appendable,
-    pageTitle: Option[String] = None,
-    serviceNameKey: Option[String] = appConfig.serviceNameKey,
-    serviceNameUrl: Option[String] = None,
-    sidebarContent: Option[Html] = None,
-    signoutUrl: Option[String] = None,
-    @deprecated("Please use appConfig for this setting rather than passing it as a parameter.", since = "3.0.0")
-    timeOutUrl: Option[String] = appConfig.timeOutUrl,
-    @deprecated("Please use appConfig for this setting rather than passing it as a parameter.", since = "3.0.0")
-    keepAliveUrl: String = appConfig.keepAliveUrl,
-    showBackLinkJS: Boolean = false,
-    backLinkUrl: Option[String] = None,
-    scripts: Seq[HtmlFormat.Appendable] = Seq.empty,
-    styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
-    bannerConfig: BannerConfig = defaultBannerConfig,
-    optTrustedHelper: Option[TrustedHelper] = None,
-    fullWidth: Boolean = true,
-    hideMenuBar: Boolean = false,
-    disableSessionExpired: Boolean = appConfig.disableSessionExpired,
-    accessibilityStatementUrl: Option[String] = None
-  )(implicit messages: Messages, hc: HeaderCarrier, requestHeader: RequestHeader): HtmlFormat.Appendable = {
-    val showSignOutInHeader = (signoutUrl, hideMenuBar) match {
-      case (Some(_), false) => false
-      case (Some(_), true)  => true // should we throw exception? if the menu is hidden the user must be unauthenticated
-      case (None, false)    => throw new RuntimeException("The PTA menu cannot be shown without a signout url")
-      case (None, true)     => false
-    }
-    scaLayout(
-      menu = if (hideMenuBar) None else Some(ptaMenuBar(sortMenuItemConfig(signoutUrl))),
-      serviceNameKey = serviceNameKey,
-      serviceNameUrl = serviceNameUrl,
-      pageTitle = pageTitle,
-      sidebarContent = sidebarContent,
-      signoutUrl = signoutUrl,
-      timeOutUrl = timeOutUrl,
-      keepAliveUrl = keepAliveUrl,
-      showBackLinkJS = showBackLinkJS,
-      backLinkUrl = backLinkUrl,
-      showSignOutInHeader = showSignOutInHeader,
-      scripts = scripts ++ webchatUtil.getWebchatScripts,
-      styleSheets = styleSheets,
-      bannerConfig = bannerConfig,
-      fullWidth = fullWidth,
-      disableSessionExpired = disableSessionExpired,
-      optTrustedHelper = optTrustedHelper,
-      accessibilityStatementUrl = accessibilityStatementUrl
-    )(content)
-  }
 
   def standardScaLayout(
     content: HtmlFormat.Appendable,
