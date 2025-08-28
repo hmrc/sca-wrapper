@@ -63,6 +63,7 @@ class WebchatUtilSpec extends BaseSpec {
         ptaMenuConfig,
         List(defaultUrBanner),
         List(Webchat("/test-page", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
+        None,
         None
       )
 
@@ -85,6 +86,7 @@ class WebchatUtilSpec extends BaseSpec {
         ptaMenuConfig,
         List(defaultUrBanner),
         List(Webchat("/test-page", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
+        None,
         None
       )
 
@@ -107,6 +109,7 @@ class WebchatUtilSpec extends BaseSpec {
         ptaMenuConfig,
         List(defaultUrBanner),
         List(Webchat("/test-page", "popup", isEnabled = false, chatType = "loadWebChatContainer")),
+        None,
         None
       )
 
@@ -131,6 +134,7 @@ class WebchatUtilSpec extends BaseSpec {
       ptaMenuConfig,
       List(defaultUrBanner),
       List(Webchat("/test-page", "popup", isEnabled = true, chatType = "loadHMRCChatSkinElement")),
+      None,
       None
     )
 
@@ -153,6 +157,7 @@ class WebchatUtilSpec extends BaseSpec {
       ptaMenuConfig,
       List(defaultUrBanner),
       List(Webchat("/test-page/.*", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
+      None,
       None
     )
 
@@ -175,6 +180,7 @@ class WebchatUtilSpec extends BaseSpec {
       ptaMenuConfig,
       List(defaultUrBanner),
       List(Webchat("test-page", "popup", isEnabled = true, chatType = "loadHMRCChatSkinElement")),
+      None,
       None
     )
 
@@ -197,6 +203,7 @@ class WebchatUtilSpec extends BaseSpec {
       ptaMenuConfig,
       List(defaultUrBanner),
       List(Webchat(".*test-page.*", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
+      None,
       None
     )
 
@@ -219,6 +226,7 @@ class WebchatUtilSpec extends BaseSpec {
       ptaMenuConfig,
       List(defaultUrBanner),
       List(Webchat(".*test-page", "popup", isEnabled = true, chatType = "loadHMRCChatSkinElement")),
+      None,
       None
     )
 
@@ -241,6 +249,7 @@ class WebchatUtilSpec extends BaseSpec {
       ptaMenuConfig,
       List(defaultUrBanner),
       List(Webchat(".*test-page", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
+      None,
       None
     )
 
