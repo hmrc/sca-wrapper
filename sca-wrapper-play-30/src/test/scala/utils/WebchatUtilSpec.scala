@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package utils.scala2
+package utils
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -30,7 +30,6 @@ import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models.{Webchat, WrapperDataResponse}
 import uk.gov.hmrc.sca.utils.{Keys, WebchatUtil}
 import uk.gov.hmrc.webchat.client.WebChatClient
-import utils.BaseSpec
 
 class WebchatUtilSpec extends BaseSpec {
   private val mockAppConfig                    = mock[AppConfig]
@@ -50,6 +49,7 @@ class WebchatUtilSpec extends BaseSpec {
     super.beforeEach()
     when(mockWebChatClient.loadRequiredElements()(any())).thenReturn(Some(Html("some1")))
     when(mockWebChatClient.loadHMRCChatSkinElement(any(), any())(any())).thenReturn(Some(Html("some2")))
+    when(mockWebChatClient.loadWebChatContainer(any())(any())).thenReturn(Some(Html("some2")))
     when(mockAppConfig.webChatHashingKey).thenReturn(Some("value1"))
     when(mockAppConfig.webChatKey).thenReturn(Some("value2"))
 
@@ -62,7 +62,7 @@ class WebchatUtilSpec extends BaseSpec {
         Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
         ptaMenuConfig,
         List(defaultUrBanner),
-        List(Webchat("/test-page", "popup", isEnabled = true)),
+        List(Webchat("/test-page", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
         None,
         None
       )
@@ -85,7 +85,7 @@ class WebchatUtilSpec extends BaseSpec {
         Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
         ptaMenuConfig,
         List(defaultUrBanner),
-        List(Webchat("/test-page", "popup", isEnabled = true)),
+        List(Webchat("/test-page", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
         None,
         None
       )
@@ -108,7 +108,7 @@ class WebchatUtilSpec extends BaseSpec {
         Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
         ptaMenuConfig,
         List(defaultUrBanner),
-        List(Webchat("/test-page", "popup", isEnabled = false)),
+        List(Webchat("/test-page", "popup", isEnabled = false, chatType = "loadWebChatContainer")),
         None,
         None
       )
@@ -133,7 +133,7 @@ class WebchatUtilSpec extends BaseSpec {
       Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
       ptaMenuConfig,
       List(defaultUrBanner),
-      List(Webchat("/test-page", "popup", isEnabled = true)),
+      List(Webchat("/test-page", "popup", isEnabled = true, chatType = "loadHMRCChatSkinElement")),
       None,
       None
     )
@@ -156,7 +156,7 @@ class WebchatUtilSpec extends BaseSpec {
       Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
       ptaMenuConfig,
       List(defaultUrBanner),
-      List(Webchat("/test-page/.*", "popup", isEnabled = true)),
+      List(Webchat("/test-page/.*", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
       None,
       None
     )
@@ -179,7 +179,7 @@ class WebchatUtilSpec extends BaseSpec {
       Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
       ptaMenuConfig,
       List(defaultUrBanner),
-      List(Webchat("test-page", "popup", isEnabled = true)),
+      List(Webchat("test-page", "popup", isEnabled = true, chatType = "loadHMRCChatSkinElement")),
       None,
       None
     )
@@ -202,7 +202,7 @@ class WebchatUtilSpec extends BaseSpec {
       Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
       ptaMenuConfig,
       List(defaultUrBanner),
-      List(Webchat(".*test-page.*", "popup", isEnabled = true)),
+      List(Webchat(".*test-page.*", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
       None,
       None
     )
@@ -225,7 +225,7 @@ class WebchatUtilSpec extends BaseSpec {
       Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
       ptaMenuConfig,
       List(defaultUrBanner),
-      List(Webchat(".*test-page", "popup", isEnabled = true)),
+      List(Webchat(".*test-page", "popup", isEnabled = true, chatType = "loadHMRCChatSkinElement")),
       None,
       None
     )
@@ -248,7 +248,7 @@ class WebchatUtilSpec extends BaseSpec {
       Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
       ptaMenuConfig,
       List(defaultUrBanner),
-      List(Webchat(".*test-page", "popup", isEnabled = true)),
+      List(Webchat(".*test-page", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
       None,
       None
     )

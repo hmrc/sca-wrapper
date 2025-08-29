@@ -300,7 +300,7 @@ object WrapperServiceSpec {
   )
 
   val defaultUrBanner: UrBanner = UrBanner("test-page", "test-link", isEnabled = true)
-  val defaultWebchat: Webchat   = Webchat("test-page", "popup", isEnabled = true)
+  val defaultWebchat: Webchat   = Webchat("test-page", "popup", isEnabled = true, chatType = "loadWebChatContainer")
 
   private val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
     Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
