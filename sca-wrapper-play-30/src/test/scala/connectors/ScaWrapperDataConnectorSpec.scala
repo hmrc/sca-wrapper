@@ -90,7 +90,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
 
   "ScaWrapperDataConnector" must {
 
-    "return a successful WrapperDataResponse when wrapperDataWithMessages() returns 200 with valid JSON" ignore {
+    "return a successful WrapperDataResponse when wrapperDataWithMessages() returns 200 with valid JSON" in {
       val ptaMenuConfig  = PtaMinMenuConfig("Account menu", "Back")
       val menuItemConfig = MenuItemConfig(
         "home",
@@ -131,7 +131,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
           .willReturn(serverError())
       )
       withCaptureOfLoggingFrom(testLogger) { logs =>
-        val result = scaWrapperDataConnector.wrapperDataWithMessages().futureValue
+        val result = scaWrapperDataConnector.wrapperDataWithMessages().futureValue(Timeout(Span(2, Seconds)))
         result mustBe None
         val log    =
           logs.find(log =>
