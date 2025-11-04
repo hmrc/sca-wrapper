@@ -49,7 +49,7 @@ trait BaseSpec
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val configValues: Map[String, Any] =
+  lazy val configValues: Map[String, Any] =
     Map(
       "metrics.enabled"            -> false,
       "auditing.enabled"           -> false,
