@@ -19,9 +19,9 @@ package uk.gov.hmrc.sca.connectors
 import com.google.inject.Inject
 import play.api.Logging
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.readFromJson
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
+import uk.gov.hmrc.http.{GatewayTimeoutException, HeaderCarrier, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models.WrapperDataResponse
 
@@ -51,12 +51,23 @@ class ScaWrapperDataConnector @Inject() (
       .transform(_.withRequestTimeout(appConfig.timeoutHttpClientMillis.millis))
       .execute[WrapperDataResponse]
       .map(Some(_))
-      .recover { case scala.util.control.NonFatal(ex) =>
-        logger.error(
-          s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperDataWithMessages] Exception while calling combined wrapper data: ${ex.getMessage}",
-          ex
-        )
-        None
+      .recover {
+        case ex: GatewayTimeoutException                       =>
+          logger.error(
+            s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperDataWithMessages] Time out while calling combined wrapper data: ${ex.getMessage}"
+          )
+          None
+        case ex: UpstreamErrorResponse if ex.statusCode >= 499 =>
+          logger.error(
+            s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperDataWithMessages] Server error while calling combined wrapper data: ${ex.getMessage}"
+          )
+          None
+        case scala.util.control.NonFatal(ex)                   =>
+          logger.error(
+            s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperDataWithMessages] Exception while calling combined wrapper data: ${ex.getMessage}",
+            ex
+          )
+          None
       }
   }
 }
