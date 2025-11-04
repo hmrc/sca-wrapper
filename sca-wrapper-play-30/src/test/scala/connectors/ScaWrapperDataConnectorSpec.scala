@@ -156,7 +156,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
           .willReturn(badRequest())
       )
       withCaptureOfLoggingFrom(testLogger) { logs =>
-        val result = scaWrapperDataConnector.wrapperDataWithMessages().futureValue
+        val result = scaWrapperDataConnector.wrapperDataWithMessages().futureValue(Timeout(Span(2, Seconds)))
         result mustBe None
         val log    =
           logs.find(log =>
