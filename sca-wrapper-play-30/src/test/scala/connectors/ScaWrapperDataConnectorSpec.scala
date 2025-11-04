@@ -111,6 +111,11 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
         None
       )
 
+      when(mockAppConfig.scaWrapperDataUrl).thenReturn(
+        s"http://localhost:${server.port()}/single-customer-account-wrapper-data"
+      )
+      when(mockAppConfig.versionNum).thenReturn("1.0.3")
+
       server.stubFor(
         get(urlEqualTo(urlWrapperDataWithMessages))
           .willReturn(okJson(jsonResponse))
