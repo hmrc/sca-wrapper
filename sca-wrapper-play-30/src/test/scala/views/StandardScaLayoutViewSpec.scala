@@ -20,7 +20,7 @@ import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
-import uk.gov.hmrc.sca.models.BannerConfig
+import uk.gov.hmrc.sca.models.{BannerConfig, BespokeUserResearchBannerConfig}
 import uk.gov.hmrc.sca.views.html.StandardScaLayout
 import utils.ViewBaseSpec
 import views.NewScaLayoutViewSpec.menu
@@ -41,12 +41,17 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       signOutUrl = Some("Signout-Url"),
       accessibilityStatementUrl = Some("http://accessibility-url.org")
     ),
-    bannerConfig: BannerConfig =
-      BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
+    bannerConfig: BannerConfig = BannerConfig(
+      showAlphaBanner = true,
+      showBetaBanner = false,
+      showHelpImproveBanner = false,
+      showBespokeUserResearchBanner = false
+    ),
     fullWidth: Boolean = false,
     hideMenuBar: Boolean = false,
     disableSessionExpired: Boolean = false,
-    optTrustedHelper: Option[TrustedHelper] = None
+    optTrustedHelper: Option[TrustedHelper] = None,
+    bespokeUserResearchBannerConfig: Option[BespokeUserResearchBannerConfig] = None
   )(implicit messages: Messages): Html =
     standardScaLayout(
       if (hideMenuBar) None else menu,
@@ -65,7 +70,8 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       fullWidth,
       disableSessionExpired,
       optTrustedHelper,
-      Some("test-ur-banner-link")
+      Some("test-ur-banner-link"),
+      bespokeUserResearchBannerConfig
     )(Html("Content-Block"))(fakeRequest, messages)
 
   "WrapperService layout" must {
@@ -171,7 +177,12 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
     "return a Wrapper layout when showBetaBanner is true in English" in {
       val document = asDocument(
         createView(bannerConfig =
-          BannerConfig(showAlphaBanner = false, showBetaBanner = true, showHelpImproveBanner = false)
+          BannerConfig(
+            showAlphaBanner = false,
+            showBetaBanner = true,
+            showHelpImproveBanner = false,
+            showBespokeUserResearchBanner = false
+          )
         ).toString()
       )
 
@@ -225,6 +236,31 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         .attr("href") mustBe "returnLinkUrl"
     }
 
+    "render bespoke user research banner when config is provided" in {
+      val bespokeConfig = BespokeUserResearchBannerConfig(
+        url = "https://example.com/research",
+        titleEn = "Help improve this service",
+        titleCy = "Helpu gwella'r gwasanaeth hwn",
+        linkTextEn = "Take part in user research",
+        linkTextCy = "Cymerwch ran mewn ymchwil defnyddwyr"
+      )
+
+      val document = asDocument(
+        createView(
+          bespokeUserResearchBannerConfig = Some(bespokeConfig)
+        ).toString()
+      )
+
+      document
+        .getElementsContainingOwnText("Help improve this service")
+        .asScala
+        .nonEmpty mustBe true
+
+      document
+        .getElementsContainingOwnText("Take part in user research")
+        .asScala
+        .nonEmpty mustBe true
+    }
   }
 }
 
