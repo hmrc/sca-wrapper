@@ -19,9 +19,10 @@
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
 @import uk.gov.hmrc.sca.config.AppConfig
-@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig}
+@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig, BespokeUserResearchBannerConfig}
 @import uk.gov.hmrc.sca.views.html._
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
+
 
 @this(
         appConfig: AppConfig,
@@ -38,7 +39,8 @@
         ptaAttorneyBanner: PtaAttorneyBanner,
         twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
         fullWidthMainContent: FullWidthMainContent,
-        twoThirdsMainContent: TwoThirdsMainContent
+        twoThirdsMainContent: TwoThirdsMainContent,
+        bespokeUserResearchBanner: BespokeUserResearchBanner
 )(implicit contactFrontendConfig: ContactFrontendConfig)
 
 @(menu: Option[HtmlFormat.Appendable],
@@ -57,7 +59,8 @@
         fullWidth: Boolean,
         disableSessionExpired: Boolean,
         optTrustedHelper: Option[TrustedHelper],
-        urBannerUrl: Option[String])(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
+        urBannerUrl: Option[String],
+        bespokeUserResearchBannerConfig: Option[BespokeUserResearchBannerConfig])(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
 
 @headBlock = {
 
@@ -81,6 +84,19 @@
 @additionalScripts = {
     @scripts
     @ptaScripts()
+}
+
+@bespokeUserResearchBannerHtml = @{
+    bespokeUserResearchBannerConfig.map { cfg =>
+        bespokeUserResearchBanner(
+            cfg.url,
+            cfg.titleEn,
+            cfg.titleCy,
+            cfg.linkTextEn,
+            cfg.linkTextCy,
+            cfg.hideCloseButton
+        )
+    }
 }
 
 @beforeContent = {
@@ -126,17 +142,18 @@
 
 @content = {
 
-    @contentBlock
-<div class="govuk-!-margin-top-8">
-    <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
-    @hmrcReportTechnicalIssueHelper()
-    <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
-    @if(bannerConfig.showBetaBanner) {
-      @govukPhaseBanner(betaBanner())
-    } else if(bannerConfig.showAlphaBanner) {
-      @govukPhaseBanner(alphaBanner(appConfig.alphaBannerFeedbackUrl))
-    }
-</div>
+@contentBlock
+    <div class="govuk-!-margin-top-8">
+        <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
+        @hmrcReportTechnicalIssueHelper()
+        <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
+        @bespokeUserResearchBannerHtml
+        @if(bannerConfig.showBetaBanner) {
+            @govukPhaseBanner(betaBanner())
+        } else if(bannerConfig.showAlphaBanner) {
+        @govukPhaseBanner(alphaBanner(appConfig.alphaBannerFeedbackUrl))
+        }
+    </div>
 }
 
 @hmrcStandardPage(

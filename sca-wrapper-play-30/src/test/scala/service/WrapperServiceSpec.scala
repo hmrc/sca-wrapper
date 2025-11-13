@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,7 +122,8 @@ class WrapperServiceSpec extends BaseSpec {
         fullWidth = fullWidthCaptor.capture(),
         disableSessionExpired = disableSessionExpiredCaptor.capture(),
         optTrustedHelper = optTrustedHelperCaptor.capture(),
-        urBannerUrl = urBannerUrlCaptor.capture()
+        urBannerUrl = urBannerUrlCaptor.capture(),
+        bespokeUserResearchBannerConfig = bespokeUserResearchBannerConfigCaptor.capture()
       )(contentCaptor.capture())(any(), any())
 
       verify(mockAppConfig, times(1)).showAlphaBanner
@@ -148,12 +149,14 @@ class WrapperServiceSpec extends BaseSpec {
       bannerConfigCaptor.getValue mustBe BannerConfig(
         showAlphaBanner = true,
         showBetaBanner = false,
-        showHelpImproveBanner = true
+        showHelpImproveBanner = true,
+        showBespokeUserResearchBanner = false
       )
       optTrustedHelperCaptor.getValue mustBe None
       fullWidthCaptor.getValue mustBe true
       disableSessionExpiredCaptor.getValue mustBe false
       urBannerUrlCaptor.getValue mustBe Some(defaultUrBanner.link)
+      bespokeUserResearchBannerConfigCaptor.getValue mustBe None
       contentCaptor.getValue mustBe Html("Default-Content")
     }
 
@@ -179,7 +182,12 @@ class WrapperServiceSpec extends BaseSpec {
       wrapperService.standardScaLayout(
         content = Html("Default-Content"),
         serviceURLs = serviceUrls,
-        bannerConfig = BannerConfig(showAlphaBanner = false, showBetaBanner = true, showHelpImproveBanner = true)
+        bannerConfig = BannerConfig(
+          showAlphaBanner = false,
+          showBetaBanner = true,
+          showHelpImproveBanner = true,
+          showBespokeUserResearchBanner = false
+        )
       )(messages, request)
 
       verify(mockStandardScaLayout, times(1)).apply(
@@ -199,7 +207,8 @@ class WrapperServiceSpec extends BaseSpec {
         fullWidth = fullWidthCaptor.capture(),
         disableSessionExpired = disableSessionExpiredCaptor.capture(),
         optTrustedHelper = optTrustedHelperCaptor.capture(),
-        urBannerUrl = urBannerUrlCaptor.capture()
+        urBannerUrl = urBannerUrlCaptor.capture(),
+        bespokeUserResearchBannerConfig = bespokeUserResearchBannerConfigCaptor.capture()
       )(contentCaptor.capture())(any(), any())
 
       verify(mockAppConfig, times(1)).helpImproveBannerUrl
@@ -219,12 +228,14 @@ class WrapperServiceSpec extends BaseSpec {
       bannerConfigCaptor.getValue mustBe BannerConfig(
         showAlphaBanner = false,
         showBetaBanner = true,
-        showHelpImproveBanner = true
+        showHelpImproveBanner = true,
+        showBespokeUserResearchBanner = false
       )
       optTrustedHelperCaptor.getValue mustBe None
       fullWidthCaptor.getValue mustBe true
       disableSessionExpiredCaptor.getValue mustBe false
       urBannerUrlCaptor.getValue mustBe Some("config link")
+      bespokeUserResearchBannerConfigCaptor.getValue mustBe None
       contentCaptor.getValue mustBe Html("Default-Content")
     }
 
@@ -311,27 +322,46 @@ object WrapperServiceSpec {
     None
   )
 
-  val menuCaptor: ArgumentCaptor[Option[Html]]                      = ArgumentCaptor.forClass(classOf[Option[Html]])
-  val serviceURLsCaptor: ArgumentCaptor[ServiceURLs]                = ArgumentCaptor.forClass(classOf[ServiceURLs])
-  val serviceNameKeyCaptor: ArgumentCaptor[Option[String]]          = ArgumentCaptor.forClass(classOf[Option[String]])
-  val serviceNameUrlCaptor: ArgumentCaptor[Option[String]]          = ArgumentCaptor.forClass(classOf[Option[String]])
-  val pageTitleCaptor: ArgumentCaptor[Option[String]]               = ArgumentCaptor.forClass(classOf[Option[String]])
-  val sideBarContentCaptor: ArgumentCaptor[Option[Html]]            = ArgumentCaptor.forClass(classOf[Option[Html]])
-  val signoutUrlCaptor: ArgumentCaptor[Option[String]]              = ArgumentCaptor.forClass(classOf[Option[String]])
-  val timeOutUrlCaptor: ArgumentCaptor[Option[String]]              = ArgumentCaptor.forClass(classOf[Option[String]])
-  val keepAliveUrlCaptor: ArgumentCaptor[String]                    = ArgumentCaptor.forClass(classOf[String])
-  val showBackLinkJSCaptor: ArgumentCaptor[Boolean]                 = ArgumentCaptor.forClass(classOf[Boolean])
-  val backLinkUrlCaptor: ArgumentCaptor[Option[String]]             = ArgumentCaptor.forClass(classOf[Option[String]])
-  val showSignOutInHeaderCaptor: ArgumentCaptor[Boolean]            = ArgumentCaptor.forClass(classOf[Boolean])
-  val scriptsCaptor: ArgumentCaptor[Seq[HtmlFormat.Appendable]]     =
+  val menuCaptor: ArgumentCaptor[Option[Html]]                                                       =
+    ArgumentCaptor.forClass(classOf[Option[Html]])
+  val serviceURLsCaptor: ArgumentCaptor[ServiceURLs]                                                 =
+    ArgumentCaptor.forClass(classOf[ServiceURLs])
+  val serviceNameKeyCaptor: ArgumentCaptor[Option[String]]                                           =
+    ArgumentCaptor.forClass(classOf[Option[String]])
+  val serviceNameUrlCaptor: ArgumentCaptor[Option[String]]                                           =
+    ArgumentCaptor.forClass(classOf[Option[String]])
+  val pageTitleCaptor: ArgumentCaptor[Option[String]]                                                =
+    ArgumentCaptor.forClass(classOf[Option[String]])
+  val sideBarContentCaptor: ArgumentCaptor[Option[Html]]                                             =
+    ArgumentCaptor.forClass(classOf[Option[Html]])
+  val signoutUrlCaptor: ArgumentCaptor[Option[String]]                                               =
+    ArgumentCaptor.forClass(classOf[Option[String]])
+  val timeOutUrlCaptor: ArgumentCaptor[Option[String]]                                               =
+    ArgumentCaptor.forClass(classOf[Option[String]])
+  val keepAliveUrlCaptor: ArgumentCaptor[String]                                                     =
+    ArgumentCaptor.forClass(classOf[String])
+  val showBackLinkJSCaptor: ArgumentCaptor[Boolean]                                                  =
+    ArgumentCaptor.forClass(classOf[Boolean])
+  val backLinkUrlCaptor: ArgumentCaptor[Option[String]]                                              =
+    ArgumentCaptor.forClass(classOf[Option[String]])
+  val showSignOutInHeaderCaptor: ArgumentCaptor[Boolean]                                             =
+    ArgumentCaptor.forClass(classOf[Boolean])
+  val scriptsCaptor: ArgumentCaptor[Seq[HtmlFormat.Appendable]]                                      =
     ArgumentCaptor.forClass(classOf[Seq[HtmlFormat.Appendable]])
-  val styleSheetsCaptor: ArgumentCaptor[Seq[HtmlFormat.Appendable]] =
+  val styleSheetsCaptor: ArgumentCaptor[Seq[HtmlFormat.Appendable]]                                  =
     ArgumentCaptor.forClass(classOf[Seq[HtmlFormat.Appendable]])
-  val bannerConfigCaptor: ArgumentCaptor[BannerConfig]              = ArgumentCaptor.forClass(classOf[BannerConfig])
-  val optTrustedHelperCaptor: ArgumentCaptor[Option[TrustedHelper]] =
+  val bannerConfigCaptor: ArgumentCaptor[BannerConfig]                                               =
+    ArgumentCaptor.forClass(classOf[BannerConfig])
+  val optTrustedHelperCaptor: ArgumentCaptor[Option[TrustedHelper]]                                  =
     ArgumentCaptor.forClass(classOf[Option[TrustedHelper]])
-  val fullWidthCaptor: ArgumentCaptor[Boolean]                      = ArgumentCaptor.forClass(classOf[Boolean])
-  val disableSessionExpiredCaptor: ArgumentCaptor[Boolean]          = ArgumentCaptor.forClass(classOf[Boolean])
-  val contentCaptor: ArgumentCaptor[Html]                           = ArgumentCaptor.forClass(classOf[Html])
-  val urBannerUrlCaptor: ArgumentCaptor[Option[String]]             = ArgumentCaptor.forClass(classOf[Option[String]])
+  val fullWidthCaptor: ArgumentCaptor[Boolean]                                                       =
+    ArgumentCaptor.forClass(classOf[Boolean])
+  val disableSessionExpiredCaptor: ArgumentCaptor[Boolean]                                           =
+    ArgumentCaptor.forClass(classOf[Boolean])
+  val contentCaptor: ArgumentCaptor[Html]                                                            =
+    ArgumentCaptor.forClass(classOf[Html])
+  val urBannerUrlCaptor: ArgumentCaptor[Option[String]]                                              =
+    ArgumentCaptor.forClass(classOf[Option[String]])
+  val bespokeUserResearchBannerConfigCaptor: ArgumentCaptor[Option[BespokeUserResearchBannerConfig]] =
+    ArgumentCaptor.forClass(classOf[Option[BespokeUserResearchBannerConfig]])
 }

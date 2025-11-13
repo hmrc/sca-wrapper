@@ -35,8 +35,12 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
     showBackLinkJS: Boolean = false,
     backLinkUrl: Option[String] = None,
     showSignOutInHeader: Boolean = false,
-    bannerConfig: BannerConfig =
-      BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
+    bannerConfig: BannerConfig = BannerConfig(
+      showAlphaBanner = true,
+      showBetaBanner = false,
+      showHelpImproveBanner = false,
+      showBespokeUserResearchBanner = false
+    ),
     fullWidth: Boolean = false,
     hideMenuBar: Boolean = false,
     disableSessionExpired: Boolean = false,
@@ -157,7 +161,12 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
     "return a Wrapper layout when showBetaBanner is true in English" in {
       val document = asDocument(
         createView(bannerConfig =
-          BannerConfig(showAlphaBanner = false, showBetaBanner = true, showHelpImproveBanner = false)
+          BannerConfig(
+            showAlphaBanner = false,
+            showBetaBanner = true,
+            showHelpImproveBanner = false,
+            showBespokeUserResearchBanner = false
+          )
         ).toString()
       )
 
