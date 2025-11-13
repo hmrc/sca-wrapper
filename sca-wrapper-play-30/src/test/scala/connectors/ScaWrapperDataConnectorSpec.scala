@@ -108,8 +108,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
         List(defaultUrBanner),
         List(defaultWebchat),
         Some(2),
-        None,
-        userResearchBanner = None
+        None
       )
 
       when(mockAppConfig.scaWrapperDataUrl).thenReturn(
