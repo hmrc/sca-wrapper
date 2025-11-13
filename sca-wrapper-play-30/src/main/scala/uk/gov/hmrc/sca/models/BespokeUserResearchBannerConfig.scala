@@ -16,9 +16,17 @@
 
 package uk.gov.hmrc.sca.models
 
-case class BannerConfig(
-  showAlphaBanner: Boolean,
-  showBetaBanner: Boolean,
-  showHelpImproveBanner: Boolean,
-  showBespokeUserResearchBanner: Boolean
+import play.api.libs.json.{Format, Json}
+
+case class BespokeUserResearchBannerConfig(
+  url: String,
+  titleEn: String,
+  titleCy: String,
+  linkTextEn: String,
+  linkTextCy: String,
+  hideCloseButton: Boolean = false
 )
+
+object BespokeUserResearchBannerConfig {
+  implicit val format: Format[BespokeUserResearchBannerConfig] = Json.format[BespokeUserResearchBannerConfig]
+}

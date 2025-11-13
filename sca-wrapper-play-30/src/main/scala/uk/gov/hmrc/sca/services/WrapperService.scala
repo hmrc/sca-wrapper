@@ -42,7 +42,8 @@ class WrapperService @Inject() (
   private lazy val defaultBannerConfig: BannerConfig = BannerConfig(
     showAlphaBanner = appConfig.showAlphaBanner,
     showBetaBanner = appConfig.showBetaBanner,
-    showHelpImproveBanner = appConfig.showHelpImproveBanner
+    showHelpImproveBanner = appConfig.showHelpImproveBanner,
+    showBespokeUserResearchBanner = false
   )
 
   def standardScaLayout(
@@ -63,7 +64,8 @@ class WrapperService @Inject() (
     optTrustedHelper: Option[TrustedHelper] = None,
     fullWidth: Boolean = true,
     hideMenuBar: Boolean = false,
-    disableSessionExpired: Boolean = appConfig.disableSessionExpired
+    disableSessionExpired: Boolean = appConfig.disableSessionExpired,
+    bespokeUserResearchBannerConfig: Option[BespokeUserResearchBannerConfig] = None
   )(implicit messages: Messages, requestHeader: RequestHeader): HtmlFormat.Appendable = {
     val showSignOutInHeader = (serviceURLs.signOutUrl, hideMenuBar) match {
       case (Some(_), false) => false
@@ -89,7 +91,8 @@ class WrapperService @Inject() (
       fullWidth = fullWidth,
       disableSessionExpired = disableSessionExpired,
       optTrustedHelper = optTrustedHelper,
-      urBannerUrl = if (urBannerEnabled(bannerConfig)) getUrBannerUrl else None
+      urBannerUrl = if (urBannerEnabled(bannerConfig)) getUrBannerUrl else None,
+      bespokeUserResearchBannerConfig = bespokeUserResearchBannerConfig
     )(content)
   }
 

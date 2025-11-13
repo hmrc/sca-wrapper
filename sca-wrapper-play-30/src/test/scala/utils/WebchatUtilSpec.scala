@@ -110,6 +110,7 @@ class WebchatUtilSpec extends BaseSpec {
         List(defaultUrBanner),
         List(Webchat("/test-page", "popup", isEnabled = false, chatType = "loadWebChatContainer")),
         None,
+        None,
         None
       )
 
@@ -135,6 +136,7 @@ class WebchatUtilSpec extends BaseSpec {
       List(defaultUrBanner),
       List(Webchat("/test-page", "popup", isEnabled = true, chatType = "loadHMRCChatSkinElement")),
       None,
+      None,
       None
     )
 
@@ -157,6 +159,7 @@ class WebchatUtilSpec extends BaseSpec {
       ptaMenuConfig,
       List(defaultUrBanner),
       List(Webchat("/test-page/.*", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
+      None,
       None,
       None
     )
@@ -181,6 +184,7 @@ class WebchatUtilSpec extends BaseSpec {
       List(defaultUrBanner),
       List(Webchat("test-page", "popup", isEnabled = true, chatType = "loadHMRCChatSkinElement")),
       None,
+      None,
       None
     )
 
@@ -203,6 +207,7 @@ class WebchatUtilSpec extends BaseSpec {
       ptaMenuConfig,
       List(defaultUrBanner),
       List(Webchat(".*test-page.*", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
+      None,
       None,
       None
     )
@@ -227,6 +232,7 @@ class WebchatUtilSpec extends BaseSpec {
       List(defaultUrBanner),
       List(Webchat(".*test-page", "popup", isEnabled = true, chatType = "loadHMRCChatSkinElement")),
       None,
+      None,
       None
     )
 
@@ -249,6 +255,7 @@ class WebchatUtilSpec extends BaseSpec {
       ptaMenuConfig,
       List(defaultUrBanner),
       List(Webchat(".*test-page", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
+      None,
       None,
       None
     )
