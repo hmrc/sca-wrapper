@@ -96,11 +96,9 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("content") mustBe "hmrc-timeout-dialog"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-timeout") mustBe "900"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-countdown") mustBe "120"
-      document.select(".hmrc-language-select__list-item").asScala.exists(e => e.text.equals("English")) mustBe true
-      document
-        .select(".hmrc-language-select__list-item")
-        .asScala
-        .exists(e => e.text.equals("Newid yr iaith ir Gymraeg Cymraeg")) mustBe true
+      val lang = document.getElementsByClass("hmrc-language-select__list-item").asScala.toList
+      lang(0).text() mustBe "English"
+      lang(1).text() mustBe "Newid yr iaith i’r Gymraeg Cymraeg"
       document.getElementsByAttributeValue("href", "/help/cookies").text() mustBe "Cookies"
       document.getElementsByAttributeValue("href", "/help/privacy").text() mustBe "Privacy policy"
       document.getElementsByAttributeValue("href", "/help/terms-and-conditions").text() mustBe "Terms and conditions"
