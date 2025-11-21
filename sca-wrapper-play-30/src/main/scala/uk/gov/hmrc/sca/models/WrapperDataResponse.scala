@@ -24,6 +24,7 @@ case class WrapperDataResponse(
   ptaMinMenuConfig: PtaMinMenuConfig,
   urBanners: List[UrBanner],
   webchatPages: List[Webchat],
+  bespokeUserResearchBanner: Option[BespokeUserResearchBanner],
   unreadMessageCount: Option[Int],
   trustedHelper: Option[TrustedHelper]
 )
