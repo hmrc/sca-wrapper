@@ -22,11 +22,11 @@ import org.scalatest.concurrent.PatienceConfiguration.Timeout
 import org.scalatest.time.{Seconds, Span}
 import play.api.{Application, Logger}
 import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{BespokeUserResearchBanner, MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
 import utils.BaseSpec
-import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 
 class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
 
@@ -88,6 +88,50 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
        |}
        |""".stripMargin
 
+  val jsonResponseWithBespokeBanner: String =
+    s"""
+       |{
+       |  "menuItemConfig": [
+       |    {
+       |      "id": "home",
+       |      "text": "Account home",
+       |      "href": "http://localhost:9232/personal-account",
+       |      "leftAligned": true,
+       |      "position": 0,
+       |      "icon": "hmrc-account-icon hmrc-account-icon--home"
+       |    }
+       |  ],
+       |  "ptaMinMenuConfig": {
+       |    "menuName": "Account menu",
+       |    "backName": "Back"
+       |  },
+       |  "urBanners": [
+       |    {
+       |      "page": "test-page",
+       |      "link": "test-link",
+       |      "isEnabled": true
+       |    }
+       |  ],
+       |  "webchatPages": [
+       |    {
+       |      "page": "test-page",
+       |      "skin": "popup",
+       |      "isEnabled": true,
+       |      "chatType": "loadHMRCChatSkinElement"
+       |    }
+       |  ],
+       |  "bespokeUserResearchBanner": {
+       |    "url": "https://example.com/research",
+       |    "titleEn": "Help improve this service",
+       |    "titleCy": "Helpu gwella'r gwasanaeth hwn",
+       |    "linkTextEn": "Take part",
+       |    "linkTextCy": "Cymerwch ran",
+       |    "hideCloseButton": false
+       |  },
+       |  "unreadMessageCount": 2
+       |}
+       |""".stripMargin
+
   "ScaWrapperDataConnector" must {
 
     "return a successful WrapperDataResponse when wrapperDataWithMessages() returns 200 with valid JSON" in {
@@ -103,12 +147,13 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
       )
 
       val expectedResponse = WrapperDataResponse(
-        Seq(menuItemConfig),
-        ptaMenuConfig,
-        List(defaultUrBanner),
-        List(defaultWebchat),
-        Some(2),
-        None
+        menuItemConfig = Seq(menuItemConfig),
+        ptaMinMenuConfig = ptaMenuConfig,
+        urBanners = List(defaultUrBanner),
+        webchatPages = List(defaultWebchat),
+        bespokeUserResearchBanner = None,
+        unreadMessageCount = Some(2),
+        trustedHelper = None
       )
 
       when(mockAppConfig.scaWrapperDataUrl).thenReturn(
@@ -119,6 +164,51 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
       server.stubFor(
         get(urlEqualTo(urlWrapperDataWithMessages))
           .willReturn(okJson(jsonResponse))
+      )
+
+      scaWrapperDataConnector.wrapperDataWithMessages().map { result =>
+        result mustBe Some(expectedResponse)
+      }
+    }
+
+    "return a successful WrapperDataResponse including bespokeUserResearchBanner when present in JSON" in {
+      val ptaMenuConfig  = PtaMinMenuConfig("Account menu", "Back")
+      val menuItemConfig = MenuItemConfig(
+        "home",
+        "Account home",
+        "http://localhost:9232/personal-account",
+        leftAligned = true,
+        position = 0,
+        Some("hmrc-account-icon hmrc-account-icon--home"),
+        None
+      )
+
+      val bespokeBanner = BespokeUserResearchBanner(
+        url = "https://example.com/research",
+        titleEn = "Help improve this service",
+        titleCy = "Helpu gwella'r gwasanaeth hwn",
+        linkTextEn = "Take part",
+        linkTextCy = "Cymerwch ran"
+      )
+
+      val expectedResponse = WrapperDataResponse(
+        menuItemConfig = Seq(menuItemConfig),
+        ptaMinMenuConfig = ptaMenuConfig,
+        urBanners = List(defaultUrBanner),
+        webchatPages = List(defaultWebchat),
+        bespokeUserResearchBanner = Some(bespokeBanner),
+        unreadMessageCount = Some(2),
+        trustedHelper = None
+      )
+
+      when(mockAppConfig.scaWrapperDataUrl).thenReturn(
+        s"http://localhost:${server.port()}/single-customer-account-wrapper-data"
+      )
+      when(mockAppConfig.versionNum).thenReturn("1.0.3")
+
+      server.stubFor(
+        get(urlEqualTo(urlWrapperDataWithMessages))
+          .willReturn(okJson(jsonResponseWithBespokeBanner))
       )
 
       scaWrapperDataConnector.wrapperDataWithMessages().map { result =>
@@ -205,6 +295,11 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
     }
 
     "return None when wrapperDataWithMessages() returns invalid JSON" in {
+      when(mockAppConfig.scaWrapperDataUrl).thenReturn(
+        s"http://localhost:${server.port()}/single-customer-account-wrapper-data"
+      )
+      when(mockAppConfig.versionNum).thenReturn("1.0.3")
+
       server.stubFor(
         get(urlEqualTo(urlWrapperDataWithMessages))
           .willReturn(ok("invalid-json"))

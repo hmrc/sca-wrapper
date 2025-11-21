@@ -38,8 +38,7 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
     bannerConfig: BannerConfig = BannerConfig(
       showAlphaBanner = true,
       showBetaBanner = false,
-      showHelpImproveBanner = false,
-      showBespokeUserResearchBanner = false
+      showHelpImproveBanner = false
     ),
     fullWidth: Boolean = false,
     hideMenuBar: Boolean = false,
@@ -164,8 +163,7 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
           BannerConfig(
             showAlphaBanner = false,
             showBetaBanner = true,
-            showHelpImproveBanner = false,
-            showBespokeUserResearchBanner = false
+            showHelpImproveBanner = false
           )
         ).toString()
       )

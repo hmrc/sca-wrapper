@@ -19,6 +19,9 @@ package uk.gov.hmrc.sca.models
 case class BannerConfig(
   showAlphaBanner: Boolean,
   showBetaBanner: Boolean,
-  showHelpImproveBanner: Boolean,
-  showBespokeUserResearchBanner: Boolean
+  @deprecated(
+    message = "Use UR banner configuration from single-customer-account-wrapper-data (ur-banners.items) instead",
+    since = "5.0.0"
+  )
+  showHelpImproveBanner: Boolean
 )

@@ -42,8 +42,7 @@ class WrapperService @Inject() (
   private lazy val defaultBannerConfig: BannerConfig = BannerConfig(
     showAlphaBanner = appConfig.showAlphaBanner,
     showBetaBanner = appConfig.showBetaBanner,
-    showHelpImproveBanner = appConfig.showHelpImproveBanner,
-    showBespokeUserResearchBanner = false
+    showHelpImproveBanner = false // deprecated; controlled via wrapper-data ur-banners now
   )
 
   def standardScaLayout(
@@ -64,8 +63,7 @@ class WrapperService @Inject() (
     optTrustedHelper: Option[TrustedHelper] = None,
     fullWidth: Boolean = true,
     hideMenuBar: Boolean = false,
-    disableSessionExpired: Boolean = appConfig.disableSessionExpired,
-    bespokeUserResearchBannerConfig: Option[BespokeUserResearchBannerConfig] = None
+    disableSessionExpired: Boolean = appConfig.disableSessionExpired
   )(implicit messages: Messages, requestHeader: RequestHeader): HtmlFormat.Appendable = {
     val showSignOutInHeader = (serviceURLs.signOutUrl, hideMenuBar) match {
       case (Some(_), false) => false
@@ -73,6 +71,9 @@ class WrapperService @Inject() (
       case (None, false)    => throw new RuntimeException("The PTA menu cannot be shown without a signout url")
       case (None, true)     => false
     }
+
+    val bespokeBannerFromWrapper: Option[BespokeUserResearchBanner] =
+      getBespokeUserResearchBannerForPage
 
     newScaLayout(
       menu = if (hideMenuBar) None else Some(ptaMenuBar(sortMenuItemConfig(serviceURLs.signOutUrl))),
@@ -91,8 +92,8 @@ class WrapperService @Inject() (
       fullWidth = fullWidth,
       disableSessionExpired = disableSessionExpired,
       optTrustedHelper = optTrustedHelper,
-      urBannerUrl = if (urBannerEnabled(bannerConfig)) getUrBannerUrl else None,
-      bespokeUserResearchBannerConfig = bespokeUserResearchBannerConfig
+      urBannerUrl = if (urBannerEnabled()) getUrBannerUrl else None,
+      bespokeUserResearchBanner = bespokeBannerFromWrapper
     )(content)
   }
 
@@ -181,10 +182,12 @@ class WrapperService @Inject() (
       case None           => appConfig.helpImproveBannerUrl
     }
 
-  private def urBannerEnabled(config: BannerConfig)(implicit requestHeader: RequestHeader): Boolean =
-    getUrBannerDetailsForPage match {
-      case Some(urBanner) => urBanner.isEnabled
-      case None           => config.showHelpImproveBanner
-    }
+  private def urBannerEnabled()(implicit requestHeader: RequestHeader): Boolean =
+    getUrBannerDetailsForPage.exists(_.isEnabled)
+
+  private def getBespokeUserResearchBannerForPage(implicit
+    requestHeader: RequestHeader
+  ): Option[BespokeUserResearchBanner] =
+    getWrapperDataResponse(requestHeader).flatMap(_.bespokeUserResearchBanner)
 
 }

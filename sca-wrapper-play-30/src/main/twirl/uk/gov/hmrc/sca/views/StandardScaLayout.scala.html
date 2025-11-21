@@ -19,10 +19,9 @@
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
 @import uk.gov.hmrc.sca.config.AppConfig
-@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig, BespokeUserResearchBannerConfig}
+@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig, BespokeUserResearchBanner}
 @import uk.gov.hmrc.sca.views.html._
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
-
 
 @this(
         appConfig: AppConfig,
@@ -40,7 +39,7 @@
         twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
         fullWidthMainContent: FullWidthMainContent,
         twoThirdsMainContent: TwoThirdsMainContent,
-        bespokeUserResearchBanner: BespokeUserResearchBanner
+        bespokeUserResearchBannerView: BespokeUserResearchBannerView
 )(implicit contactFrontendConfig: ContactFrontendConfig)
 
 @(menu: Option[HtmlFormat.Appendable],
@@ -60,7 +59,7 @@
         disableSessionExpired: Boolean,
         optTrustedHelper: Option[TrustedHelper],
         urBannerUrl: Option[String],
-        bespokeUserResearchBannerConfig: Option[BespokeUserResearchBannerConfig])(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
+        bespokeUserResearchBanner: Option[BespokeUserResearchBanner])(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
 
 @headBlock = {
 
@@ -87,8 +86,8 @@
 }
 
 @bespokeUserResearchBannerHtml = @{
-    bespokeUserResearchBannerConfig.map { cfg =>
-        bespokeUserResearchBanner(
+    bespokeUserResearchBanner.map { cfg =>
+        bespokeUserResearchBannerView(
             cfg.url,
             cfg.titleEn,
             cfg.titleCy,

@@ -20,7 +20,7 @@ import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
-import uk.gov.hmrc.sca.models.{BannerConfig, BespokeUserResearchBannerConfig}
+import uk.gov.hmrc.sca.models.{BannerConfig, BespokeUserResearchBanner}
 import uk.gov.hmrc.sca.views.html.StandardScaLayout
 import utils.ViewBaseSpec
 import views.NewScaLayoutViewSpec.menu
@@ -44,14 +44,13 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
     bannerConfig: BannerConfig = BannerConfig(
       showAlphaBanner = true,
       showBetaBanner = false,
-      showHelpImproveBanner = false,
-      showBespokeUserResearchBanner = false
+      showHelpImproveBanner = false
     ),
     fullWidth: Boolean = false,
     hideMenuBar: Boolean = false,
     disableSessionExpired: Boolean = false,
     optTrustedHelper: Option[TrustedHelper] = None,
-    bespokeUserResearchBannerConfig: Option[BespokeUserResearchBannerConfig] = None
+    bespokeUserResearchBanner: Option[BespokeUserResearchBanner] = None
   )(implicit messages: Messages): Html =
     standardScaLayout(
       if (hideMenuBar) None else menu,
@@ -71,7 +70,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       disableSessionExpired,
       optTrustedHelper,
       Some("test-ur-banner-link"),
-      bespokeUserResearchBannerConfig
+      bespokeUserResearchBanner
     )(Html("Content-Block"))(fakeRequest, messages)
 
   "WrapperService layout" must {
@@ -180,8 +179,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
           BannerConfig(
             showAlphaBanner = false,
             showBetaBanner = true,
-            showHelpImproveBanner = false,
-            showBespokeUserResearchBanner = false
+            showHelpImproveBanner = false
           )
         ).toString()
       )
@@ -237,7 +235,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
     }
 
     "render bespoke user research banner when config is provided" in {
-      val bespokeConfig = BespokeUserResearchBannerConfig(
+      val bespokeConfig = BespokeUserResearchBanner(
         url = "https://example.com/research",
         titleEn = "Help improve this service",
         titleCy = "Helpu gwella'r gwasanaeth hwn",
@@ -247,7 +245,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
 
       val document = asDocument(
         createView(
-          bespokeUserResearchBannerConfig = Some(bespokeConfig)
+          bespokeUserResearchBanner = Some(bespokeConfig)
         ).toString()
       )
 

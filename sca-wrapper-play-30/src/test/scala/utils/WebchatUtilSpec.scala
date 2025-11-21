@@ -59,12 +59,13 @@ class WebchatUtilSpec extends BaseSpec {
 
     "match exactly" in {
       val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
-        Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
-        ptaMenuConfig,
-        List(defaultUrBanner),
-        List(Webchat("/test-page", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
-        None,
-        None
+        menuItemConfig = Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
+        ptaMinMenuConfig = ptaMenuConfig,
+        urBanners = List(defaultUrBanner),
+        webchatPages = List(Webchat("/test-page", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
+        bespokeUserResearchBanner = None,
+        unreadMessageCount = None,
+        trustedHelper = None
       )
 
       val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/test-page")
@@ -82,12 +83,13 @@ class WebchatUtilSpec extends BaseSpec {
 
     "return no items when config missing and enabled" in {
       val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
-        Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
-        ptaMenuConfig,
-        List(defaultUrBanner),
-        List(Webchat("/test-page", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
-        None,
-        None
+        menuItemConfig = Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
+        ptaMinMenuConfig = ptaMenuConfig,
+        urBanners = List(defaultUrBanner),
+        webchatPages = List(Webchat("/test-page", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
+        bespokeUserResearchBanner = None,
+        unreadMessageCount = None,
+        trustedHelper = None
       )
 
       val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/test-page")
@@ -103,14 +105,16 @@ class WebchatUtilSpec extends BaseSpec {
       val result                                       = sut.getWebchatScripts(request)
       result mustBe Nil
     }
+
     "return empty list when config missing and disabled" in {
       val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
-        Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
-        ptaMenuConfig,
-        List(defaultUrBanner),
-        List(Webchat("/test-page", "popup", isEnabled = false, chatType = "loadWebChatContainer")),
-        None,
-        None
+        menuItemConfig = Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
+        ptaMinMenuConfig = ptaMenuConfig,
+        urBanners = List(defaultUrBanner),
+        webchatPages = List(Webchat("/test-page", "popup", isEnabled = false, chatType = "loadWebChatContainer")),
+        bespokeUserResearchBanner = None,
+        unreadMessageCount = None,
+        trustedHelper = None
       )
 
       val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/test-page")
@@ -130,12 +134,13 @@ class WebchatUtilSpec extends BaseSpec {
 
   "does not match a prefix" in {
     val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
-      Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
-      ptaMenuConfig,
-      List(defaultUrBanner),
-      List(Webchat("/test-page", "popup", isEnabled = true, chatType = "loadHMRCChatSkinElement")),
-      None,
-      None
+      menuItemConfig = Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
+      ptaMinMenuConfig = ptaMenuConfig,
+      urBanners = List(defaultUrBanner),
+      webchatPages = List(Webchat("/test-page", "popup", isEnabled = true, chatType = "loadHMRCChatSkinElement")),
+      bespokeUserResearchBanner = None,
+      unreadMessageCount = None,
+      trustedHelper = None
     )
 
     val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/test-page/sub-page")
@@ -153,12 +158,13 @@ class WebchatUtilSpec extends BaseSpec {
 
   "match a prefix" in {
     val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
-      Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
-      ptaMenuConfig,
-      List(defaultUrBanner),
-      List(Webchat("/test-page/.*", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
-      None,
-      None
+      menuItemConfig = Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
+      ptaMinMenuConfig = ptaMenuConfig,
+      urBanners = List(defaultUrBanner),
+      webchatPages = List(Webchat("/test-page/.*", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
+      bespokeUserResearchBanner = None,
+      unreadMessageCount = None,
+      trustedHelper = None
     )
 
     val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/test-page/sub-page")
@@ -176,12 +182,13 @@ class WebchatUtilSpec extends BaseSpec {
 
   "does not match within the request" in {
     val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
-      Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
-      ptaMenuConfig,
-      List(defaultUrBanner),
-      List(Webchat("test-page", "popup", isEnabled = true, chatType = "loadHMRCChatSkinElement")),
-      None,
-      None
+      menuItemConfig = Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
+      ptaMinMenuConfig = ptaMenuConfig,
+      urBanners = List(defaultUrBanner),
+      webchatPages = List(Webchat("test-page", "popup", isEnabled = true, chatType = "loadHMRCChatSkinElement")),
+      bespokeUserResearchBanner = None,
+      unreadMessageCount = None,
+      trustedHelper = None
     )
 
     val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/start/test-page/sub-page")
@@ -199,12 +206,13 @@ class WebchatUtilSpec extends BaseSpec {
 
   "match within the request" in {
     val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
-      Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
-      ptaMenuConfig,
-      List(defaultUrBanner),
-      List(Webchat(".*test-page.*", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
-      None,
-      None
+      menuItemConfig = Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
+      ptaMinMenuConfig = ptaMenuConfig,
+      urBanners = List(defaultUrBanner),
+      webchatPages = List(Webchat(".*test-page.*", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
+      bespokeUserResearchBanner = None,
+      unreadMessageCount = None,
+      trustedHelper = None
     )
 
     val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/start/test-page/sub-page")
@@ -222,12 +230,13 @@ class WebchatUtilSpec extends BaseSpec {
 
   "match only the page and not the sub pages" in {
     val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
-      Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
-      ptaMenuConfig,
-      List(defaultUrBanner),
-      List(Webchat(".*test-page", "popup", isEnabled = true, chatType = "loadHMRCChatSkinElement")),
-      None,
-      None
+      menuItemConfig = Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
+      ptaMinMenuConfig = ptaMenuConfig,
+      urBanners = List(defaultUrBanner),
+      webchatPages = List(Webchat(".*test-page", "popup", isEnabled = true, chatType = "loadHMRCChatSkinElement")),
+      bespokeUserResearchBanner = None,
+      unreadMessageCount = None,
+      trustedHelper = None
     )
 
     val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/start/test-page/sub-page")
@@ -245,12 +254,13 @@ class WebchatUtilSpec extends BaseSpec {
 
   "the query string is ignored" in {
     val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
-      Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
-      ptaMenuConfig,
-      List(defaultUrBanner),
-      List(Webchat(".*test-page", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
-      None,
-      None
+      menuItemConfig = Seq(menuItemConfig1, menuItemConfig2, menuItemConfig3, menuItemConfig4, menuItemConfig5),
+      ptaMinMenuConfig = ptaMenuConfig,
+      urBanners = List(defaultUrBanner),
+      webchatPages = List(Webchat(".*test-page", "popup", isEnabled = true, chatType = "loadWebChatContainer")),
+      bespokeUserResearchBanner = None,
+      unreadMessageCount = None,
+      trustedHelper = None
     )
 
     val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/start/test-page?qs=1")
