@@ -143,7 +143,6 @@ class AppConfig @Inject() (
     List.empty,
     List.empty,
     None,
-    None,
     None
   )
 }

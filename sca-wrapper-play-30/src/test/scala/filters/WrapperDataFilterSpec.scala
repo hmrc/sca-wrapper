@@ -138,7 +138,6 @@ object WrapperDataFilterSpec {
     ptaMinMenuConfig = PtaMinMenuConfig(menuName = "Account menu", backName = "Back"),
     urBanners = List(UrBanner("test-page", "test-link", isEnabled = true)),
     webchatPages = List.empty,
-    bespokeUserResearchBanner = None,
     unreadMessageCount = Some(3),
     trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", Some("principalNino")))
   )

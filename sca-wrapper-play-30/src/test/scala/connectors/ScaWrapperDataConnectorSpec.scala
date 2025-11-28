@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
-import uk.gov.hmrc.sca.models.{BespokeUserResearchBanner, MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
 import utils.BaseSpec
 
 class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
@@ -88,7 +88,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
        |}
        |""".stripMargin
 
-  val jsonResponseWithBespokeBanner: String =
+  val jsonResponseWithBespokeUrBanner: String =
     s"""
        |{
        |  "menuItemConfig": [
@@ -109,7 +109,12 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
        |    {
        |      "page": "test-page",
        |      "link": "test-link",
-       |      "isEnabled": true
+       |      "isEnabled": true,
+       |      "titleEn": "Help improve this service",
+       |      "titleCy": "Helpu gwella'r gwasanaeth hwn",
+       |      "linkTextEn": "Take part",
+       |      "linkTextCy": "Cymerwch ran",
+       |      "hideCloseButton": false
        |    }
        |  ],
        |  "webchatPages": [
@@ -120,14 +125,6 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
        |      "chatType": "loadHMRCChatSkinElement"
        |    }
        |  ],
-       |  "bespokeUserResearchBanner": {
-       |    "url": "https://example.com/research",
-       |    "titleEn": "Help improve this service",
-       |    "titleCy": "Helpu gwella'r gwasanaeth hwn",
-       |    "linkTextEn": "Take part",
-       |    "linkTextCy": "Cymerwch ran",
-       |    "hideCloseButton": false
-       |  },
        |  "unreadMessageCount": 2
        |}
        |""".stripMargin
@@ -151,7 +148,6 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
         ptaMinMenuConfig = ptaMenuConfig,
         urBanners = List(defaultUrBanner),
         webchatPages = List(defaultWebchat),
-        bespokeUserResearchBanner = None,
         unreadMessageCount = Some(2),
         trustedHelper = None
       )
@@ -171,7 +167,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
       }
     }
 
-    "return a successful WrapperDataResponse including bespokeUserResearchBanner when present in JSON" in {
+    "return a successful WrapperDataResponse including bespoke UR banner fields when present in JSON" in {
       val ptaMenuConfig  = PtaMinMenuConfig("Account menu", "Back")
       val menuItemConfig = MenuItemConfig(
         "home",
@@ -183,20 +179,19 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
         None
       )
 
-      val bespokeBanner = BespokeUserResearchBanner(
-        url = "https://example.com/research",
-        titleEn = "Help improve this service",
-        titleCy = "Helpu gwella'r gwasanaeth hwn",
-        linkTextEn = "Take part",
-        linkTextCy = "Cymerwch ran"
+      val bespokeUrBanner = defaultUrBanner.copy(
+        titleEn = Some("Help improve this service"),
+        titleCy = Some("Helpu gwella'r gwasanaeth hwn"),
+        linkTextEn = Some("Take part"),
+        linkTextCy = Some("Cymerwch ran"),
+        hideCloseButton = Some(false)
       )
 
       val expectedResponse = WrapperDataResponse(
         menuItemConfig = Seq(menuItemConfig),
         ptaMinMenuConfig = ptaMenuConfig,
-        urBanners = List(defaultUrBanner),
+        urBanners = List(bespokeUrBanner),
         webchatPages = List(defaultWebchat),
-        bespokeUserResearchBanner = Some(bespokeBanner),
         unreadMessageCount = Some(2),
         trustedHelper = None
       )
@@ -208,7 +203,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
 
       server.stubFor(
         get(urlEqualTo(urlWrapperDataWithMessages))
-          .willReturn(okJson(jsonResponseWithBespokeBanner))
+          .willReturn(okJson(jsonResponseWithBespokeUrBanner))
       )
 
       scaWrapperDataConnector.wrapperDataWithMessages().map { result =>

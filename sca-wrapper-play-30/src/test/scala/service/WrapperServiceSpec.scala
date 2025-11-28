@@ -280,23 +280,23 @@ class WrapperServiceSpec extends BaseSpec {
       bespokeUserResearchBannerCaptor.getValue mustBe None
     }
 
-    "pass bespoke user research banner from wrapper data to the layout when present" in {
-      val bespokeBanner = BespokeUserResearchBanner(
-        url = "https://example.com/research",
-        titleEn = "Help improve this service",
-        titleCy = "Helpu gwella'r gwasanaeth hwn",
-        linkTextEn = "Take part in user research",
-        linkTextCy = "Cymerwch ran mewn ymchwil defnyddwyr"
+    "derive bespoke user research banner from UR banner when bespoke fields are present" in {
+      val bespokeUrBanner = defaultUrBanner.copy(
+        titleEn = Some("Help improve this service"),
+        titleCy = Some("Helpu gwella'r gwasanaeth hwn"),
+        linkTextEn = Some("Take part in user research"),
+        linkTextCy = Some("Cymerwch ran mewn ymchwil defnyddwyr"),
+        hideCloseButton = Some(true)
       )
 
-      val wrapperWithBespoke = wrapperDataResponse.copy(
-        bespokeUserResearchBanner = Some(bespokeBanner)
+      val wrapperWithBespokeUr = wrapperDataResponse.copy(
+        urBanners = List(bespokeUrBanner)
       )
 
-      val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", defaultUrBanner.page)
+      val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", bespokeUrBanner.page)
         .withAttrs(
           TypedMap(
-            Keys.wrapperDataKey    -> wrapperWithBespoke,
+            Keys.wrapperDataKey    -> wrapperWithBespokeUr,
             Keys.messageDataKey    -> 2,
             RequestAttrKey.Cookies -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
           )
@@ -332,7 +332,16 @@ class WrapperServiceSpec extends BaseSpec {
         bespokeUserResearchBanner = bespokeUserResearchBannerCaptor.capture()
       )(any())(any(), any())
 
-      bespokeUserResearchBannerCaptor.getValue mustBe Some(bespokeBanner)
+      val expectedBespoke = BespokeUserResearchBanner(
+        url = bespokeUrBanner.link,
+        titleEn = bespokeUrBanner.titleEn.get,
+        titleCy = bespokeUrBanner.titleCy.get,
+        linkTextEn = bespokeUrBanner.linkTextEn.get,
+        linkTextCy = bespokeUrBanner.linkTextCy.get,
+        hideCloseButton = true
+      )
+
+      bespokeUserResearchBannerCaptor.getValue mustBe Some(expectedBespoke)
     }
 
     "return the continueUrl if it is a valid relative URL" in {
@@ -416,7 +425,6 @@ object WrapperServiceSpec {
     ptaMenuConfig,
     List(defaultUrBanner),
     List(defaultWebchat),
-    bespokeUserResearchBanner = None,
     unreadMessageCount = None,
     trustedHelper = None
   )
