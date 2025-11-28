@@ -18,7 +18,23 @@ package uk.gov.hmrc.sca.models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class UrBanner(page: String, link: String, isEnabled: Boolean)
+case class UrBanner(
+  page: String,
+  link: String,
+  isEnabled: Boolean,
+  titleEn: Option[String] = None,
+  titleCy: Option[String] = None,
+  linkTextEn: Option[String] = None,
+  linkTextCy: Option[String] = None,
+  hideCloseButton: Option[Boolean] = None
+) {
+  lazy val isBespoke: Boolean =
+    titleEn.isDefined ||
+      titleCy.isDefined ||
+      linkTextEn.isDefined ||
+      linkTextCy.isDefined ||
+      hideCloseButton.isDefined
+}
 
 object UrBanner {
   implicit val format: OFormat[UrBanner] = Json.format[UrBanner]
