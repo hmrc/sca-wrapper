@@ -20,7 +20,7 @@ import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
-import uk.gov.hmrc.sca.models.{BannerConfig, BespokeUserResearchBanner}
+import uk.gov.hmrc.sca.models.{BannerConfig, UrBannerDetails}
 import uk.gov.hmrc.sca.views.html.StandardScaLayout
 import utils.ViewBaseSpec
 import views.NewScaLayoutViewSpec.menu
@@ -50,7 +50,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
     hideMenuBar: Boolean = false,
     disableSessionExpired: Boolean = false,
     optTrustedHelper: Option[TrustedHelper] = None,
-    bespokeUserResearchBanner: Option[BespokeUserResearchBanner] = None
+    bespokeUserResearchBanner: Option[UrBannerDetails] = None
   )(implicit messages: Messages): Html =
     standardScaLayout(
       if (hideMenuBar) None else menu,
@@ -234,18 +234,18 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         .attr("href") mustBe "returnLinkUrl"
     }
 
-    "render bespoke user research banner when config is provided" in {
-      val bespokeConfig = BespokeUserResearchBanner(
-        url = "https://example.com/research",
+    "render bespoke user research banner when details are provided" in {
+      val bespokeDetails = UrBannerDetails(
         titleEn = "Help improve this service",
         titleCy = "Helpu gwella'r gwasanaeth hwn",
         linkTextEn = "Take part in user research",
-        linkTextCy = "Cymerwch ran mewn ymchwil defnyddwyr"
+        linkTextCy = "Cymerwch ran mewn ymchwil defnyddwyr",
+        hideCloseButton = false
       )
 
       val document = asDocument(
         createView(
-          bespokeUserResearchBanner = Some(bespokeConfig)
+          bespokeUserResearchBanner = Some(bespokeDetails)
         ).toString()
       )
 

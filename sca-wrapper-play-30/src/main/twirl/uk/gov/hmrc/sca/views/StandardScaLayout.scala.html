@@ -19,7 +19,7 @@
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
 @import uk.gov.hmrc.sca.config.AppConfig
-@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig, BespokeUserResearchBanner}
+@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig, UrBannerDetails}
 @import uk.gov.hmrc.sca.views.html._
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
 
@@ -59,78 +59,81 @@
         disableSessionExpired: Boolean,
         optTrustedHelper: Option[TrustedHelper],
         urBannerUrl: Option[String],
-        bespokeUserResearchBanner: Option[BespokeUserResearchBanner])(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
+        bespokeUserResearchBanner: Option[UrBannerDetails])(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
 
 @headBlock = {
 
-    @styleSheets
+@styleSheets
 
-    @if(!disableSessionExpired) {
-        @hmrcTimeoutDialogHelper(
-            timeout = Some(appConfig.timeout),
-            countdown = Some(appConfig.countdown),
-            keepAliveUrl = Some(keepAliveUrl),
-            signOutUrl = serviceURLs.signOutUrl.getOrElse("#"),
-            timeoutUrl = timeOutUrl,
-            synchroniseTabs = Some(appConfig.synchroniseTabs)
+@if(!disableSessionExpired) {
+    @hmrcTimeoutDialogHelper(
+        timeout = Some(appConfig.timeout),
+        countdown = Some(appConfig.countdown),
+        keepAliveUrl = Some(keepAliveUrl),
+        signOutUrl = serviceURLs.signOutUrl.getOrElse("#"),
+        timeoutUrl = timeOutUrl,
+        synchroniseTabs = Some(appConfig.synchroniseTabs)
 
-        )
-    }
+    )
+}
 
-    @ptaHead()
+@ptaHead()
 }
 
 @additionalScripts = {
-    @scripts
-    @ptaScripts()
+@scripts
+@ptaScripts()
 }
 
 @bespokeUserResearchBannerHtml = @{
-    bespokeUserResearchBanner.map { cfg =>
+    (for {
+        cfg <- bespokeUserResearchBanner
+                url <- urBannerUrl
+    } yield {
         bespokeUserResearchBannerView(
-            cfg.url,
+            url,
             cfg.titleEn,
             cfg.titleCy,
             cfg.linkTextEn,
             cfg.linkTextCy,
             cfg.hideCloseButton
         )
-    }
+    }).orNull
 }
 
 @beforeContent = {
-    @defining(request.uri) { _ =>
-         @menu
-    }
+@defining(request.uri) { _ =>
+    @menu
+}
 
-    @defining(appConfig.welshToggle) { welshEnabled =>
-        @if(showBackLinkJS || backLinkUrl.isDefined ) {
-            <div class="govuk-grid-row">
-                @if(showBackLinkJS){
-                    <div class="govuk-grid-column-one-half">
-                        <div class="govuk-!-display-inline-block js-enabled">
-                            @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
-                        </div>
-                    </div>
-                }else{
-                    <div class="govuk-grid-column-one-half">
-                        @govukBackLink(BackLink.withDefaultText(backLinkUrl.getOrElse("#")))
-                    </div>
-                }
+@defining(appConfig.welshToggle) { welshEnabled =>
+    @if(showBackLinkJS || backLinkUrl.isDefined ) {
+        <div class="govuk-grid-row">
+            @if(showBackLinkJS){
                 <div class="govuk-grid-column-one-half">
-                    @if(welshEnabled) {
-                    @hmrcLanguageSelectHelper()
-                    }
+                    <div class="govuk-!-display-inline-block js-enabled">
+                    @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
+                    </div>
                 </div>
-            </div>
-        } else {
+            }else{
+                <div class="govuk-grid-column-one-half">
+                @govukBackLink(BackLink.withDefaultText(backLinkUrl.getOrElse("#")))
+                </div>
+            }
+            <div class="govuk-grid-column-one-half">
             @if(welshEnabled) {
                 @hmrcLanguageSelectHelper()
             }
+            </div>
+        </div>
+    } else {
+        @if(welshEnabled) {
+            @hmrcLanguageSelectHelper()
         }
     }
+}
 
-    @attorneyBanner
+@attorneyBanner
 }
 
 @attorneyBanner = @{

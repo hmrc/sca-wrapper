@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, UrBannerDetails, Webchat, WrapperDataResponse}
 import utils.BaseSpec
 
 class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
@@ -110,11 +110,13 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
        |      "page": "test-page",
        |      "link": "test-link",
        |      "isEnabled": true,
-       |      "titleEn": "Help improve this service",
-       |      "titleCy": "Helpu gwella'r gwasanaeth hwn",
-       |      "linkTextEn": "Take part",
-       |      "linkTextCy": "Cymerwch ran",
-       |      "hideCloseButton": false
+       |      "bannerDetails": {
+       |        "titleEn": "Help improve this service",
+       |        "titleCy": "Helpu gwella'r gwasanaeth hwn",
+       |        "linkTextEn": "Take part",
+       |        "linkTextCy": "Cymerwch ran",
+       |        "hideCloseButton": false
+       |      }
        |    }
        |  ],
        |  "webchatPages": [
@@ -179,12 +181,16 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
         None
       )
 
+      val bespokeUrBannerDetails = UrBannerDetails(
+        titleEn = "Help improve this service",
+        titleCy = "Helpu gwella'r gwasanaeth hwn",
+        linkTextEn = "Take part",
+        linkTextCy = "Cymerwch ran",
+        hideCloseButton = false
+      )
+
       val bespokeUrBanner = defaultUrBanner.copy(
-        titleEn = Some("Help improve this service"),
-        titleCy = Some("Helpu gwella'r gwasanaeth hwn"),
-        linkTextEn = Some("Take part"),
-        linkTextCy = Some("Cymerwch ran"),
-        hideCloseButton = Some(false)
+        bannerDetails = Some(bespokeUrBannerDetails)
       )
 
       val expectedResponse = WrapperDataResponse(

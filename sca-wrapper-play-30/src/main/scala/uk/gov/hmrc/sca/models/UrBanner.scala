@@ -18,23 +18,24 @@ package uk.gov.hmrc.sca.models
 
 import play.api.libs.json.{Json, OFormat}
 
+case class UrBannerDetails(
+  titleEn: String,
+  titleCy: String,
+  linkTextEn: String,
+  linkTextCy: String,
+  hideCloseButton: Boolean
+)
+
+object UrBannerDetails {
+  implicit val format: OFormat[UrBannerDetails] = Json.format[UrBannerDetails]
+}
+
 case class UrBanner(
   page: String,
   link: String,
   isEnabled: Boolean,
-  titleEn: Option[String] = None,
-  titleCy: Option[String] = None,
-  linkTextEn: Option[String] = None,
-  linkTextCy: Option[String] = None,
-  hideCloseButton: Option[Boolean] = None
-) {
-  lazy val isBespoke: Boolean =
-    titleEn.isDefined ||
-      titleCy.isDefined ||
-      linkTextEn.isDefined ||
-      linkTextCy.isDefined ||
-      hideCloseButton.isDefined
-}
+  bannerDetails: Option[UrBannerDetails] = None
+)
 
 object UrBanner {
   implicit val format: OFormat[UrBanner] = Json.format[UrBanner]

@@ -73,8 +73,11 @@ class WrapperService @Inject() (
       case (None, true)     => false
     }
 
-    val bespokeBannerFromWrapper: Option[BespokeUserResearchBanner] =
-      getBespokeUserResearchBannerForPage
+    val urBannerForPage: Option[UrBanner] = getUrBannerForPage
+
+    val urBannerUrl: Option[String] = urBannerForPage.filter(_.isEnabled).map(_.link)
+
+    val bespokeBannerDetailsFromWrapper: Option[UrBannerDetails] = urBannerForPage.flatMap(_.bannerDetails)
 
     newScaLayout(
       menu = if (hideMenuBar) None else Some(ptaMenuBar(sortMenuItemConfig(serviceURLs.signOutUrl))),
@@ -93,8 +96,8 @@ class WrapperService @Inject() (
       fullWidth = fullWidth,
       disableSessionExpired = disableSessionExpired,
       optTrustedHelper = optTrustedHelper,
-      urBannerUrl = if (urBannerEnabled()) getUrBannerUrl else None,
-      bespokeUserResearchBanner = bespokeBannerFromWrapper
+      urBannerUrl = urBannerUrl,
+      bespokeUserResearchBanner = bespokeBannerDetailsFromWrapper
     )(content)
   }
 
@@ -171,42 +174,8 @@ class WrapperService @Inject() (
   private def getMessageDataFromRequest(requestHeader: RequestHeader): Option[Int] =
     requestHeader.attrs.get(Keys.messageDataKey)
 
-  private def getUrBannerDetailsForPage(implicit requestHeader: RequestHeader): Option[UrBanner] = {
-    val wrapperDataResponse = getWrapperDataResponse(requestHeader)
-    wrapperDataResponse.flatMap { response =>
+  private def getUrBannerForPage(implicit requestHeader: RequestHeader): Option[UrBanner] =
+    getWrapperDataResponse(requestHeader).flatMap { response =>
       response.urBanners.find(_.page.equals(requestHeader.uri))
-    }
-  }
-
-  private def getUrBannerUrl(implicit requestHeader: RequestHeader): Option[String] =
-    getUrBannerDetailsForPage match {
-      case Some(urBanner) => Some(urBanner.link)
-      case None           => appConfig.helpImproveBannerUrl
-    }
-
-  private def urBannerEnabled()(implicit requestHeader: RequestHeader): Boolean =
-    getUrBannerDetailsForPage.exists(_.isEnabled)
-
-  private def getBespokeUserResearchBannerForPage(implicit
-    requestHeader: RequestHeader
-  ): Option[BespokeUserResearchBanner] =
-    getUrBannerDetailsForPage.flatMap { urBanner =>
-      if (urBanner.isBespoke) {
-        for {
-          titleEn    <- urBanner.titleEn
-          titleCy    <- urBanner.titleCy
-          linkTextEn <- urBanner.linkTextEn
-          linkTextCy <- urBanner.linkTextCy
-        } yield BespokeUserResearchBanner(
-          url = urBanner.link,
-          titleEn = titleEn,
-          titleCy = titleCy,
-          linkTextEn = linkTextEn,
-          linkTextCy = linkTextCy,
-          hideCloseButton = urBanner.hideCloseButton.getOrElse(false)
-        )
-      } else {
-        None
-      }
     }
 }

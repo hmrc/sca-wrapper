@@ -280,13 +280,17 @@ class WrapperServiceSpec extends BaseSpec {
       bespokeUserResearchBannerCaptor.getValue mustBe None
     }
 
-    "derive bespoke user research banner from UR banner when bespoke fields are present" in {
+    "derive bespoke user research banner details from UR banner when bannerDetails are present" in {
+      val bespokeDetails = UrBannerDetails(
+        titleEn = "Help improve this service",
+        titleCy = "Helpu gwella'r gwasanaeth hwn",
+        linkTextEn = "Take part in user research",
+        linkTextCy = "Cymerwch ran mewn ymchwil defnyddwyr",
+        hideCloseButton = true
+      )
+
       val bespokeUrBanner = defaultUrBanner.copy(
-        titleEn = Some("Help improve this service"),
-        titleCy = Some("Helpu gwella'r gwasanaeth hwn"),
-        linkTextEn = Some("Take part in user research"),
-        linkTextCy = Some("Cymerwch ran mewn ymchwil defnyddwyr"),
-        hideCloseButton = Some(true)
+        bannerDetails = Some(bespokeDetails)
       )
 
       val wrapperWithBespokeUr = wrapperDataResponse.copy(
@@ -332,16 +336,7 @@ class WrapperServiceSpec extends BaseSpec {
         bespokeUserResearchBanner = bespokeUserResearchBannerCaptor.capture()
       )(any())(any(), any())
 
-      val expectedBespoke = BespokeUserResearchBanner(
-        url = bespokeUrBanner.link,
-        titleEn = bespokeUrBanner.titleEn.get,
-        titleCy = bespokeUrBanner.titleCy.get,
-        linkTextEn = bespokeUrBanner.linkTextEn.get,
-        linkTextCy = bespokeUrBanner.linkTextCy.get,
-        hideCloseButton = true
-      )
-
-      bespokeUserResearchBannerCaptor.getValue mustBe Some(expectedBespoke)
+      bespokeUserResearchBannerCaptor.getValue mustBe Some(bespokeDetails)
     }
 
     "return the continueUrl if it is a valid relative URL" in {
@@ -429,46 +424,46 @@ object WrapperServiceSpec {
     trustedHelper = None
   )
 
-  val menuCaptor: ArgumentCaptor[Option[Html]]                                           =
+  val menuCaptor: ArgumentCaptor[Option[Html]]                                 =
     ArgumentCaptor.forClass(classOf[Option[Html]])
-  val serviceURLsCaptor: ArgumentCaptor[ServiceURLs]                                     =
+  val serviceURLsCaptor: ArgumentCaptor[ServiceURLs]                           =
     ArgumentCaptor.forClass(classOf[ServiceURLs])
-  val serviceNameKeyCaptor: ArgumentCaptor[Option[String]]                               =
+  val serviceNameKeyCaptor: ArgumentCaptor[Option[String]]                     =
     ArgumentCaptor.forClass(classOf[Option[String]])
-  val serviceNameUrlCaptor: ArgumentCaptor[Option[String]]                               =
+  val serviceNameUrlCaptor: ArgumentCaptor[Option[String]]                     =
     ArgumentCaptor.forClass(classOf[Option[String]])
-  val pageTitleCaptor: ArgumentCaptor[Option[String]]                                    =
+  val pageTitleCaptor: ArgumentCaptor[Option[String]]                          =
     ArgumentCaptor.forClass(classOf[Option[String]])
-  val sideBarContentCaptor: ArgumentCaptor[Option[Html]]                                 =
+  val sideBarContentCaptor: ArgumentCaptor[Option[Html]]                       =
     ArgumentCaptor.forClass(classOf[Option[Html]])
-  val signoutUrlCaptor: ArgumentCaptor[Option[String]]                                   =
+  val signoutUrlCaptor: ArgumentCaptor[Option[String]]                         =
     ArgumentCaptor.forClass(classOf[Option[String]])
-  val timeOutUrlCaptor: ArgumentCaptor[Option[String]]                                   =
+  val timeOutUrlCaptor: ArgumentCaptor[Option[String]]                         =
     ArgumentCaptor.forClass(classOf[Option[String]])
-  val keepAliveUrlCaptor: ArgumentCaptor[String]                                         =
+  val keepAliveUrlCaptor: ArgumentCaptor[String]                               =
     ArgumentCaptor.forClass(classOf[String])
-  val showBackLinkJSCaptor: ArgumentCaptor[Boolean]                                      =
+  val showBackLinkJSCaptor: ArgumentCaptor[Boolean]                            =
     ArgumentCaptor.forClass(classOf[Boolean])
-  val backLinkUrlCaptor: ArgumentCaptor[Option[String]]                                  =
+  val backLinkUrlCaptor: ArgumentCaptor[Option[String]]                        =
     ArgumentCaptor.forClass(classOf[Option[String]])
-  val showSignOutInHeaderCaptor: ArgumentCaptor[Boolean]                                 =
+  val showSignOutInHeaderCaptor: ArgumentCaptor[Boolean]                       =
     ArgumentCaptor.forClass(classOf[Boolean])
-  val scriptsCaptor: ArgumentCaptor[Seq[HtmlFormat.Appendable]]                          =
+  val scriptsCaptor: ArgumentCaptor[Seq[HtmlFormat.Appendable]]                =
     ArgumentCaptor.forClass(classOf[Seq[HtmlFormat.Appendable]])
-  val styleSheetsCaptor: ArgumentCaptor[Seq[HtmlFormat.Appendable]]                      =
+  val styleSheetsCaptor: ArgumentCaptor[Seq[HtmlFormat.Appendable]]            =
     ArgumentCaptor.forClass(classOf[Seq[HtmlFormat.Appendable]])
-  val bannerConfigCaptor: ArgumentCaptor[BannerConfig]                                   =
+  val bannerConfigCaptor: ArgumentCaptor[BannerConfig]                         =
     ArgumentCaptor.forClass(classOf[BannerConfig])
-  val optTrustedHelperCaptor: ArgumentCaptor[Option[TrustedHelper]]                      =
+  val optTrustedHelperCaptor: ArgumentCaptor[Option[TrustedHelper]]            =
     ArgumentCaptor.forClass(classOf[Option[TrustedHelper]])
-  val fullWidthCaptor: ArgumentCaptor[Boolean]                                           =
+  val fullWidthCaptor: ArgumentCaptor[Boolean]                                 =
     ArgumentCaptor.forClass(classOf[Boolean])
-  val disableSessionExpiredCaptor: ArgumentCaptor[Boolean]                               =
+  val disableSessionExpiredCaptor: ArgumentCaptor[Boolean]                     =
     ArgumentCaptor.forClass(classOf[Boolean])
-  val contentCaptor: ArgumentCaptor[Html]                                                =
+  val contentCaptor: ArgumentCaptor[Html]                                      =
     ArgumentCaptor.forClass(classOf[Html])
-  val urBannerUrlCaptor: ArgumentCaptor[Option[String]]                                  =
+  val urBannerUrlCaptor: ArgumentCaptor[Option[String]]                        =
     ArgumentCaptor.forClass(classOf[Option[String]])
-  val bespokeUserResearchBannerCaptor: ArgumentCaptor[Option[BespokeUserResearchBanner]] =
-    ArgumentCaptor.forClass(classOf[Option[BespokeUserResearchBanner]])
+  val bespokeUserResearchBannerCaptor: ArgumentCaptor[Option[UrBannerDetails]] =
+    ArgumentCaptor.forClass(classOf[Option[UrBannerDetails]])
 }
