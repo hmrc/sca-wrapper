@@ -42,7 +42,7 @@ class WrapperService @Inject() (
   private lazy val defaultBannerConfig: BannerConfig = BannerConfig(
     showAlphaBanner = appConfig.showAlphaBanner,
     showBetaBanner = appConfig.showBetaBanner,
-    showHelpImproveBanner = false // deprecated; controlled via wrapper-data ur-banners now
+    showHelpImproveBanner = appConfig.showHelpImproveBanner // deprecated; controlled via wrapper-data ur-banners now
   )
 
   def standardScaLayout(
@@ -75,9 +75,24 @@ class WrapperService @Inject() (
 
     val urBannerForPage: Option[UrBanner] = getUrBannerForPage
 
-    val urBannerUrl: Option[String] = urBannerForPage.filter(_.isEnabled).map(_.link)
+    val bannerDetailsOpt: Option[UrBannerDetails] = urBannerForPage.flatMap(_.bannerDetails)
 
-    val bespokeBannerDetailsFromWrapper: Option[UrBannerDetails] = urBannerForPage.flatMap(_.bannerDetails)
+    val (effectiveBannerConfig, urBannerUrl, bespokeBannerFromWrapper) =
+      bannerDetailsOpt match {
+        case Some(details) =>
+          (bannerConfig.copy(showHelpImproveBanner = false), None, Some(details))
+
+        case None =>
+          val basicWrapperBannerUrl: Option[String] =
+            urBannerForPage.filter(_.isEnabled).map(_.link)
+
+          val resolvedUrl: Option[String] =
+            basicWrapperBannerUrl.orElse {
+              if (bannerConfig.showHelpImproveBanner) appConfig.helpImproveBannerUrl else None
+            }
+
+          (bannerConfig, resolvedUrl, None)
+      }
 
     newScaLayout(
       menu = if (hideMenuBar) None else Some(ptaMenuBar(sortMenuItemConfig(serviceURLs.signOutUrl))),
@@ -92,12 +107,12 @@ class WrapperService @Inject() (
       showSignOutInHeader = showSignOutInHeader,
       scripts = scripts ++ webchatUtil.getWebchatScripts,
       styleSheets = styleSheets,
-      bannerConfig = bannerConfig,
+      bannerConfig = effectiveBannerConfig,
       fullWidth = fullWidth,
       disableSessionExpired = disableSessionExpired,
       optTrustedHelper = optTrustedHelper,
       urBannerUrl = urBannerUrl,
-      bespokeUserResearchBanner = bespokeBannerDetailsFromWrapper
+      bespokeUserResearchBanner = bespokeBannerFromWrapper
     )(content)
   }
 

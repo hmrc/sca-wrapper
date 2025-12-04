@@ -157,7 +157,7 @@ class WrapperServiceSpec extends BaseSpec {
       contentCaptor.getValue mustBe Html("Default-Content")
     }
 
-    "not set UR banner link when no matching UR banner exists for the page" in {
+    "set UR banner link from bannerConfig when no matching UR banner exists for the page" in {
       val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "NON MATCHING URI")
         .withAttrs(
           TypedMap(
@@ -205,7 +205,7 @@ class WrapperServiceSpec extends BaseSpec {
         bespokeUserResearchBanner = bespokeUserResearchBannerCaptor.capture()
       )(contentCaptor.capture())(any(), any())
 
-      verify(mockAppConfig, times(0)).helpImproveBannerUrl
+      verify(mockAppConfig, times(1)).helpImproveBannerUrl
       verify(mockWebchatUtil, times(1)).getWebchatScripts(any())
 
       menuCaptor.getValue mustBe standardMenu
@@ -227,12 +227,12 @@ class WrapperServiceSpec extends BaseSpec {
       optTrustedHelperCaptor.getValue mustBe None
       fullWidthCaptor.getValue mustBe true
       disableSessionExpiredCaptor.getValue mustBe false
-      urBannerUrlCaptor.getValue mustBe None
+      urBannerUrlCaptor.getValue mustBe Some("config link")
       bespokeUserResearchBannerCaptor.getValue mustBe None
       contentCaptor.getValue mustBe Html("Default-Content")
     }
 
-    "not set UR banner link when UR banner is disabled for the page" in {
+    "not set UR banner link when UR banner is disabled for the page and bannerConfig.showHelpImproveBanner is false" in {
       val disabledWrapperData = wrapperDataResponse.copy(
         urBanners = List(defaultUrBanner.copy(isEnabled = false))
       )
@@ -328,15 +328,17 @@ class WrapperServiceSpec extends BaseSpec {
         showSignOutInHeader = any(),
         scripts = any(),
         styleSheets = any(),
-        bannerConfig = any(),
+        bannerConfig = bannerConfigCaptor.capture(),
         fullWidth = any(),
         disableSessionExpired = any(),
         optTrustedHelper = any(),
-        urBannerUrl = any(),
+        urBannerUrl = urBannerUrlCaptor.capture(),
         bespokeUserResearchBanner = bespokeUserResearchBannerCaptor.capture()
       )(any())(any(), any())
 
+      urBannerUrlCaptor.getValue mustBe None
       bespokeUserResearchBannerCaptor.getValue mustBe Some(bespokeDetails)
+      verify(mockAppConfig, times(0)).helpImproveBannerUrl
     }
 
     "return the continueUrl if it is a valid relative URL" in {
