@@ -23,7 +23,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits.readFromJson
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{GatewayTimeoutException, HeaderCarrier, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.sca.config.AppConfig
-import uk.gov.hmrc.sca.models.WrapperDataResponse
+import uk.gov.hmrc.sca.models.{ServiceNavigationToggleResponse, WrapperDataResponse}
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
@@ -65,6 +65,42 @@ class ScaWrapperDataConnector @Inject() (
         case scala.util.control.NonFatal(ex)                   =>
           logger.error(
             s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperDataWithMessages] Exception while calling combined wrapper data: ${ex.getMessage}",
+            ex
+          )
+          None
+      }
+  }
+
+  def serviceNavigationToggle()(implicit
+    ec: ExecutionContext,
+    hc: HeaderCarrier
+  ): Future[Option[ServiceNavigationToggleResponse]] = {
+
+    val url = url"${appConfig.scaWrapperDataUrl}/service-navigation/toggle"
+
+    logger.debug(
+      s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Requesting service-nav toggle"
+    )
+
+    http
+      .get(url)
+      .transform(_.withRequestTimeout(appConfig.timeoutHttpClientMillis.millis))
+      .execute[ServiceNavigationToggleResponse]
+      .map(Some(_))
+      .recover {
+        case ex: GatewayTimeoutException                       =>
+          logger.error(
+            s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Time out while calling toggle: ${ex.getMessage}"
+          )
+          None
+        case ex: UpstreamErrorResponse if ex.statusCode >= 499 =>
+          logger.error(
+            s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Server error while calling toggle: ${ex.getMessage}"
+          )
+          None
+        case scala.util.control.NonFatal(ex)                   =>
+          logger.error(
+            s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Exception while calling toggle: ${ex.getMessage}",
             ex
           )
           None

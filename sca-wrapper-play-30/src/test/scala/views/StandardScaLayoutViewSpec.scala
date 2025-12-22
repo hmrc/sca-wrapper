@@ -17,10 +17,12 @@
 package views
 
 import play.api.i18n.Messages
+import play.api.test.Helpers.stubMessages
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.sca.models.BannerConfig
+import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.sca.views.html.StandardScaLayout
 import utils.ViewBaseSpec
 import views.NewScaLayoutViewSpec.menu
@@ -102,7 +104,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-timeout") mustBe "900"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-countdown") mustBe "120"
       val lang = document.getElementsByClass("hmrc-language-select__list-item").asScala.toList
-      lang(0).text() mustBe "English"
+      lang.head.text() mustBe "English"
       lang(1).text() mustBe "Newid yr iaith i’r Gymraeg Cymraeg"
       document.getElementsByAttributeValue("href", "/help/cookies").text() mustBe "Cookies"
       document.getElementsByAttributeValue("href", "/help/privacy").text() mustBe "Privacy policy"
@@ -130,7 +132,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         .select(".govuk-phase-banner__content")
         .asScala
         .headOption
-        .map(_.text()) mustBe Some("Alpha This is a new service – your feedback will help us to improve it.")
+        .map(_.text()) mustBe Some("Alpha This is a new service. Help us improve it and give your feedback by email.")
       document.getElementsByTag("h2").asScala.exists(x => x.text().equals("Support links")) mustBe true
       document.select(".govuk-grid-column-two-thirds").asScala.nonEmpty mustBe true
       document
@@ -177,7 +179,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         .select(".govuk-phase-banner__content")
         .asScala
         .exists(x =>
-          x.text().equals("Beta This is a new service – your feedback will help us to improve it.")
+          x.text().equals("Beta This is a new service. Help us improve it and give your feedback by email.")
         ) mustBe true
     }
 
@@ -223,6 +225,42 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         .attr("href") mustBe "returnLinkUrl"
     }
 
+    "use Service Navigation when useNewServiceNavigationKey is true" in {
+      implicit val messages: Messages = stubMessages()
+      val requestWithServiceNav       = fakeRequest.addAttr(Keys.useNewServiceNavigationKey, true)
+
+      val view = standardScaLayout(
+        menu = menu,
+        serviceURLs = ServiceURLs(
+          serviceUrl = Some("Service-Name_Url"),
+          signOutUrl = Some("Signout-Url"),
+          accessibilityStatementUrl = Some("http://accessibility-url.org")
+        ),
+        serviceNameKey = Some("Service-Name-Key"),
+        pageTitle = Some("Page-Title"),
+        sidebarContent = None,
+        timeOutUrl = Some("TimeOut-Url"),
+        keepAliveUrl = "Keep-Alive-Url",
+        showBackLinkJS = false,
+        backLinkUrl = None,
+        showSignOutInHeader = false,
+        scripts = Seq(Html("<script src=/customscript.js></script>")),
+        styleSheets = Seq(Html("<link href=/customStylesheet rel=stylesheet/>")),
+        bannerConfig = BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
+        fullWidth = false,
+        disableSessionExpired = false,
+        optTrustedHelper = None,
+        urBannerUrl = Some("test-ur-banner-link")
+      )(Html("Content-Block"))(requestWithServiceNav, messages)
+
+      val document = asDocument(view.toString())
+
+      document.select(".govuk-header__service-name").asScala.isEmpty mustBe true
+
+      val serviceNavEls = document.select(".govuk-service-navigation").asScala
+      serviceNavEls.nonEmpty mustBe true
+      serviceNavEls.head.text() must include("Service-Name-Key")
+    }
   }
 }
 

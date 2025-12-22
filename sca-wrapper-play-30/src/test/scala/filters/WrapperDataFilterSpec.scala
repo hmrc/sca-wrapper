@@ -34,6 +34,7 @@ import play.api.{Application, inject}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.filters.WrapperDataFilter
+import uk.gov.hmrc.sca.models.ServiceNavigationToggleResponse
 import uk.gov.hmrc.sca.utils.Keys
 
 import scala.concurrent.Future
@@ -52,8 +53,12 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
 
   override def beforeEach(): Unit = {
     reset(mockScaWrapperDataConnector)
+
     when(mockScaWrapperDataConnector.wrapperDataWithMessages()(any(), any(), any()))
       .thenReturn(Future.successful(Some(wrapperDataResponse)))
+
+    when(mockScaWrapperDataConnector.serviceNavigationToggle()(any(), any()))
+      .thenReturn(Future.successful(Some(ServiceNavigationToggleResponse(useNewServiceNavigation = true))))
   }
 
   val wrapperDataFilter: WrapperDataFilter = application.injector.instanceOf[WrapperDataFilter]
@@ -65,16 +70,26 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
         FakeRequest("GET", "/not-excluded").withSession("authToken" -> "valid-token")
 
       val f: RequestHeader => Future[Result] =
-        r => Future.successful(Ok(Json.obj("wrapperData" -> r.attrs.get(Keys.wrapperDataKey))))
+        r =>
+          Future.successful(
+            Ok(
+              Json.obj(
+                "wrapperData"             -> r.attrs.get(Keys.wrapperDataKey),
+                "useNewServiceNavigation" -> r.attrs.get(Keys.useNewServiceNavigationKey)
+              )
+            )
+          )
 
       val result = wrapperDataFilter.apply(f)(request)
 
       status(result) mustBe OK
 
       verify(mockScaWrapperDataConnector, times(1)).wrapperDataWithMessages()(any(), any(), any())
+      verify(mockScaWrapperDataConnector, times(1)).serviceNavigationToggle()(any(), any())
 
       contentAsJson(result) mustBe Json.obj(
-        "wrapperData" -> Some(wrapperDataResponse)
+        "wrapperData"             -> Some(wrapperDataResponse),
+        "useNewServiceNavigation" -> Some(true)
       )
     }
 
@@ -91,11 +106,11 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
         status(result) mustBe OK
 
         verify(mockScaWrapperDataConnector, never()).wrapperDataWithMessages()(any(), any(), any())
+        verify(mockScaWrapperDataConnector, times(1)).serviceNavigationToggle()(any(), any())
 
         contentAsJson(result) mustBe Json.obj(
           "wrapperData" -> Json.toJson(None)
         )
-
       }
     }
 
@@ -110,6 +125,7 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
       status(result) mustBe OK
 
       verify(mockScaWrapperDataConnector, never()).wrapperDataWithMessages()(any(), any(), any())
+      verify(mockScaWrapperDataConnector, times(1)).serviceNavigationToggle()(any(), any())
 
       contentAsJson(result) mustBe Json.obj(
         "wrapperData" -> Json.toJson(None)

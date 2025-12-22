@@ -28,6 +28,7 @@ import uk.gov.hmrc.sca.utils.Keys
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.chaining.scalaUtilChainingOps
+import scala.util.control.NonFatal
 
 class WrapperDataFilter @Inject() (
   scaWrapperDataConnector: ScaWrapperDataConnector
@@ -60,13 +61,15 @@ class WrapperDataFilter @Inject() (
   private def updateRequestHeader(
     requestHeader: RequestHeader,
     isAuthenticated: Boolean,
-    optWrapperDataResponse: Option[WrapperDataResponse]
+    optWrapperDataResponse: Option[WrapperDataResponse],
+    useNewServiceNavigation: Boolean
   ): RequestHeader = {
     val unreadMessageCount: Option[Int] = optWrapperDataResponse.flatMap(_.unreadMessageCount)
 
     requestHeader
       .addAttr(Keys.wrapperFilterHasRun, true)
       .pipe(_.addAttr(Keys.wrapperIsAuthenticatedKey, isAuthenticated))
+      .pipe(_.addAttr(Keys.useNewServiceNavigationKey, useNewServiceNavigation))
       .pipe(rh => optWrapperDataResponse.fold(rh)(wdr => rh.addAttr(Keys.wrapperDataKey, wdr)))
       .pipe(rh => unreadMessageCount.fold(rh)(count => rh.addAttr(Keys.messageDataKey, count)))
   }
@@ -79,8 +82,24 @@ class WrapperDataFilter @Inject() (
 
     for {
       optWrapperData      <- retrieveWrapperData(isAuthenticated)
-      updatedRequestHeader = updateRequestHeader(rh, isAuthenticated, optWrapperData)
+      useNewServiceNav    <- retrieveServiceNavigationToggle()
+      updatedRequestHeader = updateRequestHeader(rh, isAuthenticated, optWrapperData, useNewServiceNav)
       result              <- f(updatedRequestHeader)
     } yield result
   }
+
+  private def retrieveServiceNavigationToggle()(implicit headerCarrier: HeaderCarrier): Future[Boolean] =
+    scaWrapperDataConnector
+      .serviceNavigationToggle()
+      .map {
+        case Some(resp) => resp.useNewServiceNavigation
+        case None       => false
+      }
+      .recover { case NonFatal(ex) =>
+        logger.error(
+          s"[SCA Wrapper Data Filter][retrieveServiceNavigationToggle] Failed to get service navigation toggle: ${ex.getMessage}",
+          ex
+        )
+        false
+      }
 }
