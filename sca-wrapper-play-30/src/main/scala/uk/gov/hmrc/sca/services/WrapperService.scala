@@ -42,7 +42,7 @@ class WrapperService @Inject() (
   private lazy val defaultBannerConfig: BannerConfig = BannerConfig(
     showAlphaBanner = appConfig.showAlphaBanner,
     showBetaBanner = appConfig.showBetaBanner,
-    showHelpImproveBanner = appConfig.showHelpImproveBanner // deprecated; controlled via wrapper-data ur-banners now
+    showHelpImproveBanner = appConfig.showHelpImproveBanner
   )
 
   def standardScaLayout(

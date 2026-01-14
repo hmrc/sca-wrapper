@@ -75,11 +75,6 @@ class AppConfig @Inject() (
   // banners
   val showAlphaBanner: Boolean       = configuration.get[Boolean]("sca-wrapper.banners.show-alpha")
   val showBetaBanner: Boolean        = configuration.get[Boolean]("sca-wrapper.banners.show-beta")
-  @deprecated(
-    message =
-      "UR banner visibility is now controlled by single-customer-account-wrapper-data (ur-banners.items). This flag is no longer used.",
-    since = "5.0.0"
-  )
   val showHelpImproveBanner: Boolean = configuration.get[Boolean]("sca-wrapper.banners.show-help-improve")
 
   val synchroniseTabs: Boolean = configuration.get[Boolean]("sca-wrapper.synchronise-tabs")
