@@ -125,7 +125,7 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
         .select(".govuk-phase-banner__content")
         .asScala
         .headOption
-        .map(_.text()) mustBe Some("Alpha This is a new service – your feedback will help us to improve it.")
+        .map(_.text()) mustBe Some("Alpha This is a new service. Help us improve it and give your feedback by email.")
       document.getElementsByTag("h2").asScala.exists(x => x.text().equals("Support links")) mustBe true
       document.select(".govuk-grid-column-two-thirds").asScala.nonEmpty mustBe true
     }
@@ -162,9 +162,8 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
       document
         .select(".govuk-phase-banner__content")
         .asScala
-        .exists(x =>
-          x.text().equals("Beta This is a new service – your feedback will help us to improve it.")
-        ) mustBe true
+        .headOption
+        .map(_.text()) mustBe Some("Beta This is a new service. Help us improve it and give your feedback by email.")
     }
 
     "return a Wrapper layout when fullWidth is true in English" in {
