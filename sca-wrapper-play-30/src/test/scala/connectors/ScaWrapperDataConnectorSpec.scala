@@ -21,11 +21,12 @@ import org.mockito.Mockito.when
 import org.scalatest.concurrent.PatienceConfiguration.Timeout
 import org.scalatest.time.{Seconds, Span}
 import play.api.{Application, Logger}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, ServiceNavigationToggleResponse, UrBanner, Webchat, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
 import utils.BaseSpec
 
 class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
@@ -220,7 +221,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
       }
     }
 
-    "return a successful ServiceNavigationToggleResponse when serviceNavigationToggle() returns 200 with valid JSON" in {
+    "return Right(true) when serviceNavigationToggle() returns 200 with valid JSON" in {
       when(mockAppConfig.scaWrapperDataUrl).thenReturn(
         s"http://localhost:${server.port()}/single-customer-account-wrapper-data"
       )
@@ -237,12 +238,12 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
           .willReturn(okJson(toggleJson))
       )
 
-      scaWrapperDataConnector.serviceNavigationToggle().map { result =>
-        result mustBe Some(ServiceNavigationToggleResponse(useNewServiceNavigation = true))
+      scaWrapperDataConnector.serviceNavigationToggle().value.map { result =>
+        result mustBe Right(true)
       }
     }
 
-    "return None when serviceNavigationToggle() returns a server error" in {
+    "fail when serviceNavigationToggle() returns a server error (500)" in {
       when(mockAppConfig.scaWrapperDataUrl).thenReturn(
         s"http://localhost:${server.port()}/single-customer-account-wrapper-data"
       )
@@ -252,22 +253,12 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
           .willReturn(serverError())
       )
 
-      withCaptureOfLoggingFrom(testLogger) { logs =>
-        val result = scaWrapperDataConnector.serviceNavigationToggle().futureValue(Timeout(Span(2, Seconds)))
-        result mustBe None
-        val log    =
-          logs.find(log =>
-            log.getLevel == ch.qos.logback.classic.Level.ERROR &&
-              log.getMessage.contains("Server error while calling toggle")
-          )
-        log.map(_.getMessage) mustBe Some(
-          s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Server error while calling toggle: GET of 'http://localhost:${server.port()}/single-customer-account-wrapper-data/service-navigation/toggle' returned 500. Response body: ''"
-        )
-        log.map(_.getThrowableProxy) mustBe Some(null)
-      }
+      val ex = scaWrapperDataConnector.serviceNavigationToggle().value.failed.futureValue(Timeout(Span(2, Seconds)))
+      ex mustBe a[UpstreamErrorResponse]
+      ex.asInstanceOf[UpstreamErrorResponse].statusCode mustBe 500
     }
 
-    "return None when serviceNavigationToggle() returns a client error and log exception" in {
+    "fail when serviceNavigationToggle() returns a client error (400)" in {
       when(mockAppConfig.scaWrapperDataUrl).thenReturn(
         s"http://localhost:${server.port()}/single-customer-account-wrapper-data"
       )
@@ -277,24 +268,12 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
           .willReturn(badRequest())
       )
 
-      withCaptureOfLoggingFrom(testLogger) { logs =>
-        val result = scaWrapperDataConnector.serviceNavigationToggle().futureValue(Timeout(Span(2, Seconds)))
-        result mustBe None
-        val log    =
-          logs.find(log =>
-            log.getLevel == ch.qos.logback.classic.Level.ERROR &&
-              log.getMessage.contains("Exception while calling toggle")
-          )
-        log.map(_.getMessage) mustBe Some(
-          s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Exception while calling toggle: GET of 'http://localhost:${server.port()}/single-customer-account-wrapper-data/service-navigation/toggle' returned 400. Response body: ''"
-        )
-        log.map(_.getThrowableProxy.getMessage) mustBe Some(
-          s"GET of 'http://localhost:${server.port()}/single-customer-account-wrapper-data/service-navigation/toggle' returned 400. Response body: ''"
-        )
-      }
+      val ex = scaWrapperDataConnector.serviceNavigationToggle().value.failed.futureValue(Timeout(Span(2, Seconds)))
+      ex mustBe a[UpstreamErrorResponse]
+      ex.asInstanceOf[UpstreamErrorResponse].statusCode mustBe 400
     }
 
-    "return None when serviceNavigationToggle() is timing out" in {
+    "return Left(UpstreamErrorResponse(504)) when serviceNavigationToggle() is timing out" in {
       when(mockAppConfig.scaWrapperDataUrl).thenReturn(
         s"http://localhost:${server.port()}/single-customer-account-wrapper-data"
       )
@@ -305,22 +284,24 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
       )
 
       withCaptureOfLoggingFrom(testLogger) { logs =>
-        val result = scaWrapperDataConnector.serviceNavigationToggle().futureValue(Timeout(Span(2, Seconds)))
-        result mustBe None
-        val log    =
-          logs.find(log =>
-            log.getLevel == ch.qos.logback.classic.Level.ERROR &&
-              log.getMessage.contains("Time out while calling toggle")
+        val result = scaWrapperDataConnector.serviceNavigationToggle().value.futureValue(Timeout(Span(2, Seconds)))
+
+        result match {
+          case Left(err) => err.statusCode mustBe 504
+          case Right(_)  => fail("Expected Left(UpstreamErrorResponse) but got Right")
+        }
+
+        val log =
+          logs.find(l =>
+            l.getLevel == ch.qos.logback.classic.Level.ERROR &&
+              l.getMessage.contains("Time out while calling toggle")
           )
-        log.map(_.getMessage) mustBe Some(
-          s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Time out while calling toggle: GET of 'http://localhost:${server.port()}/single-customer-account-wrapper-data/service-navigation/toggle' timed out with message 'Request timeout to localhost/127.0.0.1:${server
-              .port()} after 1000 ms'"
-        )
+
         log.map(_.getThrowableProxy) mustBe Some(null)
       }
     }
 
-    "return None when serviceNavigationToggle() returns invalid JSON" in {
+    "fail when serviceNavigationToggle() returns invalid JSON" in {
       when(mockAppConfig.scaWrapperDataUrl).thenReturn(
         s"http://localhost:${server.port()}/single-customer-account-wrapper-data"
       )
@@ -330,9 +311,8 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
           .willReturn(ok("not-json"))
       )
 
-      scaWrapperDataConnector.serviceNavigationToggle().map { result =>
-        result mustBe None
-      }
+      scaWrapperDataConnector.serviceNavigationToggle().value.failed.futureValue(Timeout(Span(2, Seconds)))
+      succeed
     }
   }
 }

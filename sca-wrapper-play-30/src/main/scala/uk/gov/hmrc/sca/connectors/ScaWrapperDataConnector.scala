@@ -16,14 +16,16 @@
 
 package uk.gov.hmrc.sca.connectors
 
+import cats.data.EitherT
 import com.google.inject.Inject
 import play.api.Logging
+import play.api.libs.json.JsValue
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.HttpReads.Implicits.readFromJson
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{GatewayTimeoutException, HeaderCarrier, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.sca.config.AppConfig
-import uk.gov.hmrc.sca.models.{ServiceNavigationToggleResponse, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.WrapperDataResponse
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
@@ -74,7 +76,7 @@ class ScaWrapperDataConnector @Inject() (
   def serviceNavigationToggle()(implicit
     ec: ExecutionContext,
     hc: HeaderCarrier
-  ): Future[Option[ServiceNavigationToggleResponse]] = {
+  ): EitherT[Future, UpstreamErrorResponse, Boolean] = {
 
     val url = url"${appConfig.scaWrapperDataUrl}/service-navigation/toggle"
 
@@ -82,28 +84,28 @@ class ScaWrapperDataConnector @Inject() (
       s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Requesting service-nav toggle"
     )
 
-    http
-      .get(url)
-      .transform(_.withRequestTimeout(appConfig.timeoutHttpClientMillis.millis))
-      .execute[ServiceNavigationToggleResponse]
-      .map(Some(_))
-      .recover {
-        case ex: GatewayTimeoutException                       =>
-          logger.error(
-            s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Time out while calling toggle: ${ex.getMessage}"
-          )
-          None
-        case ex: UpstreamErrorResponse if ex.statusCode >= 499 =>
-          logger.error(
-            s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Server error while calling toggle: ${ex.getMessage}"
-          )
-          None
-        case scala.util.control.NonFatal(ex)                   =>
-          logger.error(
-            s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Exception while calling toggle: ${ex.getMessage}",
-            ex
-          )
-          None
-      }
+    EitherT(
+      http
+        .get(url)
+        .transform(_.withRequestTimeout(appConfig.timeoutHttpClientMillis.millis))
+        .execute[JsValue]
+        .map { json =>
+          Right((json \ "useNewServiceNavigation").as[Boolean])
+        }
+        .recover {
+          case ex: UpstreamErrorResponse if ex.statusCode == 502 || ex.statusCode == 504 =>
+            logger.error(
+              s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Upstream error while calling toggle: ${ex.getMessage}"
+            )
+            Left(ex)
+
+          case ex: GatewayTimeoutException =>
+            val upstream = UpstreamErrorResponse(ex.getMessage, 504, 504)
+            logger.error(
+              s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Time out while calling toggle: ${ex.getMessage}"
+            )
+            Left(upstream)
+        }
+    )
   }
 }

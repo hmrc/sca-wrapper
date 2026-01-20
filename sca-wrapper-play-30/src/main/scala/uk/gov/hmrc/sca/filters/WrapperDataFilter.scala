@@ -28,7 +28,6 @@ import uk.gov.hmrc.sca.utils.Keys
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.chaining.scalaUtilChainingOps
-import scala.util.control.NonFatal
 
 class WrapperDataFilter @Inject() (
   scaWrapperDataConnector: ScaWrapperDataConnector
@@ -91,15 +90,8 @@ class WrapperDataFilter @Inject() (
   private def retrieveServiceNavigationToggle()(implicit headerCarrier: HeaderCarrier): Future[Boolean] =
     scaWrapperDataConnector
       .serviceNavigationToggle()
-      .map {
-        case Some(resp) => resp.useNewServiceNavigation
-        case None       => false
-      }
-      .recover { case NonFatal(ex) =>
-        logger.error(
-          s"[SCA Wrapper Data Filter][retrieveServiceNavigationToggle] Failed to get service navigation toggle: ${ex.getMessage}",
-          ex
-        )
-        false
-      }
+      .fold(
+        _ => false,
+        identity
+      )
 }

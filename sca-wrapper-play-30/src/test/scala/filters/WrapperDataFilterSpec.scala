@@ -16,6 +16,7 @@
 
 package filters
 
+import cats.data.EitherT
 import filters.WrapperDataFilterSpec.wrapperDataResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
@@ -32,9 +33,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
 import play.api.{Application, inject}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.filters.WrapperDataFilter
-import uk.gov.hmrc.sca.models.ServiceNavigationToggleResponse
 import uk.gov.hmrc.sca.utils.Keys
 
 import scala.concurrent.Future
@@ -58,7 +59,7 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
       .thenReturn(Future.successful(Some(wrapperDataResponse)))
 
     when(mockScaWrapperDataConnector.serviceNavigationToggle()(any(), any()))
-      .thenReturn(Future.successful(Some(ServiceNavigationToggleResponse(useNewServiceNavigation = true))))
+      .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](true))
   }
 
   val wrapperDataFilter: WrapperDataFilter = application.injector.instanceOf[WrapperDataFilter]
@@ -129,6 +130,25 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
 
       contentAsJson(result) mustBe Json.obj(
         "wrapperData" -> Json.toJson(None)
+      )
+    }
+
+    "set useNewServiceNavigation to false when connector returns Left" in {
+      when(mockScaWrapperDataConnector.serviceNavigationToggle()(any(), any()))
+        .thenReturn(EitherT.leftT[Future, Boolean](UpstreamErrorResponse("bad gateway", 502, 502)))
+
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] =
+        FakeRequest("GET", "/not-excluded").withSession("authToken" -> "valid-token")
+
+      val f: RequestHeader => Future[Result] =
+        r => Future.successful(Ok(Json.obj("useNewServiceNavigation" -> r.attrs.get(Keys.useNewServiceNavigationKey))))
+
+      val result = wrapperDataFilter.apply(f)(request)
+
+      status(result) mustBe OK
+
+      contentAsJson(result) mustBe Json.obj(
+        "useNewServiceNavigation" -> Some(false)
       )
     }
   }
