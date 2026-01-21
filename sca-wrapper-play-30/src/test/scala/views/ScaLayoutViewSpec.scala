@@ -162,9 +162,8 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
       document
         .select(".govuk-phase-banner__content")
         .asScala
-        .exists(x =>
-          x.text().equals("Beta This is a new service. Help us improve it and give your feedback by email.")
-        ) mustBe true
+        .headOption
+        .map(_.text()) mustBe Some("Beta This is a new service. Help us improve it and give your feedback by email.")
     }
 
     "return a Wrapper layout when fullWidth is true in English" in {
