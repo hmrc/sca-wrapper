@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,6 +107,7 @@ class WrapperServiceSpec extends BaseSpec {
 
       verify(mockStandardScaLayout, times(1)).apply(
         menu = menuCaptor.capture(),
+        menuConfig = menuConfigCaptor.capture(),
         serviceURLs = serviceURLsCaptor.capture(),
         serviceNameKey = serviceNameKeyCaptor.capture(),
         pageTitle = pageTitleCaptor.capture(),
@@ -135,6 +136,8 @@ class WrapperServiceSpec extends BaseSpec {
       verify(mockWebchatUtil, times(1)).getWebchatScripts(any())
 
       menuCaptor.getValue mustBe standardMenu
+      menuConfigCaptor.getValue mustBe Some(expectedPtaMenuConfigSortedWithUnreadAndSignoutUrl)
+
       serviceURLsCaptor.getValue mustBe serviceUrls
       serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
       pageTitleCaptor.getValue mustBe None
@@ -184,6 +187,7 @@ class WrapperServiceSpec extends BaseSpec {
 
       verify(mockStandardScaLayout, times(1)).apply(
         menu = menuCaptor.capture(),
+        menuConfig = menuConfigCaptor.capture(),
         serviceURLs = serviceURLsCaptor.capture(),
         serviceNameKey = serviceNameKeyCaptor.capture(),
         pageTitle = pageTitleCaptor.capture(),
@@ -206,6 +210,8 @@ class WrapperServiceSpec extends BaseSpec {
       verify(mockWebchatUtil, times(1)).getWebchatScripts(any())
 
       menuCaptor.getValue mustBe standardMenu
+      menuConfigCaptor.getValue mustBe Some(expectedPtaMenuConfigSortedWithUnreadAndSignoutUrl)
+
       serviceURLsCaptor.getValue mustBe serviceUrls
       serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
       pageTitleCaptor.getValue mustBe None
@@ -226,6 +232,54 @@ class WrapperServiceSpec extends BaseSpec {
       disableSessionExpiredCaptor.getValue mustBe false
       urBannerUrlCaptor.getValue mustBe Some("config link")
       contentCaptor.getValue mustBe Html("Default-Content")
+    }
+
+    "return default New Sca layout and show sign out in header when useNewServiceNavigationKey is true" in {
+      val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", defaultUrBanner.page)
+        .withAttrs(
+          TypedMap(
+            Keys.wrapperDataKey             -> wrapperDataResponse,
+            Keys.messageDataKey             -> 2,
+            Keys.useNewServiceNavigationKey -> true,
+            RequestAttrKey.Cookies          -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
+          )
+        )
+
+      when(mockAppConfig.showAlphaBanner).thenReturn(true)
+      when(mockAppConfig.showBetaBanner).thenReturn(false)
+      when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
+      when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
+      when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
+      when(mockAppConfig.disableSessionExpired).thenReturn(false)
+      when(mockWebchatUtil.getWebchatScripts(any())).thenReturn(Seq.empty[Html])
+
+      wrapperService.standardScaLayout(content = Html("Default-Content"), serviceURLs = serviceUrls)(messages, request)
+
+      verify(mockStandardScaLayout, times(1)).apply(
+        menu = menuCaptor.capture(),
+        menuConfig = menuConfigCaptor.capture(),
+        serviceURLs = serviceURLsCaptor.capture(),
+        serviceNameKey = serviceNameKeyCaptor.capture(),
+        pageTitle = pageTitleCaptor.capture(),
+        sidebarContent = sideBarContentCaptor.capture(),
+        timeOutUrl = timeOutUrlCaptor.capture(),
+        keepAliveUrl = keepAliveUrlCaptor.capture(),
+        showBackLinkJS = showBackLinkJSCaptor.capture(),
+        backLinkUrl = backLinkUrlCaptor.capture(),
+        showSignOutInHeader = showSignOutInHeaderCaptor.capture(),
+        scripts = scriptsCaptor.capture(),
+        styleSheets = styleSheetsCaptor.capture(),
+        bannerConfig = bannerConfigCaptor.capture(),
+        fullWidth = fullWidthCaptor.capture(),
+        disableSessionExpired = disableSessionExpiredCaptor.capture(),
+        optTrustedHelper = optTrustedHelperCaptor.capture(),
+        urBannerUrl = urBannerUrlCaptor.capture()
+      )(contentCaptor.capture())(any(), any())
+
+      menuCaptor.getValue mustBe standardMenu
+      menuConfigCaptor.getValue mustBe Some(expectedPtaMenuConfigSortedWithUnreadAndSignoutUrl)
+
+      showSignOutInHeaderCaptor.getValue mustBe true
     }
 
     "return the continueUrl if it is a valid relative URL" in {
@@ -288,16 +342,27 @@ object WrapperServiceSpec {
     None,
     None
   )
-  val menu: Option[Html]              = Some(
+
+  val expectedPtaMenuConfigSortedWithUnreadAndSignoutUrl: PtaMenuConfig = PtaMenuConfig(
+    leftAlignedItems = Seq(
+      menuItemConfig1
+    ),
+    rightAlignedItems = Seq(
+      menuItemConfig2.copy(notificationBadge = Some(2)),
+      menuItemConfig3,
+      menuItemConfig4,
+      menuItemConfig5.copy(href = "Signout-Url")
+    ),
+    ptaMinMenuConfig = ptaMenuConfig
+  )
+
+  val menu: Option[Html] = Some(
     Html(
       "\n<!-- ACCOUNT MENU -->\n<nav id=\"secondary-nav\" class=\"hmrc-account-menu\" aria-label=\"Account\" data-module=\"hmrc-account-menu\">\n<!-- LEFT ALIGNED ITEMS -->\n            \n                \n<a href=\"pertaxUrl\"\n   class=\"hmrc-account-menu__link hmrc-account-menu__link--home\n   \" id=\"menu.left.0\">\n \n <span class=\"hmrc-account-icon hmrc-account-icon--home\">\n Account home\n </span>\n \n</a>\n\n            \n<!-- LEFT ALIGNED ITEMS -->\n    <a id=\"menu.name\" href=\"#\" class=\"hmrc-account-menu__link hmrc-account-menu__link--menu js-hidden js-visible\" tabindex=\"-1\" aria-hidden=\"true\" aria-expanded=\"false\">\n        Account menu\n    </a>\n    <ul class=\"hmrc-account-menu__main\">\n        <li class=\"hmrc-account-menu__link--back hidden\" aria-hidden=\"false\">\n            <a id=\"menu.back\" href=\"#\" tabindex=\"-1\" class=\"hmrc-account-menu__link\">\n            Back\n            </a>\n        </li>\n<!-- RIGHT ALIGNED ITEMS -->\n        \n                \n<li>\n <a href=\"pertaxUrl-messages\" class=\"hmrc-account-menu__link \" id=\"menu.right.0\">\n \n  <span class=\"\">\n   Messages\n   \n    <span class=\"hmrc-notification-badge\">2</span>\n\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"trackingUrl-track\" class=\"hmrc-account-menu__link \" id=\"menu.right.1\">\n \n  <span class=\"\">\n   Check progress\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"pertaxUrl-profile-and-settings\" class=\"hmrc-account-menu__link \" id=\"menu.right.2\">\n \n  <span class=\"\">\n   Profile and settings\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"Signout-Url\" class=\"hmrc-account-menu__link \" id=\"menu.right.3\">\n \n  <span class=\"\">\n   Sign out\n   \n  </span>\n \n </a>\n</li>\n\n            \n<!-- RIGHT ALIGNED ITEMS -->\n    </ul>\n</nav>\n"
     )
   )
-  val standardMenu: Option[Html]      = Some(
-    Html(
-      "\n<!-- ACCOUNT MENU -->\n<nav id=\"secondary-nav\" class=\"hmrc-account-menu\" aria-label=\"Account\" data-module=\"hmrc-account-menu\">\n<!-- LEFT ALIGNED ITEMS -->\n            \n                \n<a href=\"pertaxUrl\"\n   class=\"hmrc-account-menu__link hmrc-account-menu__link--home\n   \" id=\"menu.left.0\">\n \n <span class=\"hmrc-account-icon hmrc-account-icon--home\">\n Account home\n </span>\n \n</a>\n\n            \n<!-- LEFT ALIGNED ITEMS -->\n    <a id=\"menu.name\" href=\"#\" class=\"hmrc-account-menu__link hmrc-account-menu__link--menu js-hidden js-visible\" tabindex=\"-1\" aria-hidden=\"true\" aria-expanded=\"false\">\n        Account menu\n    </a>\n    <ul class=\"hmrc-account-menu__main\">\n        <li class=\"hmrc-account-menu__link--back hidden\" aria-hidden=\"false\">\n            <a id=\"menu.back\" href=\"#\" tabindex=\"-1\" class=\"hmrc-account-menu__link\">\n            Back\n            </a>\n        </li>\n<!-- RIGHT ALIGNED ITEMS -->\n        \n                \n<li>\n <a href=\"pertaxUrl-messages\" class=\"hmrc-account-menu__link \" id=\"menu.right.0\">\n \n  <span class=\"\">\n   Messages\n   \n    <span class=\"hmrc-notification-badge\">2</span>\n\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"trackingUrl-track\" class=\"hmrc-account-menu__link \" id=\"menu.right.1\">\n \n  <span class=\"\">\n   Check progress\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"pertaxUrl-profile-and-settings\" class=\"hmrc-account-menu__link \" id=\"menu.right.2\">\n \n  <span class=\"\">\n   Profile and settings\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"Signout-Url\" class=\"hmrc-account-menu__link \" id=\"menu.right.3\">\n \n  <span class=\"\">\n   Sign out\n   \n  </span>\n \n </a>\n</li>\n\n            \n<!-- RIGHT ALIGNED ITEMS -->\n    </ul>\n</nav>\n"
-    )
-  )
+
+  val standardMenu: Option[Html] = menu
 
   val defaultUrBanner: UrBanner = UrBanner("test-page", "test-link", isEnabled = true)
   val defaultWebchat: Webchat   = Webchat("test-page", "popup", isEnabled = true, chatType = "loadWebChatContainer")
@@ -312,6 +377,8 @@ object WrapperServiceSpec {
   )
 
   val menuCaptor: ArgumentCaptor[Option[Html]]                      = ArgumentCaptor.forClass(classOf[Option[Html]])
+  val menuConfigCaptor: ArgumentCaptor[Option[PtaMenuConfig]]       =
+    ArgumentCaptor.forClass(classOf[Option[PtaMenuConfig]])
   val serviceURLsCaptor: ArgumentCaptor[ServiceURLs]                = ArgumentCaptor.forClass(classOf[ServiceURLs])
   val serviceNameKeyCaptor: ArgumentCaptor[Option[String]]          = ArgumentCaptor.forClass(classOf[Option[String]])
   val serviceNameUrlCaptor: ArgumentCaptor[Option[String]]          = ArgumentCaptor.forClass(classOf[Option[String]])

@@ -1,5 +1,5 @@
 @*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,14 @@
  *@
 
 @import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+@import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.servicenavigation.{ServiceNavigation, ServiceNavigationItem}
 @import uk.gov.hmrc.hmrcfrontend.config.ContactFrontendConfig
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.{ServiceURLs, HmrcStandardPageParams, TemplateOverrides}
-@import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.servicenavigation.ServiceNavigation
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.{HmrcStandardPageParams, ServiceURLs, TemplateOverrides}
 @import uk.gov.hmrc.sca.config.AppConfig
-@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig}
+@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig, PtaMenuConfig}
 @import uk.gov.hmrc.sca.utils.Keys
 @import uk.gov.hmrc.sca.views.html._
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
@@ -45,6 +46,7 @@
 )(implicit contactFrontendConfig: ContactFrontendConfig)
 
 @(menu: Option[HtmlFormat.Appendable],
+        menuConfig: Option[PtaMenuConfig],
         serviceURLs: ServiceURLs,
         serviceNameKey: Option[String],
         pageTitle: Option[String],
@@ -97,8 +99,11 @@
 }
 
 @beforeContent = {
-    @defining(request.uri) { _ =>
-        @menu
+
+    @if(!useNewServiceNavigation) {
+        @defining(request.uri) { _ =>
+            @menu
+        }
     }
 
     @defining(appConfig.welshToggle && !useNewServiceNavigation) { welshEnabled =>
@@ -149,16 +154,37 @@
     serviceNameKey.map(messages(_))
 }
 
+@serviceNavItems = @{
+    val items: Seq[ServiceNavigationItem] =
+        menuConfig.toSeq.flatMap { cfg =>
+            val all = (cfg.leftAlignedItems ++ cfg.rightAlignedItems).sortBy(_.position)
+            all.filterNot(_.id == "signout").map { mi =>
+                val label = mi.notificationBadge match {
+                        case Some(count) =>
+                            HtmlContent(Html(s"""${mi.text} <span class="hmrc-notification-badge">$count</span>"""))
+                        case None =>
+                            Text(mi.text)
+                }
+                ServiceNavigationItem(content = label, href    = mi.href)
+            }
+        }
+
+    items
+}
+
 @serviceNavigationValue = @{
     if (useNewServiceNavigation) {
         val baseNav = ServiceNavigation(
-            serviceName = serviceNameValue
+            serviceName = serviceNameValue,
+            serviceUrl  = serviceURLs.serviceUrl,
+            navigation  = serviceNavItems
         )
-        if (appConfig.welshToggle) {
-            Some(baseNav.withLanguageToggle())
-        } else {
-            Some(baseNav)
-        }
+
+        val navWithLang =
+            if (appConfig.welshToggle) baseNav.withLanguageToggle()
+            else baseNav
+
+        Some(navWithLang)
     } else {
         None
     }
