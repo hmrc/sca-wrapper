@@ -27,7 +27,7 @@ val scala3_3 = "3.3.7"
 Global / concurrentRestrictions += Tags.limitSum(1, Tags.Test, Tags.Untagged)
 
 ThisBuild / scalaVersion := scala2_13
-ThisBuild / majorVersion := 4
+ThisBuild / majorVersion := 5
 ThisBuild / isPublicArtefact := true
 ThisBuild / organization := "uk.gov.hmrc"
 ThisBuild / scalafmtOnCompile := true
@@ -44,6 +44,7 @@ def buildScalacOptions(scalaVersion: String): Seq[String] = {
     "-feature",
     "-unchecked",
     "-Wconf:src=routes/.*:s,src=twirl/.*:s",
+    "-Wconf:msg=.*showHelpImproveBanner.*deprecated.*:s",
     "-Wconf:cat=deprecation&msg=method layout in class WrapperService is deprecated:s",
     "-Wconf:cat=deprecation&msg=method safeSignoutUrl in class WrapperService is deprecated:s",
     "-Wconf:cat=deprecation&msg=Please use appConfig for this setting rather than passing it as a parameter:s"
