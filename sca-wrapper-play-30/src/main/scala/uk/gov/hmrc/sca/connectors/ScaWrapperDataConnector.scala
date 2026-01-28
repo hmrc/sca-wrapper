@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.sca.connectors
 
-import cats.data.EitherT
 import com.google.inject.Inject
 import play.api.Logging
 import play.api.libs.json.JsValue
@@ -76,7 +75,7 @@ class ScaWrapperDataConnector @Inject() (
   def serviceNavigationToggle()(implicit
     ec: ExecutionContext,
     hc: HeaderCarrier
-  ): EitherT[Future, UpstreamErrorResponse, Boolean] = {
+  ): Future[JsValue] = {
 
     val url = url"${appConfig.scaWrapperDataUrl}/service-navigation/toggle"
 
@@ -84,28 +83,9 @@ class ScaWrapperDataConnector @Inject() (
       s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Requesting service-nav toggle"
     )
 
-    EitherT(
-      http
-        .get(url)
-        .transform(_.withRequestTimeout(appConfig.timeoutHttpClientMillis.millis))
-        .execute[JsValue]
-        .map { json =>
-          Right((json \ "useNewServiceNavigation").as[Boolean])
-        }
-        .recover {
-          case ex: UpstreamErrorResponse if ex.statusCode == 502 || ex.statusCode == 504 =>
-            logger.error(
-              s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Upstream error while calling toggle: ${ex.getMessage}"
-            )
-            Left(ex)
-
-          case ex: GatewayTimeoutException =>
-            val upstream = UpstreamErrorResponse(ex.getMessage, 504, 504)
-            logger.error(
-              s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Time out while calling toggle: ${ex.getMessage}"
-            )
-            Left(upstream)
-        }
-    )
+    http
+      .get(url)
+      .transform(_.withRequestTimeout(appConfig.timeoutHttpClientMillis.millis))
+      .execute[JsValue]
   }
 }

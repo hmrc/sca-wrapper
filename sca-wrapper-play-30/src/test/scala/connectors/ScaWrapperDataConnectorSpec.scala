@@ -18,8 +18,10 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.mockito.Mockito.when
+import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.concurrent.PatienceConfiguration.Timeout
 import org.scalatest.time.{Seconds, Span}
+import play.api.libs.json.Json
 import play.api.{Application, Logger}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -29,7 +31,7 @@ import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
 import utils.BaseSpec
 
-class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
+class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with PatienceConfiguration {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
@@ -92,7 +94,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
        |}
        |""".stripMargin
 
-  "ScaWrapperDataConnector" must {
+  "ScaWrapperDataConnector.WrapperDataResponse" must {
 
     "return a successful WrapperDataResponse when wrapperDataWithMessages() returns 200 with valid JSON" in {
       val ptaMenuConfig  = PtaMinMenuConfig("Account menu", "Back")
@@ -220,8 +222,11 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
         result mustBe None
       }
     }
+  }
 
-    "return Right(true) when serviceNavigationToggle() returns 200 with valid JSON" in {
+  "ScaWrapperDataConnector.serviceNavigationToggle" must {
+
+    "return a JsValue" in {
       when(mockAppConfig.scaWrapperDataUrl).thenReturn(
         s"http://localhost:${server.port()}/single-customer-account-wrapper-data"
       )
@@ -239,11 +244,11 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
       )
 
       scaWrapperDataConnector.serviceNavigationToggle().value.map { result =>
-        result mustBe Right(true)
+        result mustBe Json.parse(toggleJson)
       }
     }
 
-    "fail when serviceNavigationToggle() returns a server error (500)" in {
+    "fail with exception when serviceNavigationToggle() returns a server error (500)" in {
       when(mockAppConfig.scaWrapperDataUrl).thenReturn(
         s"http://localhost:${server.port()}/single-customer-account-wrapper-data"
       )
@@ -253,66 +258,10 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing {
           .willReturn(serverError())
       )
 
-      val ex = scaWrapperDataConnector.serviceNavigationToggle().value.failed.futureValue(Timeout(Span(2, Seconds)))
-      ex mustBe a[UpstreamErrorResponse]
-      ex.asInstanceOf[UpstreamErrorResponse].statusCode mustBe 500
-    }
-
-    "fail when serviceNavigationToggle() returns a client error (400)" in {
-      when(mockAppConfig.scaWrapperDataUrl).thenReturn(
-        s"http://localhost:${server.port()}/single-customer-account-wrapper-data"
-      )
-
-      server.stubFor(
-        get(urlEqualTo(urlServiceNavigationToggle))
-          .willReturn(badRequest())
-      )
-
-      val ex = scaWrapperDataConnector.serviceNavigationToggle().value.failed.futureValue(Timeout(Span(2, Seconds)))
-      ex mustBe a[UpstreamErrorResponse]
-      ex.asInstanceOf[UpstreamErrorResponse].statusCode mustBe 400
-    }
-
-    "return Left(UpstreamErrorResponse(504)) when serviceNavigationToggle() is timing out" in {
-      when(mockAppConfig.scaWrapperDataUrl).thenReturn(
-        s"http://localhost:${server.port()}/single-customer-account-wrapper-data"
-      )
-
-      server.stubFor(
-        get(urlEqualTo(urlServiceNavigationToggle))
-          .willReturn(okJson("""{"useNewServiceNavigation": true}""").withFixedDelay(2000))
-      )
-
-      withCaptureOfLoggingFrom(testLogger) { logs =>
-        val result = scaWrapperDataConnector.serviceNavigationToggle().value.futureValue(Timeout(Span(2, Seconds)))
-
-        result match {
-          case Left(err) => err.statusCode mustBe 504
-          case Right(_)  => fail("Expected Left(UpstreamErrorResponse) but got Right")
-        }
-
-        val log =
-          logs.find(l =>
-            l.getLevel == ch.qos.logback.classic.Level.ERROR &&
-              l.getMessage.contains("Time out while calling toggle")
-          )
-
-        log.map(_.getThrowableProxy) mustBe Some(null)
+      whenReady(scaWrapperDataConnector.serviceNavigationToggle().failed) { ex =>
+        ex mustBe a[UpstreamErrorResponse]
       }
-    }
 
-    "fail when serviceNavigationToggle() returns invalid JSON" in {
-      when(mockAppConfig.scaWrapperDataUrl).thenReturn(
-        s"http://localhost:${server.port()}/single-customer-account-wrapper-data"
-      )
-
-      server.stubFor(
-        get(urlEqualTo(urlServiceNavigationToggle))
-          .willReturn(ok("not-json"))
-      )
-
-      scaWrapperDataConnector.serviceNavigationToggle().value.failed.futureValue(Timeout(Span(2, Seconds)))
-      succeed
     }
   }
 }

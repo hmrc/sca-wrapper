@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package service
+package services
 
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
