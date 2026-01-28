@@ -18,6 +18,7 @@ package uk.gov.hmrc.sca.connectors
 
 import com.google.inject.Inject
 import play.api.Logging
+import play.api.libs.json.JsValue
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.HttpReads.Implicits.readFromJson
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -69,5 +70,22 @@ class ScaWrapperDataConnector @Inject() (
           )
           None
       }
+  }
+
+  def serviceNavigationToggle()(implicit
+    ec: ExecutionContext,
+    hc: HeaderCarrier
+  ): Future[JsValue] = {
+
+    val url = url"${appConfig.scaWrapperDataUrl}/service-navigation/toggle"
+
+    logger.debug(
+      s"[SCA Wrapper Library][ScaWrapperDataConnector][serviceNavigationToggle] Requesting service-nav toggle"
+    )
+
+    http
+      .get(url)
+      .transform(_.withRequestTimeout(appConfig.timeoutHttpClientMillis.millis))
+      .execute[JsValue]
   }
 }

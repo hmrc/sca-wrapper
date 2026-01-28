@@ -20,9 +20,9 @@ import org.apache.pekko.stream.Materializer
 import play.api.mvc.{Filter, RequestHeader, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.logging.Logging
 import uk.gov.hmrc.sca.models.WrapperDataResponse
+import uk.gov.hmrc.sca.services.ScaWrapperDataService
 import uk.gov.hmrc.sca.utils.Keys
 
 import javax.inject.Inject
@@ -30,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.chaining.scalaUtilChainingOps
 
 class WrapperDataFilter @Inject() (
-  scaWrapperDataConnector: ScaWrapperDataConnector
+  scaWrapperDataService: ScaWrapperDataService
 )(implicit
   val executionContext: ExecutionContext,
   val mat: Materializer
@@ -52,7 +52,7 @@ class WrapperDataFilter @Inject() (
     isAuthenticated: Boolean
   )(implicit rh: RequestHeader, headerCarrier: HeaderCarrier): Future[Option[WrapperDataResponse]] =
     if (isAuthenticated) {
-      scaWrapperDataConnector.wrapperDataWithMessages()
+      scaWrapperDataService.wrapperDataWithMessages()
     } else {
       Future.successful(None)
     }
@@ -60,13 +60,15 @@ class WrapperDataFilter @Inject() (
   private def updateRequestHeader(
     requestHeader: RequestHeader,
     isAuthenticated: Boolean,
-    optWrapperDataResponse: Option[WrapperDataResponse]
+    optWrapperDataResponse: Option[WrapperDataResponse],
+    useNewServiceNavigation: Boolean
   ): RequestHeader = {
     val unreadMessageCount: Option[Int] = optWrapperDataResponse.flatMap(_.unreadMessageCount)
 
     requestHeader
       .addAttr(Keys.wrapperFilterHasRun, true)
       .pipe(_.addAttr(Keys.wrapperIsAuthenticatedKey, isAuthenticated))
+      .pipe(_.addAttr(Keys.useNewServiceNavigationKey, useNewServiceNavigation))
       .pipe(rh => optWrapperDataResponse.fold(rh)(wdr => rh.addAttr(Keys.wrapperDataKey, wdr)))
       .pipe(rh => unreadMessageCount.fold(rh)(count => rh.addAttr(Keys.messageDataKey, count)))
   }
@@ -79,7 +81,8 @@ class WrapperDataFilter @Inject() (
 
     for {
       optWrapperData      <- retrieveWrapperData(isAuthenticated)
-      updatedRequestHeader = updateRequestHeader(rh, isAuthenticated, optWrapperData)
+      useNewServiceNav    <- scaWrapperDataService.retrieveServiceNavigationToggle()
+      updatedRequestHeader = updateRequestHeader(rh, isAuthenticated, optWrapperData, useNewServiceNav)
       result              <- f(updatedRequestHeader)
     } yield result
   }

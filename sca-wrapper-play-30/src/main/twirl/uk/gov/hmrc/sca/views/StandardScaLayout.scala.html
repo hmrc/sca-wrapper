@@ -1,5 +1,5 @@
 @*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,15 @@
  *@
 
 @import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+@import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.servicenavigation.{ServiceNavigation, ServiceNavigationItem}
 @import uk.gov.hmrc.hmrcfrontend.config.ContactFrontendConfig
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.{ServiceURLs, HmrcStandardPageParams, TemplateOverrides}
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.{HmrcStandardPageParams, ServiceURLs, TemplateOverrides}
 @import uk.gov.hmrc.sca.config.AppConfig
-@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig}
+@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig, PtaMenuConfig}
+@import uk.gov.hmrc.sca.utils.Keys
 @import uk.gov.hmrc.sca.views.html._
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
 
@@ -42,6 +46,7 @@
 )(implicit contactFrontendConfig: ContactFrontendConfig)
 
 @(menu: Option[HtmlFormat.Appendable],
+        menuConfig: Option[PtaMenuConfig],
         serviceURLs: ServiceURLs,
         serviceNameKey: Option[String],
         pageTitle: Option[String],
@@ -57,7 +62,12 @@
         fullWidth: Boolean,
         disableSessionExpired: Boolean,
         optTrustedHelper: Option[TrustedHelper],
-        urBannerUrl: Option[String])(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
+        urBannerUrl: Option[String])(
+        contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
+
+@useNewServiceNavigation = @{
+    request.attrs.get(Keys.useNewServiceNavigationKey).contains(true)
+}
 
 @headBlock = {
 
@@ -65,13 +75,12 @@
 
     @if(!disableSessionExpired) {
         @hmrcTimeoutDialogHelper(
-            timeout = Some(appConfig.timeout),
-            countdown = Some(appConfig.countdown),
-            keepAliveUrl = Some(keepAliveUrl),
-            signOutUrl = serviceURLs.signOutUrl.getOrElse("#"),
-            timeoutUrl = timeOutUrl,
+            timeout         = Some(appConfig.timeout),
+            countdown       = Some(appConfig.countdown),
+            keepAliveUrl    = Some(keepAliveUrl),
+            signOutUrl      = serviceURLs.signOutUrl.getOrElse("#"),
+            timeoutUrl      = timeOutUrl,
             synchroniseTabs = Some(appConfig.synchroniseTabs)
-
         )
     }
 
@@ -83,12 +92,21 @@
     @ptaScripts()
 }
 
+@attorneyBanner = @{
+    optTrustedHelper.map { helper =>
+        ptaAttorneyBanner(AttorneyBanner(name       = helper.principalName, classes    = "govuk-!-margin-top-2", accountUrl = helper.returnLinkUrl))
+    }
+}
+
 @beforeContent = {
-    @defining(request.uri) { _ =>
-         @menu
+
+    @if(!useNewServiceNavigation) {
+        @defining(request.uri) { _ =>
+            @menu
+        }
     }
 
-    @defining(appConfig.welshToggle) { welshEnabled =>
+    @defining(appConfig.welshToggle && !useNewServiceNavigation) { welshEnabled =>
         @if(showBackLinkJS || backLinkUrl.isDefined ) {
             <div class="govuk-grid-row">
                 @if(showBackLinkJS){
@@ -97,14 +115,14 @@
                             @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
                         </div>
                     </div>
-                }else{
+                } else {
                     <div class="govuk-grid-column-one-half">
                         @govukBackLink(BackLink.withDefaultText(backLinkUrl.getOrElse("#")))
                     </div>
                 }
                 <div class="govuk-grid-column-one-half">
                     @if(welshEnabled) {
-                    @hmrcLanguageSelectHelper()
+                        @hmrcLanguageSelectHelper()
                     }
                 </div>
             </div>
@@ -118,54 +136,90 @@
     @attorneyBanner
 }
 
-@attorneyBanner = @{
-    optTrustedHelper.map { helper =>
-        ptaAttorneyBanner(AttorneyBanner(name = helper.principalName, classes = "govuk-!-margin-top-2", accountUrl = helper.returnLinkUrl))
-    }
+@content = {
+    @contentBlock
+    <div class="govuk-!-margin-top-8">
+        <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
+        @hmrcReportTechnicalIssueHelper()
+        <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
+        @if(bannerConfig.showBetaBanner) {
+            @govukPhaseBanner(betaBanner())
+        } else if(bannerConfig.showAlphaBanner) {
+            @govukPhaseBanner(alphaBanner(appConfig.alphaBannerFeedbackUrl))
+        }
+    </div>
 }
 
-@content = {
+@serviceNameValue = @{
+    serviceNameKey.map(messages(_))
+}
 
-    @contentBlock
-<div class="govuk-!-margin-top-8">
-    <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
-    @hmrcReportTechnicalIssueHelper()
-    <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
-    @if(bannerConfig.showBetaBanner) {
-      @govukPhaseBanner(betaBanner())
-    } else if(bannerConfig.showAlphaBanner) {
-      @govukPhaseBanner(alphaBanner(appConfig.alphaBannerFeedbackUrl))
+@serviceNavItems = @{
+    val items: Seq[ServiceNavigationItem] =
+        menuConfig.toSeq.flatMap { cfg =>
+            val all = (cfg.leftAlignedItems ++ cfg.rightAlignedItems).sortBy(_.position)
+            all.filterNot(_.id == "signout").map { mi =>
+                val label = mi.notificationBadge match {
+                        case Some(count) =>
+                            HtmlContent(Html(s"""${mi.text} <span class="hmrc-notification-badge">$count</span>"""))
+                        case None =>
+                            Text(mi.text)
+                }
+                ServiceNavigationItem(content = label, href    = mi.href)
+            }
+        }
+
+    items
+}
+
+@serviceNavigationValue = @{
+    if (useNewServiceNavigation) {
+        val baseNav = ServiceNavigation(
+            serviceName = serviceNameValue,
+            serviceUrl  = serviceURLs.serviceUrl,
+            navigation  = serviceNavItems
+        )
+
+        val navWithLang =
+            if (appConfig.welshToggle) baseNav.withLanguageToggle()
+            else baseNav
+
+        Some(navWithLang)
+    } else {
+        None
     }
-</div>
 }
 
 @hmrcStandardPage(
     HmrcStandardPageParams(
         serviceURLs = ServiceURLs(
-            serviceUrl = serviceURLs.serviceUrl,
-            signOutUrl = if(showSignOutInHeader) serviceURLs.signOutUrl else None,
-            accessibilityStatementUrl = serviceURLs.accessibilityStatementUrl,
+            serviceUrl                = serviceURLs.serviceUrl,
+            signOutUrl                = if (showSignOutInHeader) serviceURLs.signOutUrl else None,
+            accessibilityStatementUrl = serviceURLs.accessibilityStatementUrl
         ),
         banners = Banners(
-            displayHmrcBanner = false,
-            userResearchBanner = urBannerUrl.map{url => UserResearchBanner(url = url)},
+            displayHmrcBanner  = false,
+            userResearchBanner = urBannerUrl.map(url => UserResearchBanner(url = url))
         ),
         templateOverrides = TemplateOverrides(
-            additionalHeadBlock = Some(headBlock),
+            additionalHeadBlock    = Some(headBlock),
             additionalScriptsBlock = Some(additionalScripts),
-            beforeContentBlock = Some(beforeContent),
-            mainContentLayout = Some(sidebarContent match {
-                case Some(sidebarHtml) => twoThirdsOneThirdMainContent(sidebarHtml)
-                case None =>
-                    if(fullWidth) {
-                        fullWidthMainContent(_)
-                    } else {
-                        twoThirdsMainContent(_)
-                    }
-            })
+            beforeContentBlock     = Some(beforeContent),
+            mainContentLayout      = Some(
+                sidebarContent match {
+                    case Some(sidebarHtml) => twoThirdsOneThirdMainContent(sidebarHtml)
+                    case None =>
+                        if (fullWidth) {
+                            fullWidthMainContent(_)
+                        } else {
+                            twoThirdsMainContent(_)
+                        }
+                }
+            )
         ),
-        serviceName = serviceNameKey.map(messages(_)),
-        pageTitle = pageTitle,
-        isWelshTranslationAvailable = true
+        serviceName = if (useNewServiceNavigation) None else serviceNameValue,
+        pageTitle   = pageTitle,
+        isWelshTranslationAvailable = true,
+        serviceNavigation            = serviceNavigationValue
     )
 )(content)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,12 @@
 package views
 
 import play.api.i18n.Messages
+import play.api.test.Helpers.stubMessages
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
-import uk.gov.hmrc.sca.models.BannerConfig
+import uk.gov.hmrc.sca.models.{BannerConfig, PtaMenuConfig}
+import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.sca.views.html.StandardScaLayout
 import utils.ViewBaseSpec
 import views.NewScaLayoutViewSpec.menu
@@ -36,6 +38,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
     showBackLinkJS: Boolean = false,
     backLinkUrl: Option[String] = None,
     showSignOutInHeader: Boolean = false,
+    menuConfig: Option[PtaMenuConfig] = None,
     serviceURLs: ServiceURLs = ServiceURLs(
       serviceUrl = Some("Service-Name_Url"),
       signOutUrl = Some("Signout-Url"),
@@ -49,23 +52,24 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
     optTrustedHelper: Option[TrustedHelper] = None
   )(implicit messages: Messages): Html =
     standardScaLayout(
-      if (hideMenuBar) None else menu,
-      serviceURLs,
-      Some("Service-Name-Key"),
-      Some("Page-Title"),
-      sidebarContent,
-      Some("TimeOut-Url"),
-      "Keep-Alive-Url",
-      showBackLinkJS,
-      backLinkUrl,
-      showSignOutInHeader,
-      Seq(Html("<script src=/customscript.js></script>")),
-      Seq(Html("<link href=/customStylesheet rel=stylesheet/>")),
-      bannerConfig,
-      fullWidth,
-      disableSessionExpired,
-      optTrustedHelper,
-      Some("test-ur-banner-link")
+      menu = if (hideMenuBar) None else menu,
+      menuConfig = menuConfig,
+      serviceURLs = serviceURLs,
+      serviceNameKey = Some("Service-Name-Key"),
+      pageTitle = Some("Page-Title"),
+      sidebarContent = sidebarContent,
+      timeOutUrl = Some("TimeOut-Url"),
+      keepAliveUrl = "Keep-Alive-Url",
+      showBackLinkJS = showBackLinkJS,
+      backLinkUrl = backLinkUrl,
+      showSignOutInHeader = showSignOutInHeader,
+      scripts = Seq(Html("<script src=/customscript.js></script>")),
+      styleSheets = Seq(Html("<link href=/customStylesheet rel=stylesheet/>")),
+      bannerConfig = bannerConfig,
+      fullWidth = fullWidth,
+      disableSessionExpired = disableSessionExpired,
+      optTrustedHelper = optTrustedHelper,
+      urBannerUrl = Some("test-ur-banner-link")
     )(Html("Content-Block"))(fakeRequest, messages)
 
   "WrapperService layout" must {
@@ -102,7 +106,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-timeout") mustBe "900"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-countdown") mustBe "120"
       val lang = document.getElementsByClass("hmrc-language-select__list-item").asScala.toList
-      lang(0).text() mustBe "English"
+      lang.head.text() mustBe "English"
       lang(1).text() mustBe "Newid yr iaith i’r Gymraeg Cymraeg"
       document.getElementsByAttributeValue("href", "/help/cookies").text() mustBe "Cookies"
       document.getElementsByAttributeValue("href", "/help/privacy").text() mustBe "Privacy policy"
@@ -226,6 +230,45 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         .attr("href") mustBe "returnLinkUrl"
     }
 
+    "use Service Navigation when useNewServiceNavigationKey is true and hide old PTA menu" in {
+      implicit val messages: Messages = stubMessages()
+      val requestWithServiceNav       = fakeRequest.addAttr(Keys.useNewServiceNavigationKey, true)
+
+      val view = standardScaLayout(
+        menu = menu,
+        menuConfig = None,
+        serviceURLs = ServiceURLs(
+          serviceUrl = Some("Service-Name_Url"),
+          signOutUrl = Some("Signout-Url"),
+          accessibilityStatementUrl = Some("http://accessibility-url.org")
+        ),
+        serviceNameKey = Some("Service-Name-Key"),
+        pageTitle = Some("Page-Title"),
+        sidebarContent = None,
+        timeOutUrl = Some("TimeOut-Url"),
+        keepAliveUrl = "Keep-Alive-Url",
+        showBackLinkJS = false,
+        backLinkUrl = None,
+        showSignOutInHeader = false,
+        scripts = Seq(Html("<script src=/customscript.js></script>")),
+        styleSheets = Seq(Html("<link href=/customStylesheet rel=stylesheet/>")),
+        bannerConfig = BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
+        fullWidth = false,
+        disableSessionExpired = false,
+        optTrustedHelper = None,
+        urBannerUrl = Some("test-ur-banner-link")
+      )(Html("Content-Block"))(requestWithServiceNav, messages)
+
+      val document = asDocument(view.toString())
+
+      document.select(".govuk-header__service-name").asScala.isEmpty mustBe true
+
+      document.getElementById("secondary-nav") mustBe null
+
+      val serviceNavEls = document.select(".govuk-service-navigation").asScala
+      serviceNavEls.nonEmpty mustBe true
+      serviceNavEls.head.text() must include("Service-Name-Key")
+    }
   }
 }
 

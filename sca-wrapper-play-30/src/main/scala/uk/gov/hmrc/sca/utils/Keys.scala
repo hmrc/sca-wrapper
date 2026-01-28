@@ -29,6 +29,8 @@ object Keys {
   lazy val wrapperDataKey: TypedKey[WrapperDataResponse] = TypedKey[WrapperDataResponse]
   lazy val messageDataKey: TypedKey[Int]                 = TypedKey[Int]
 
+  lazy val useNewServiceNavigationKey: TypedKey[Boolean] = TypedKey[Boolean]
+
   // Utility method to get trusted helper for the use of frontend services.
   @unused
   def getTrustedHelperFromRequest(rh: RequestHeader): Option[TrustedHelper] =

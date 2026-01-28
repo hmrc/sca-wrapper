@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,15 +65,25 @@ class WrapperService @Inject() (
     hideMenuBar: Boolean = false,
     disableSessionExpired: Boolean = appConfig.disableSessionExpired
   )(implicit messages: Messages, requestHeader: RequestHeader): HtmlFormat.Appendable = {
-    val showSignOutInHeader = (serviceURLs.signOutUrl, hideMenuBar) match {
-      case (Some(_), false) => false
-      case (Some(_), true)  => true // should we throw exception? if the menu is hidden the user must be unauthenticated
-      case (None, false)    => throw new RuntimeException("The PTA menu cannot be shown without a signout url")
-      case (None, true)     => false
-    }
+
+    val useNewServiceNavigation: Boolean = requestHeader.attrs.get(Keys.useNewServiceNavigationKey).contains(true)
+
+    val ptaMenuConfigOpt: Option[PtaMenuConfig] =
+      if (hideMenuBar) None else Some(sortMenuItemConfig(serviceURLs.signOutUrl))
+
+    val showSignOutInHeader: Boolean =
+      if (useNewServiceNavigation) serviceURLs.signOutUrl.isDefined
+      else
+        (serviceURLs.signOutUrl, hideMenuBar) match {
+          case (Some(_), false) => false
+          case (Some(_), true)  => true // if menu hidden, user unauthenticated
+          case (None, false)    => throw new RuntimeException("The PTA menu cannot be shown without a signout url")
+          case (None, true)     => false
+        }
 
     newScaLayout(
-      menu = if (hideMenuBar) None else Some(ptaMenuBar(sortMenuItemConfig(serviceURLs.signOutUrl))),
+      menu = ptaMenuConfigOpt.map(ptaMenuBar(_)),
+      menuConfig = ptaMenuConfigOpt,
       serviceURLs = serviceURLs,
       serviceNameKey = serviceNameKey,
       pageTitle = pageTitle,

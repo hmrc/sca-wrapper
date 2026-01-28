@@ -32,18 +32,18 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
 import play.api.{Application, inject}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.filters.WrapperDataFilter
+import uk.gov.hmrc.sca.services.ScaWrapperDataService
 import uk.gov.hmrc.sca.utils.Keys
 
 import scala.concurrent.Future
 
 class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
-  private val mockScaWrapperDataConnector = mock[ScaWrapperDataConnector]
+  private val mockScaWrapperDataService = mock[ScaWrapperDataService]
 
   val modules: Seq[GuiceableModule] =
-    Seq(inject.bind[ScaWrapperDataConnector].toInstance(mockScaWrapperDataConnector))
+    Seq(inject.bind[ScaWrapperDataService].toInstance(mockScaWrapperDataService))
 
   val application: Application = new GuiceApplicationBuilder()
     .configure(conf = "auditing.enabled" -> false, "metrics.enabled" -> false, "metrics.jvm" -> false)
@@ -51,9 +51,13 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
     .build()
 
   override def beforeEach(): Unit = {
-    reset(mockScaWrapperDataConnector)
-    when(mockScaWrapperDataConnector.wrapperDataWithMessages()(any(), any(), any()))
+    reset(mockScaWrapperDataService)
+
+    when(mockScaWrapperDataService.wrapperDataWithMessages()(any(), any(), any()))
       .thenReturn(Future.successful(Some(wrapperDataResponse)))
+
+    when(mockScaWrapperDataService.retrieveServiceNavigationToggle()(any()))
+      .thenReturn(Future.successful(true))
   }
 
   val wrapperDataFilter: WrapperDataFilter = application.injector.instanceOf[WrapperDataFilter]
@@ -65,16 +69,26 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
         FakeRequest("GET", "/not-excluded").withSession("authToken" -> "valid-token")
 
       val f: RequestHeader => Future[Result] =
-        r => Future.successful(Ok(Json.obj("wrapperData" -> r.attrs.get(Keys.wrapperDataKey))))
+        r =>
+          Future.successful(
+            Ok(
+              Json.obj(
+                "wrapperData"             -> r.attrs.get(Keys.wrapperDataKey),
+                "useNewServiceNavigation" -> r.attrs.get(Keys.useNewServiceNavigationKey)
+              )
+            )
+          )
 
       val result = wrapperDataFilter.apply(f)(request)
 
       status(result) mustBe OK
 
-      verify(mockScaWrapperDataConnector, times(1)).wrapperDataWithMessages()(any(), any(), any())
+      verify(mockScaWrapperDataService, times(1)).wrapperDataWithMessages()(any(), any(), any())
+      verify(mockScaWrapperDataService, times(1)).retrieveServiceNavigationToggle()(any())
 
       contentAsJson(result) mustBe Json.obj(
-        "wrapperData" -> Some(wrapperDataResponse)
+        "wrapperData"             -> Some(wrapperDataResponse),
+        "useNewServiceNavigation" -> Some(true)
       )
     }
 
@@ -90,12 +104,12 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
 
         status(result) mustBe OK
 
-        verify(mockScaWrapperDataConnector, never()).wrapperDataWithMessages()(any(), any(), any())
+        verify(mockScaWrapperDataService, never()).wrapperDataWithMessages()(any(), any(), any())
+        verify(mockScaWrapperDataService, times(1)).retrieveServiceNavigationToggle()(any())
 
         contentAsJson(result) mustBe Json.obj(
           "wrapperData" -> Json.toJson(None)
         )
-
       }
     }
 
@@ -109,12 +123,14 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
 
       status(result) mustBe OK
 
-      verify(mockScaWrapperDataConnector, never()).wrapperDataWithMessages()(any(), any(), any())
+      verify(mockScaWrapperDataService, never()).wrapperDataWithMessages()(any(), any(), any())
+      verify(mockScaWrapperDataService, times(1)).retrieveServiceNavigationToggle()(any())
 
       contentAsJson(result) mustBe Json.obj(
         "wrapperData" -> Json.toJson(None)
       )
     }
+
   }
 }
 
