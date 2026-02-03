@@ -105,7 +105,7 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
         status(result) mustBe OK
 
         verify(mockScaWrapperDataService, never()).wrapperDataWithMessages()(any(), any(), any())
-        verify(mockScaWrapperDataService, times(1)).retrieveServiceNavigationToggle()(any())
+        verify(mockScaWrapperDataService, never()).retrieveServiceNavigationToggle()(any())
 
         contentAsJson(result) mustBe Json.obj(
           "wrapperData" -> Json.toJson(None)
@@ -124,7 +124,7 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
       status(result) mustBe OK
 
       verify(mockScaWrapperDataService, never()).wrapperDataWithMessages()(any(), any(), any())
-      verify(mockScaWrapperDataService, times(1)).retrieveServiceNavigationToggle()(any())
+      verify(mockScaWrapperDataService, never()).retrieveServiceNavigationToggle()(any())
 
       contentAsJson(result) mustBe Json.obj(
         "wrapperData" -> Json.toJson(None)

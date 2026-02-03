@@ -57,6 +57,15 @@ class WrapperDataFilter @Inject() (
       Future.successful(None)
     }
 
+  private def retrieveToggle(
+    isAuthenticated: Boolean
+  )(implicit headerCarrier: HeaderCarrier): Future[Boolean] =
+    if (isAuthenticated) {
+      scaWrapperDataService.retrieveServiceNavigationToggle()
+    } else {
+      Future.successful(false)
+    }
+
   private def updateRequestHeader(
     requestHeader: RequestHeader,
     isAuthenticated: Boolean,
@@ -81,7 +90,7 @@ class WrapperDataFilter @Inject() (
 
     for {
       optWrapperData      <- retrieveWrapperData(isAuthenticated)
-      useNewServiceNav    <- scaWrapperDataService.retrieveServiceNavigationToggle()
+      useNewServiceNav    <- retrieveToggle(isAuthenticated)
       updatedRequestHeader = updateRequestHeader(rh, isAuthenticated, optWrapperData, useNewServiceNav)
       result              <- f(updatedRequestHeader)
     } yield result
