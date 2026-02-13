@@ -25,7 +25,7 @@ import play.api.mvc.request.{Cell, RequestAttrKey}
 import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies}
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import service.WrapperServiceSpec._
+import services.WrapperServiceSpec._
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models.{Webchat, WrapperDataResponse}
 import uk.gov.hmrc.sca.utils.{Keys, WebchatUtil}

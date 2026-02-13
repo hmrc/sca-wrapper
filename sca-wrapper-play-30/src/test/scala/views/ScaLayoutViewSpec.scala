@@ -99,11 +99,9 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("content") mustBe "hmrc-timeout-dialog"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-timeout") mustBe "900"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-countdown") mustBe "120"
-      document.select(".hmrc-language-select__list-item").asScala.exists(e => e.text.equals("English")) mustBe true
-      document
-        .select(".hmrc-language-select__list-item")
-        .asScala
-        .exists(e => e.text.equals("Newid yr iaith ir Gymraeg Cymraeg")) mustBe true
+      val lang = document.getElementsByClass("hmrc-language-select__list-item").asScala.toList
+      lang(0).text() mustBe "English"
+      lang(1).text() mustBe "Newid yr iaith i’r Gymraeg Cymraeg"
       document.getElementsByAttributeValue("href", "/help/cookies").text() mustBe "Cookies"
       document.getElementsByAttributeValue("href", "/help/privacy").text() mustBe "Privacy policy"
       document.getElementsByAttributeValue("href", "/help/terms-and-conditions").text() mustBe "Terms and conditions"
@@ -130,7 +128,9 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
         .select(".govuk-phase-banner__content")
         .asScala
         .headOption
-        .map(_.text()) mustBe Some("Alpha This is a new service – your feedback will help us to improve it.")
+        .map(_.text()) mustBe Some(
+        "Alpha This is a new service. Help us improve it and give your feedback (opens in new tab)."
+      )
       document.getElementsByTag("h2").asScala.exists(x => x.text().equals("Support links")) mustBe true
       document.select(".govuk-grid-column-two-thirds").asScala.nonEmpty mustBe true
     }
@@ -171,9 +171,10 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
       document
         .select(".govuk-phase-banner__content")
         .asScala
-        .exists(x =>
-          x.text().equals("Beta This is a new service – your feedback will help us to improve it.")
-        ) mustBe true
+        .headOption
+        .map(_.text()) mustBe Some(
+        "Beta This is a new service. Help us improve it and give your feedback (opens in new tab)."
+      )
     }
 
     "return a Wrapper layout when fullWidth is true in English" in {

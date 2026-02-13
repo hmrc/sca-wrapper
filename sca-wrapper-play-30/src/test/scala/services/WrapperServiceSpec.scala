@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package service
+package services
 
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -95,8 +95,10 @@ class WrapperServiceSpec extends BaseSpec {
             RequestAttrKey.Cookies -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
           )
         )
+
       when(mockAppConfig.showAlphaBanner).thenReturn(true)
       when(mockAppConfig.showBetaBanner).thenReturn(false)
+      when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
       when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
       when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
       when(mockAppConfig.disableSessionExpired).thenReturn(false)
@@ -106,6 +108,7 @@ class WrapperServiceSpec extends BaseSpec {
 
       verify(mockStandardScaLayout, times(1)).apply(
         menu = menuCaptor.capture(),
+        menuConfig = menuConfigCaptor.capture(),
         serviceURLs = serviceURLsCaptor.capture(),
         serviceNameKey = serviceNameKeyCaptor.capture(),
         pageTitle = pageTitleCaptor.capture(),
@@ -127,6 +130,7 @@ class WrapperServiceSpec extends BaseSpec {
 
       verify(mockAppConfig, times(1)).showAlphaBanner
       verify(mockAppConfig, times(1)).showBetaBanner
+      verify(mockAppConfig, times(1)).showHelpImproveBanner
       verify(mockAppConfig, times(1)).serviceNameKey
       verify(mockAppConfig, times(1)).keepAliveUrl
       verify(mockAppConfig, times(1)).disableSessionExpired
@@ -134,6 +138,8 @@ class WrapperServiceSpec extends BaseSpec {
       verify(mockWebchatUtil, times(1)).getWebchatScripts(any())
 
       menuCaptor.getValue mustBe standardMenu
+      menuConfigCaptor.getValue mustBe Some(expectedPtaMenuConfigSortedWithUnreadAndSignoutUrl)
+
       serviceURLsCaptor.getValue mustBe serviceUrls
       serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
       pageTitleCaptor.getValue mustBe None
@@ -147,7 +153,7 @@ class WrapperServiceSpec extends BaseSpec {
       bannerConfigCaptor.getValue mustBe BannerConfig(
         showAlphaBanner = true,
         showBetaBanner = false,
-        showHelpImproveBanner = false
+        showHelpImproveBanner = true
       )
       optTrustedHelperCaptor.getValue mustBe None
       fullWidthCaptor.getValue mustBe true
@@ -169,6 +175,7 @@ class WrapperServiceSpec extends BaseSpec {
 
       when(mockAppConfig.helpImproveBannerUrl).thenReturn(Some("config link"))
       when(mockAppConfig.showBetaBanner).thenReturn(false)
+      when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
       when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
       when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
       when(mockAppConfig.disableSessionExpired).thenReturn(false)
@@ -177,15 +184,12 @@ class WrapperServiceSpec extends BaseSpec {
       wrapperService.standardScaLayout(
         content = Html("Default-Content"),
         serviceURLs = serviceUrls,
-        bannerConfig = BannerConfig(
-          showAlphaBanner = false,
-          showBetaBanner = true,
-          showHelpImproveBanner = true
-        )
+        bannerConfig = BannerConfig(showAlphaBanner = false, showBetaBanner = true, showHelpImproveBanner = true)
       )(messages, request)
 
       verify(mockStandardScaLayout, times(1)).apply(
         menu = menuCaptor.capture(),
+        menuConfig = menuConfigCaptor.capture(),
         serviceURLs = serviceURLsCaptor.capture(),
         serviceNameKey = serviceNameKeyCaptor.capture(),
         pageTitle = pageTitleCaptor.capture(),
@@ -209,6 +213,8 @@ class WrapperServiceSpec extends BaseSpec {
       verify(mockWebchatUtil, times(1)).getWebchatScripts(any())
 
       menuCaptor.getValue mustBe standardMenu
+      menuConfigCaptor.getValue mustBe Some(expectedPtaMenuConfigSortedWithUnreadAndSignoutUrl)
+
       serviceURLsCaptor.getValue mustBe serviceUrls
       serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
       pageTitleCaptor.getValue mustBe None
@@ -232,7 +238,7 @@ class WrapperServiceSpec extends BaseSpec {
       contentCaptor.getValue mustBe Html("Default-Content")
     }
 
-    "not set UR banner link when UR banner is disabled for the page and bannerConfig.showHelpImproveBanner is false" in {
+    "not set UR banner link when UR banner is disabled for the page and showHelpImproveBanner is false" in {
       val disabledWrapperData = wrapperDataResponse.copy(
         urBanners = List(defaultUrBanner.copy(isEnabled = false))
       )
@@ -248,6 +254,7 @@ class WrapperServiceSpec extends BaseSpec {
 
       when(mockAppConfig.showAlphaBanner).thenReturn(true)
       when(mockAppConfig.showBetaBanner).thenReturn(false)
+      when(mockAppConfig.showHelpImproveBanner).thenReturn(false)
       when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
       when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
       when(mockAppConfig.disableSessionExpired).thenReturn(false)
@@ -257,6 +264,7 @@ class WrapperServiceSpec extends BaseSpec {
 
       verify(mockStandardScaLayout, times(1)).apply(
         menu = any(),
+        menuConfig = any(),
         serviceURLs = any(),
         serviceNameKey = any(),
         pageTitle = any(),
@@ -275,6 +283,8 @@ class WrapperServiceSpec extends BaseSpec {
         urBannerUrl = urBannerUrlCaptor.capture(),
         bespokeUserResearchBanner = bespokeUserResearchBannerCaptor.capture()
       )(any())(any(), any())
+
+      verify(mockAppConfig, times(0)).helpImproveBannerUrl
 
       urBannerUrlCaptor.getValue mustBe None
       bespokeUserResearchBannerCaptor.getValue mustBe None
@@ -308,6 +318,7 @@ class WrapperServiceSpec extends BaseSpec {
 
       when(mockAppConfig.showAlphaBanner).thenReturn(true)
       when(mockAppConfig.showBetaBanner).thenReturn(false)
+      when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
       when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
       when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
       when(mockAppConfig.disableSessionExpired).thenReturn(false)
@@ -317,6 +328,7 @@ class WrapperServiceSpec extends BaseSpec {
 
       verify(mockStandardScaLayout, times(1)).apply(
         menu = any(),
+        menuConfig = any(),
         serviceURLs = any(),
         serviceNameKey = any(),
         pageTitle = any(),
@@ -328,7 +340,7 @@ class WrapperServiceSpec extends BaseSpec {
         showSignOutInHeader = any(),
         scripts = any(),
         styleSheets = any(),
-        bannerConfig = bannerConfigCaptor.capture(),
+        bannerConfig = any(),
         fullWidth = any(),
         disableSessionExpired = any(),
         optTrustedHelper = any(),
@@ -339,6 +351,54 @@ class WrapperServiceSpec extends BaseSpec {
       urBannerUrlCaptor.getValue mustBe None
       bespokeUserResearchBannerCaptor.getValue mustBe Some(bespokeDetails)
       verify(mockAppConfig, times(0)).helpImproveBannerUrl
+    }
+
+    "return default New Sca layout and show sign out in header when useNewServiceNavigationKey is true" in {
+      val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", defaultUrBanner.page)
+        .withAttrs(
+          TypedMap(
+            Keys.wrapperDataKey             -> wrapperDataResponse,
+            Keys.messageDataKey             -> 2,
+            Keys.useNewServiceNavigationKey -> true,
+            RequestAttrKey.Cookies          -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
+          )
+        )
+
+      when(mockAppConfig.showAlphaBanner).thenReturn(true)
+      when(mockAppConfig.showBetaBanner).thenReturn(false)
+      when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
+      when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
+      when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
+      when(mockAppConfig.disableSessionExpired).thenReturn(false)
+      when(mockWebchatUtil.getWebchatScripts(any())).thenReturn(Seq.empty[Html])
+
+      wrapperService.standardScaLayout(content = Html("Default-Content"), serviceURLs = serviceUrls)(messages, request)
+
+      verify(mockStandardScaLayout, times(1)).apply(
+        menu = menuCaptor.capture(),
+        menuConfig = menuConfigCaptor.capture(),
+        serviceURLs = serviceURLsCaptor.capture(),
+        serviceNameKey = serviceNameKeyCaptor.capture(),
+        pageTitle = pageTitleCaptor.capture(),
+        sidebarContent = sideBarContentCaptor.capture(),
+        timeOutUrl = timeOutUrlCaptor.capture(),
+        keepAliveUrl = keepAliveUrlCaptor.capture(),
+        showBackLinkJS = showBackLinkJSCaptor.capture(),
+        backLinkUrl = backLinkUrlCaptor.capture(),
+        showSignOutInHeader = showSignOutInHeaderCaptor.capture(),
+        scripts = scriptsCaptor.capture(),
+        styleSheets = styleSheetsCaptor.capture(),
+        bannerConfig = bannerConfigCaptor.capture(),
+        fullWidth = fullWidthCaptor.capture(),
+        disableSessionExpired = disableSessionExpiredCaptor.capture(),
+        optTrustedHelper = optTrustedHelperCaptor.capture(),
+        urBannerUrl = urBannerUrlCaptor.capture(),
+        bespokeUserResearchBanner = bespokeUserResearchBannerCaptor.capture()
+      )(contentCaptor.capture())(any(), any())
+
+      menuCaptor.getValue mustBe standardMenu
+      menuConfigCaptor.getValue mustBe Some(expectedPtaMenuConfigSortedWithUnreadAndSignoutUrl)
+      showSignOutInHeaderCaptor.getValue mustBe true
     }
 
     "return the continueUrl if it is a valid relative URL" in {
@@ -370,6 +430,7 @@ class WrapperServiceSpec extends BaseSpec {
 object WrapperServiceSpec {
 
   val ptaMenuConfig: PtaMinMenuConfig = PtaMinMenuConfig(menuName = "Account menu", backName = "Back")
+
   val menuItemConfig1: MenuItemConfig = MenuItemConfig(
     "home",
     "Account home",
@@ -402,17 +463,24 @@ object WrapperServiceSpec {
     None
   )
 
+  val expectedPtaMenuConfigSortedWithUnreadAndSignoutUrl: PtaMenuConfig = PtaMenuConfig(
+    leftAlignedItems = Seq(menuItemConfig1),
+    rightAlignedItems = Seq(
+      menuItemConfig2.copy(notificationBadge = Some(2)),
+      menuItemConfig3,
+      menuItemConfig4,
+      menuItemConfig5.copy(href = "Signout-Url")
+    ),
+    ptaMinMenuConfig = ptaMenuConfig
+  )
+
   val menu: Option[Html] = Some(
     Html(
       "\n<!-- ACCOUNT MENU -->\n<nav id=\"secondary-nav\" class=\"hmrc-account-menu\" aria-label=\"Account\" data-module=\"hmrc-account-menu\">\n<!-- LEFT ALIGNED ITEMS -->\n            \n                \n<a href=\"pertaxUrl\"\n   class=\"hmrc-account-menu__link hmrc-account-menu__link--home\n   \" id=\"menu.left.0\">\n \n <span class=\"hmrc-account-icon hmrc-account-icon--home\">\n Account home\n </span>\n \n</a>\n\n            \n<!-- LEFT ALIGNED ITEMS -->\n    <a id=\"menu.name\" href=\"#\" class=\"hmrc-account-menu__link hmrc-account-menu__link--menu js-hidden js-visible\" tabindex=\"-1\" aria-hidden=\"true\" aria-expanded=\"false\">\n        Account menu\n    </a>\n    <ul class=\"hmrc-account-menu__main\">\n        <li class=\"hmrc-account-menu__link--back hidden\" aria-hidden=\"false\">\n            <a id=\"menu.back\" href=\"#\" tabindex=\"-1\" class=\"hmrc-account-menu__link\">\n            Back\n            </a>\n        </li>\n<!-- RIGHT ALIGNED ITEMS -->\n        \n                \n<li>\n <a href=\"pertaxUrl-messages\" class=\"hmrc-account-menu__link \" id=\"menu.right.0\">\n \n  <span class=\"\">\n   Messages\n   \n    <span class=\"hmrc-notification-badge\">2</span>\n\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"trackingUrl-track\" class=\"hmrc-account-menu__link \" id=\"menu.right.1\">\n \n  <span class=\"\">\n   Check progress\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"pertaxUrl-profile-and-settings\" class=\"hmrc-account-menu__link \" id=\"menu.right.2\">\n \n  <span class=\"\">\n   Profile and settings\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"Signout-Url\" class=\"hmrc-account-menu__link \" id=\"menu.right.3\">\n \n  <span class=\"\">\n   Sign out\n   \n  </span>\n \n </a>\n</li>\n\n            \n<!-- RIGHT ALIGNED ITEMS -->\n    </ul>\n</nav>\n"
     )
   )
 
-  val standardMenu: Option[Html] = Some(
-    Html(
-      "\n<!-- ACCOUNT MENU -->\n<nav id=\"secondary-nav\" class=\"hmrc-account-menu\" aria-label=\"Account\" data-module=\"hmrc-account-menu\">\n<!-- LEFT ALIGNED ITEMS -->\n            \n                \n<a href=\"pertaxUrl\"\n   class=\"hmrc-account-menu__link hmrc-account-menu__link--home\n   \" id=\"menu.left.0\">\n \n <span class=\"hmrc-account-icon hmrc-account-icon--home\">\n Account home\n </span>\n \n</a>\n\n            \n<!-- LEFT ALIGNED ITEMS -->\n    <a id=\"menu.name\" href=\"#\" class=\"hmrc-account-menu__link hmrc-account-menu__link--menu js-hidden js-visible\" tabindex=\"-1\" aria-hidden=\"true\" aria-expanded=\"false\">\n        Account menu\n    </a>\n    <ul class=\"hmrc-account-menu__main\">\n        <li class=\"hmrc-account-menu__link--back hidden\" aria-hidden=\"false\">\n            <a id=\"menu.back\" href=\"#\" tabindex=\"-1\" class=\"hmrc-account-menu__link\">\n            Back\n            </a>\n        </li>\n<!-- RIGHT ALIGNED ITEMS -->\n        \n                \n<li>\n <a href=\"pertaxUrl-messages\" class=\"hmrc-account-menu__link \" id=\"menu.right.0\">\n \n  <span class=\"\">\n   Messages\n   \n    <span class=\"hmrc-notification-badge\">2</span>\n\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"trackingUrl-track\" class=\"hmrc-account-menu__link \" id=\"menu.right.1\">\n \n  <span class=\"\">\n   Check progress\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"pertaxUrl-profile-and-settings\" class=\"hmrc-account-menu__link \" id=\"menu.right.2\">\n \n  <span class=\"\">\n   Profile and settings\n   \n  </span>\n \n </a>\n</li>\n\n            \n                \n<li>\n <a href=\"Signout-Url\" class=\"hmrc-account-menu__link \" id=\"menu.right.3\">\n \n  <span class=\"\">\n   Sign out\n   \n  </span>\n \n </a>\n</li>\n\n            \n<!-- RIGHT ALIGNED ITEMS -->\n    </ul>\n</nav>\n"
-    )
-  )
+  val standardMenu: Option[Html] = menu
 
   val defaultUrBanner: UrBanner = UrBanner("test-page", "test-link", isEnabled = true)
   val defaultWebchat: Webchat   = Webchat("test-page", "popup", isEnabled = true, chatType = "loadWebChatContainer")
@@ -426,46 +494,31 @@ object WrapperServiceSpec {
     trustedHelper = None
   )
 
-  val menuCaptor: ArgumentCaptor[Option[Html]]                                 =
-    ArgumentCaptor.forClass(classOf[Option[Html]])
-  val serviceURLsCaptor: ArgumentCaptor[ServiceURLs]                           =
-    ArgumentCaptor.forClass(classOf[ServiceURLs])
-  val serviceNameKeyCaptor: ArgumentCaptor[Option[String]]                     =
-    ArgumentCaptor.forClass(classOf[Option[String]])
-  val serviceNameUrlCaptor: ArgumentCaptor[Option[String]]                     =
-    ArgumentCaptor.forClass(classOf[Option[String]])
-  val pageTitleCaptor: ArgumentCaptor[Option[String]]                          =
-    ArgumentCaptor.forClass(classOf[Option[String]])
-  val sideBarContentCaptor: ArgumentCaptor[Option[Html]]                       =
-    ArgumentCaptor.forClass(classOf[Option[Html]])
-  val signoutUrlCaptor: ArgumentCaptor[Option[String]]                         =
-    ArgumentCaptor.forClass(classOf[Option[String]])
-  val timeOutUrlCaptor: ArgumentCaptor[Option[String]]                         =
-    ArgumentCaptor.forClass(classOf[Option[String]])
-  val keepAliveUrlCaptor: ArgumentCaptor[String]                               =
-    ArgumentCaptor.forClass(classOf[String])
-  val showBackLinkJSCaptor: ArgumentCaptor[Boolean]                            =
-    ArgumentCaptor.forClass(classOf[Boolean])
-  val backLinkUrlCaptor: ArgumentCaptor[Option[String]]                        =
-    ArgumentCaptor.forClass(classOf[Option[String]])
-  val showSignOutInHeaderCaptor: ArgumentCaptor[Boolean]                       =
-    ArgumentCaptor.forClass(classOf[Boolean])
+  val menuCaptor: ArgumentCaptor[Option[Html]]                                 = ArgumentCaptor.forClass(classOf[Option[Html]])
+  val menuConfigCaptor: ArgumentCaptor[Option[PtaMenuConfig]]                  =
+    ArgumentCaptor.forClass(classOf[Option[PtaMenuConfig]])
+  val serviceURLsCaptor: ArgumentCaptor[ServiceURLs]                           = ArgumentCaptor.forClass(classOf[ServiceURLs])
+  val serviceNameKeyCaptor: ArgumentCaptor[Option[String]]                     = ArgumentCaptor.forClass(classOf[Option[String]])
+  val serviceNameUrlCaptor: ArgumentCaptor[Option[String]]                     = ArgumentCaptor.forClass(classOf[Option[String]])
+  val pageTitleCaptor: ArgumentCaptor[Option[String]]                          = ArgumentCaptor.forClass(classOf[Option[String]])
+  val sideBarContentCaptor: ArgumentCaptor[Option[Html]]                       = ArgumentCaptor.forClass(classOf[Option[Html]])
+  val signoutUrlCaptor: ArgumentCaptor[Option[String]]                         = ArgumentCaptor.forClass(classOf[Option[String]])
+  val timeOutUrlCaptor: ArgumentCaptor[Option[String]]                         = ArgumentCaptor.forClass(classOf[Option[String]])
+  val keepAliveUrlCaptor: ArgumentCaptor[String]                               = ArgumentCaptor.forClass(classOf[String])
+  val showBackLinkJSCaptor: ArgumentCaptor[Boolean]                            = ArgumentCaptor.forClass(classOf[Boolean])
+  val backLinkUrlCaptor: ArgumentCaptor[Option[String]]                        = ArgumentCaptor.forClass(classOf[Option[String]])
+  val showSignOutInHeaderCaptor: ArgumentCaptor[Boolean]                       = ArgumentCaptor.forClass(classOf[Boolean])
   val scriptsCaptor: ArgumentCaptor[Seq[HtmlFormat.Appendable]]                =
     ArgumentCaptor.forClass(classOf[Seq[HtmlFormat.Appendable]])
   val styleSheetsCaptor: ArgumentCaptor[Seq[HtmlFormat.Appendable]]            =
     ArgumentCaptor.forClass(classOf[Seq[HtmlFormat.Appendable]])
-  val bannerConfigCaptor: ArgumentCaptor[BannerConfig]                         =
-    ArgumentCaptor.forClass(classOf[BannerConfig])
+  val bannerConfigCaptor: ArgumentCaptor[BannerConfig]                         = ArgumentCaptor.forClass(classOf[BannerConfig])
   val optTrustedHelperCaptor: ArgumentCaptor[Option[TrustedHelper]]            =
     ArgumentCaptor.forClass(classOf[Option[TrustedHelper]])
-  val fullWidthCaptor: ArgumentCaptor[Boolean]                                 =
-    ArgumentCaptor.forClass(classOf[Boolean])
-  val disableSessionExpiredCaptor: ArgumentCaptor[Boolean]                     =
-    ArgumentCaptor.forClass(classOf[Boolean])
-  val contentCaptor: ArgumentCaptor[Html]                                      =
-    ArgumentCaptor.forClass(classOf[Html])
-  val urBannerUrlCaptor: ArgumentCaptor[Option[String]]                        =
-    ArgumentCaptor.forClass(classOf[Option[String]])
+  val fullWidthCaptor: ArgumentCaptor[Boolean]                                 = ArgumentCaptor.forClass(classOf[Boolean])
+  val disableSessionExpiredCaptor: ArgumentCaptor[Boolean]                     = ArgumentCaptor.forClass(classOf[Boolean])
+  val contentCaptor: ArgumentCaptor[Html]                                      = ArgumentCaptor.forClass(classOf[Html])
+  val urBannerUrlCaptor: ArgumentCaptor[Option[String]]                        = ArgumentCaptor.forClass(classOf[Option[String]])
   val bespokeUserResearchBannerCaptor: ArgumentCaptor[Option[UrBannerDetails]] =
     ArgumentCaptor.forClass(classOf[Option[UrBannerDetails]])
 }
