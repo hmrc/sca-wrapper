@@ -25,7 +25,8 @@ case class MenuItemConfig(
   leftAligned: Boolean,
   position: Int,
   icon: Option[String],
-  notificationBadge: Option[Int]
+  notificationBadge: Option[Int],
+  current: Boolean = false
 )
 
 object MenuItemConfig {

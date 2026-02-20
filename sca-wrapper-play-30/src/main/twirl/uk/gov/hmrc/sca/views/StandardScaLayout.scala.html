@@ -161,13 +161,13 @@
             all.filterNot(_.id == "signout").map { mi =>
                 val label = mi.notificationBadge match {
                         case Some(count) =>
-                            HtmlContent(Html(s"""${mi.text} <span class="hmrc-notification-badge">$count</span>"""))
-                        case None =>
-                            Text(mi.text)
-                }
-                ServiceNavigationItem(content = label, href    = mi.href)
-            }
-        }
+        HtmlContent(Html(s"""${mi.text} <span class="hmrc-notification-badge">$count</span>"""))
+        case None =>
+            Text(mi.text)
+    }
+    ServiceNavigationItem(content = label, href = mi.href, current = mi.current)
+}
+    }
 
     items
 }

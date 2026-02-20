@@ -135,10 +135,12 @@ class WrapperService @Inject() (
 
     val menuItemConfigWithSignout            = setSignoutUrl(signoutUrl, wrapperDataResponse.menuItemConfig)
     val menuItemConfigWithUnreadMessageCount = setUnreadMessageCount(unreadMessageCount, menuItemConfigWithSignout)
+    val menuItemConfigWithCurrent            =
+      setCurrentMenuItemBasedOnUri(menuItemConfigWithUnreadMessageCount, requestHeader.uri)
 
     PtaMenuConfig(
-      leftAlignedItems = menuItemConfigWithUnreadMessageCount.filter(_.leftAligned).sortBy(_.position),
-      rightAlignedItems = menuItemConfigWithUnreadMessageCount.filterNot(_.leftAligned).sortBy(_.position),
+      leftAlignedItems = menuItemConfigWithCurrent.filter(_.leftAligned).sortBy(_.position),
+      rightAlignedItems = menuItemConfigWithCurrent.filterNot(_.leftAligned).sortBy(_.position),
       ptaMinMenuConfig = wrapperDataResponse.ptaMinMenuConfig
     )
   }
@@ -168,6 +170,57 @@ class WrapperService @Inject() (
         )
         menuItemConfig
     }
+
+  private def setCurrentMenuItemBasedOnUri(
+    menuItemConfig: Seq[MenuItemConfig],
+    uri: String
+  ): Seq[MenuItemConfig] =
+    Try {
+      val activeItemId = determineActiveMenuItemId(menuItemConfig, uri)
+      menuItemConfig.map { item =>
+        item.copy(current = activeItemId.contains(item.id))
+      }
+    } match {
+      case Success(config)    => config
+      case Failure(exception) =>
+        logger.error(
+          s"[SCA Wrapper Library][WrapperService][setCurrentMenuItemBasedOnUri] Set current menu item exception: ${exception.getMessage}"
+        )
+        menuItemConfig
+    }
+
+  private def determineActiveMenuItemId(menuItemConfig: Seq[MenuItemConfig], uri: String): Option[String] = {
+    val normalizedUri = uri.toLowerCase
+
+    // Check for exact matches or specific page patterns
+    menuItemConfig
+      .find { item =>
+        item.id match {
+          case "messages" => normalizedUri.contains("/messages")
+          case "progress" => normalizedUri.contains("/track") || normalizedUri.contains("/progress")
+          case "profile"  =>
+            normalizedUri.contains("/profile") || normalizedUri.contains("/your-address") || normalizedUri.contains(
+              "/update-your-details"
+            )
+          case "home"     =>
+            // Home matches if the last segment of the href matches the last segment of the uri
+            // but only if we're not on a more specific page
+            val hrefLastSegment = item.href.split('/').lastOption.getOrElse("")
+            val uriLastSegment  = normalizedUri.split('/').lastOption.getOrElse("")
+            hrefLastSegment.nonEmpty && hrefLastSegment == uriLastSegment &&
+            !normalizedUri.contains("/messages") &&
+            !normalizedUri.contains("/track") &&
+            !normalizedUri.contains("/profile") &&
+            !normalizedUri.contains("/your-address") &&
+            !normalizedUri.contains("/update-your-details")
+          case _          =>
+            // Generic matching: check if the href last segment matches uri last segment
+            val hrefLastSegment = item.href.split('/').lastOption.getOrElse("")
+            hrefLastSegment.nonEmpty && hrefLastSegment == normalizedUri.split('/').lastOption.getOrElse("")
+        }
+      }
+      .map(_.id)
+  }
 
   private def getWrapperDataResponse(requestHeader: RequestHeader): Option[WrapperDataResponse] =
     requestHeader.attrs.get(Keys.wrapperDataKey)
