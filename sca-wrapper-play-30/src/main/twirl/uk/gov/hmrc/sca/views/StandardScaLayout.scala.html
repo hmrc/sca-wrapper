@@ -105,12 +105,17 @@
     }
 }
 
-@bespokeUserResearchBannerHtml = @{
-    (for {
-        cfg <- bespokeUserResearchBanner
-                url <- urBannerUrl
-    } yield {
-        bespokeUserResearchBannerView(
+@beforeContent = {
+
+@if(!useNewServiceNavigation) {
+    @defining(request.uri) { _ =>
+        @menu
+    }
+}
+
+@for(cfg <- bespokeUserResearchBanner) {
+    @for(url <- urBannerUrl) {
+        @bespokeUserResearchBannerView(
             url,
             cfg.titleEn,
             cfg.titleCy,
@@ -118,14 +123,6 @@
             cfg.linkTextCy,
             cfg.hideCloseButton
         )
-    }).orNull
-}
-
-@beforeContent = {
-
-@if(!useNewServiceNavigation) {
-    @defining(request.uri) { _ =>
-        @menu
     }
 }
 
@@ -165,9 +162,6 @@
         <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
         @hmrcReportTechnicalIssueHelper()
         <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
-
-        @* ✅ From your version: bespoke user research banner *@
-        @bespokeUserResearchBannerHtml
 
         @* ✅ Keep main behaviour: phase banner (beta/alpha) *@
         @if(bannerConfig.showBetaBanner) {
@@ -227,7 +221,8 @@
         ),
         banners = Banners(
             displayHmrcBanner  = false,
-            userResearchBanner = urBannerUrl.map(url => UserResearchBanner(url = url))
+            userResearchBanner = if (bespokeUserResearchBanner.isDefined) None
+                else urBannerUrl.map(url => UserResearchBanner(url = url))
         ),
         templateOverrides = TemplateOverrides(
             additionalHeadBlock    = Some(headBlock),

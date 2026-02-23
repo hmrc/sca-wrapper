@@ -81,14 +81,14 @@ class WrapperService @Inject() (
           case (None, true)     => false
         }
 
-    val urBannerForPage: Option[UrBanner] = getUrBannerForPage
-
+    val urBannerForPage: Option[UrBanner]         = getUrBannerForPage
     val bannerDetailsOpt: Option[UrBannerDetails] = urBannerForPage.flatMap(_.bannerDetails)
 
     val (effectiveBannerConfig, urBannerUrl, bespokeBannerFromWrapper) =
       bannerDetailsOpt match {
         case Some(details) =>
-          (bannerConfig.copy(showHelpImproveBanner = false), None, Some(details))
+          val link = urBannerForPage.map(_.link).filter(_.nonEmpty)
+          (bannerConfig.copy(showHelpImproveBanner = false), link, Some(details))
 
         case None =>
           val basicWrapperBannerUrl: Option[String] =
@@ -199,6 +199,6 @@ class WrapperService @Inject() (
 
   private def getUrBannerForPage(implicit requestHeader: RequestHeader): Option[UrBanner] =
     getWrapperDataResponse(requestHeader).flatMap { response =>
-      response.urBanners.find(_.page.equals(requestHeader.uri))
+      response.urBanners.find(_.page == requestHeader.path)
     }
 }
