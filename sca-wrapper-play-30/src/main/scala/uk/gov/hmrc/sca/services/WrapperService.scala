@@ -190,34 +190,22 @@ class WrapperService @Inject() (
     }
 
   private def determineActiveMenuItemId(menuItemConfig: Seq[MenuItemConfig], uri: String): Option[String] = {
-    val normalizedUri = uri.toLowerCase
+    val path =
+      try
+        new java.net.URI(uri).getPath
+      catch {
+        case _: Exception => uri
+      }
 
-    // Check for exact matches or specific page patterns
     menuItemConfig
       .find { item =>
-        item.id match {
-          case "messages" => normalizedUri.contains("/messages")
-          case "progress" => normalizedUri.contains("/track") || normalizedUri.contains("/progress")
-          case "profile"  =>
-            normalizedUri.contains("/profile") || normalizedUri.contains("/your-address") || normalizedUri.contains(
-              "/update-your-details"
-            )
-          case "home"     =>
-            // Home matches if the last segment of the href matches the last segment of the uri
-            // but only if we're not on a more specific page
-            val hrefLastSegment = item.href.split('/').lastOption.getOrElse("")
-            val uriLastSegment  = normalizedUri.split('/').lastOption.getOrElse("")
-            hrefLastSegment.nonEmpty && hrefLastSegment == uriLastSegment &&
-            !normalizedUri.contains("/messages") &&
-            !normalizedUri.contains("/track") &&
-            !normalizedUri.contains("/profile") &&
-            !normalizedUri.contains("/your-address") &&
-            !normalizedUri.contains("/update-your-details")
-          case _          =>
-            // Generic matching: check if the href last segment matches uri last segment
-            val hrefLastSegment = item.href.split('/').lastOption.getOrElse("")
-            hrefLastSegment.nonEmpty && hrefLastSegment == normalizedUri.split('/').lastOption.getOrElse("")
-        }
+        val normalizedHref =
+          try
+            new java.net.URI(item.href).getPath
+          catch {
+            case _: Exception => item.href
+          }
+        path == normalizedHref
       }
       .map(_.id)
   }
