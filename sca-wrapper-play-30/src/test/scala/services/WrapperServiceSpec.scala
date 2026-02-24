@@ -290,7 +290,7 @@ class WrapperServiceSpec extends BaseSpec {
       bespokeUserResearchBannerCaptor.getValue mustBe None
     }
 
-    "derive bespoke user research banner details from UR banner when bannerDetails are present" in {
+    "derive bespoke user research banner details from UR banner when bannerDetails are present and keep link for bespoke rendering" in {
       val bespokeDetails = UrBannerDetails(
         titleEn = "Help improve this service",
         titleCy = "Helpu gwella'r gwasanaeth hwn",
@@ -348,7 +348,7 @@ class WrapperServiceSpec extends BaseSpec {
         bespokeUserResearchBanner = bespokeUserResearchBannerCaptor.capture()
       )(any())(any(), any())
 
-      urBannerUrlCaptor.getValue mustBe None
+      urBannerUrlCaptor.getValue mustBe Some(bespokeUrBanner.link)
       bespokeUserResearchBannerCaptor.getValue mustBe Some(bespokeDetails)
       verify(mockAppConfig, times(0)).helpImproveBannerUrl
     }
