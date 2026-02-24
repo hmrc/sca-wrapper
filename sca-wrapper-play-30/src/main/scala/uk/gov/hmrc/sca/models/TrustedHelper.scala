@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,15 @@
 
 package uk.gov.hmrc.sca.models
 
-import play.api.libs.json.{Format, Json, OFormat}
-import uk.gov.hmrc.sca.models.TrustedHelper
+import play.api.libs.json.{Json, Reads}
 
-case class WrapperDataResponse(
-  menuItemConfig: Seq[MenuItemConfig],
-  ptaMinMenuConfig: PtaMinMenuConfig,
-  urBanners: List[UrBanner],
-  webchatPages: List[Webchat],
-  unreadMessageCount: Option[Int],
-  trustedHelper: Option[TrustedHelper]
+case class TrustedHelper(
+  principalName: String,
+  attorneyName: String,
+  returnLinkUrl: String,
+  principalNino: Option[String]
 )
-object WrapperDataResponse {
-  implicit val format: OFormat[WrapperDataResponse] = {
-    implicit val format: Format[TrustedHelper] = Json.format[TrustedHelper]
-    Json.format[WrapperDataResponse]
-  }
+
+object TrustedHelper {
+  val reads: Reads[TrustedHelper] = Json.reads[TrustedHelper]
 }

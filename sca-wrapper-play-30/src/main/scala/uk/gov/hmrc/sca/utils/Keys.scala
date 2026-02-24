@@ -18,7 +18,7 @@ package uk.gov.hmrc.sca.utils
 
 import play.api.libs.typedmap.TypedKey
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.sca.models.WrapperDataResponse
 
 import scala.annotation.unused
