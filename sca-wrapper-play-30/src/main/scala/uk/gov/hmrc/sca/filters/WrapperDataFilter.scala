@@ -21,10 +21,10 @@ import play.api.mvc.{EssentialAction, EssentialFilter}
 import javax.inject.Inject
 
 class WrapperDataFilter @Inject() (
-  oldWrapperDataFilter: OldWrapperDataFilter,
+  wrapperDataAttributesFilter: WrapperDataAttributesFilter,
   langQueryParamFilter: LangQueryParamFilter
 ) extends EssentialFilter {
 
   override def apply(next: EssentialAction): EssentialAction =
-    oldWrapperDataFilter(langQueryParamFilter(next))
+    wrapperDataAttributesFilter(langQueryParamFilter(next))
 }

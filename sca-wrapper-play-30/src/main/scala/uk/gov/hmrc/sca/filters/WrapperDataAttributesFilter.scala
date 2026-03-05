@@ -29,7 +29,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.chaining.scalaUtilChainingOps
 
-class OldWrapperDataFilter @Inject() (
+class WrapperDataAttributesFilter @Inject() (
   scaWrapperDataService: ScaWrapperDataService
 )(implicit
   val executionContext: ExecutionContext,
