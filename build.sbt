@@ -19,7 +19,7 @@ import sbt.Keys.*
 
 val libName = "sca-wrapper"
 
-val scala2_13 = "2.13.17"
+val scala2_13 = "2.13.18"
 val scala3_3 = "3.3.7"
 
 // Disable multiple project tests running at the same time, since notablescan flag is a global setting.

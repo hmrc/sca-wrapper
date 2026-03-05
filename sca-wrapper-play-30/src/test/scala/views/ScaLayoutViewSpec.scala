@@ -18,7 +18,7 @@ package views
 
 import play.api.i18n.Messages
 import play.twirl.api.Html
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.sca.models.BannerConfig
 import uk.gov.hmrc.sca.views.html.ScaLayout
 import utils.ViewBaseSpec

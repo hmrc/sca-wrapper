@@ -20,7 +20,6 @@ import play.api.Logging
 import play.api.i18n.{Lang, Messages}
 import play.api.mvc.RequestHeader
 import play.twirl.api.{Html, HtmlFormat}
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
@@ -135,10 +134,12 @@ class WrapperService @Inject() (
 
     val menuItemConfigWithSignout            = setSignoutUrl(signoutUrl, wrapperDataResponse.menuItemConfig)
     val menuItemConfigWithUnreadMessageCount = setUnreadMessageCount(unreadMessageCount, menuItemConfigWithSignout)
+    val menuItemConfigWithCurrent            =
+      setCurrentMenuItemBasedOnUri(menuItemConfigWithUnreadMessageCount, requestHeader.uri)
 
     PtaMenuConfig(
-      leftAlignedItems = menuItemConfigWithUnreadMessageCount.filter(_.leftAligned).sortBy(_.position),
-      rightAlignedItems = menuItemConfigWithUnreadMessageCount.filterNot(_.leftAligned).sortBy(_.position),
+      leftAlignedItems = menuItemConfigWithCurrent.filter(_.leftAligned).sortBy(_.position),
+      rightAlignedItems = menuItemConfigWithCurrent.filterNot(_.leftAligned).sortBy(_.position),
       ptaMinMenuConfig = wrapperDataResponse.ptaMinMenuConfig
     )
   }
@@ -168,6 +169,45 @@ class WrapperService @Inject() (
         )
         menuItemConfig
     }
+
+  private def setCurrentMenuItemBasedOnUri(
+    menuItemConfig: Seq[MenuItemConfig],
+    uri: String
+  ): Seq[MenuItemConfig] =
+    Try {
+      val activeItemId = determineActiveMenuItemId(menuItemConfig, uri)
+      menuItemConfig.map { item =>
+        item.copy(current = activeItemId.contains(item.id))
+      }
+    } match {
+      case Success(config)    => config
+      case Failure(exception) =>
+        logger.error(
+          s"[SCA Wrapper Library][WrapperService][setCurrentMenuItemBasedOnUri] Set current menu item exception: ${exception.getMessage}"
+        )
+        menuItemConfig
+    }
+
+  private def determineActiveMenuItemId(menuItemConfig: Seq[MenuItemConfig], uri: String): Option[String] = {
+    val path =
+      try
+        new java.net.URI(uri).getPath
+      catch {
+        case _: Exception => uri
+      }
+
+    menuItemConfig
+      .find { item =>
+        val normalizedHref =
+          try
+            new java.net.URI(item.href).getPath
+          catch {
+            case _: Exception => item.href
+          }
+        path == normalizedHref
+      }
+      .map(_.id)
+  }
 
   private def getWrapperDataResponse(requestHeader: RequestHeader): Option[WrapperDataResponse] =
     requestHeader.attrs.get(Keys.wrapperDataKey)
