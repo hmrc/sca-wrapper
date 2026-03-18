@@ -165,7 +165,7 @@
         case None =>
             Text(mi.text)
     }
-    ServiceNavigationItem(content = label, href = mi.href, current = mi.current)
+    ServiceNavigationItem(content = label, href = mi.href, current = mi.current.contains(true))
 }
     }
 
