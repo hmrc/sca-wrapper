@@ -61,37 +61,38 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with Patien
   val jsonResponse: String =
     s"""
        |{
-       |  "menuItemConfig": [
+       |  "menuItemConfig":[
        |    {
-       |      "id": "home",
-       |      "text": "Account home",
-       |      "href": "http://localhost:9232/personal-account",
-       |      "leftAligned": true,
-       |      "position": 0,
-       |      "icon": "hmrc-account-icon hmrc-account-icon--home"
-       |    }
-       |  ],
-       |  "ptaMinMenuConfig": {
-       |    "menuName": "Account menu",
-       |    "backName": "Back"
-       |  },
-       |  "urBanners": [
+       |      "id":"home",
+       |      "text":"Account home",
+       |      "href":"http://localhost:9232/personal-account",
+       |      "leftAligned":true,
+       |      "position":0,
+       |      "icon":"hmrc-account-icon hmrc-account-icon--home"
+       |      }
+       |   ],
+       |   "ptaMinMenuConfig":
        |    {
-       |      "page": "test-page",
-       |      "link": "test-link",
-       |      "isEnabled": true
-       |    }
-       |  ],
-       |  "webchatPages": [
-       |    {
-       |      "page": "test-page",
-       |      "skin": "popup",
-       |      "isEnabled": true,
-       |      "chatType": "loadHMRCChatSkinElement"
-       |    }
-       |  ],
+       |      "menuName":"Account menu",
+       |      "backName":"Back"
+       |    },
+       |    "urBanners":[
+       |      {
+       |        "page":"test-page",
+       |        "link":"test-link",
+       |        "isEnabled":true
+       |      }
+       |    ],
+       |    "webchatPages":[
+       |      {
+         |      "pattern":"test-page",
+         |      "skinElement":"popup",
+         |      "isEnabled":true,
+         |      "chatType":"loadHMRCChatSkinElement"
+       |      }
+       |    ],
        |  "unreadMessageCount": 2
-       |}
+       |   }
        |""".stripMargin
 
   "ScaWrapperDataConnector.WrapperDataResponse" must {
@@ -127,9 +128,8 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with Patien
           .willReturn(okJson(jsonResponse))
       )
 
-      scaWrapperDataConnector.wrapperDataWithMessages().map { result =>
-        result mustBe Some(expectedResponse)
-      }
+      val result = scaWrapperDataConnector.wrapperDataWithMessages().futureValue(Timeout(Span(2, Seconds)))
+      result mustBe Some(expectedResponse)
     }
 
     "return None when wrapperDataWithMessages() returns a server error" in {

@@ -177,7 +177,7 @@ class WrapperService @Inject() (
     Try {
       val activeItemId = determineActiveMenuItemId(menuItemConfig, uri)
       menuItemConfig.map { item =>
-        item.copy(current = activeItemId.contains(item.id))
+        item.copy(current = Some(activeItemId.contains(item.id)))
       }
     } match {
       case Success(config)    => config
