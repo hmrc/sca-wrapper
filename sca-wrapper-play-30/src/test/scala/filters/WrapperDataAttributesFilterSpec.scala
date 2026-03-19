@@ -16,7 +16,7 @@
 
 package filters
 
-import filters.WrapperDataFilterSpec.wrapperDataResponse
+import filters.WrapperDataAttributesFilterSpec.wrapperDataResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
@@ -31,14 +31,13 @@ import play.api.mvc.{AnyContentAsEmpty, RequestHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
 import play.api.{Application, inject}
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-import uk.gov.hmrc.sca.filters.WrapperDataFilter
+import uk.gov.hmrc.sca.filters.WrapperDataAttributesFilter
 import uk.gov.hmrc.sca.services.ScaWrapperDataService
 import uk.gov.hmrc.sca.utils.Keys
 
 import scala.concurrent.Future
 
-class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
+class WrapperDataAttributesFilterSpec extends AsyncWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
   private val mockScaWrapperDataService = mock[ScaWrapperDataService]
 
@@ -60,9 +59,10 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
       .thenReturn(Future.successful(true))
   }
 
-  val wrapperDataFilter: WrapperDataFilter = application.injector.instanceOf[WrapperDataFilter]
+  val wrapperDataAttributesFilter: WrapperDataAttributesFilter =
+    application.injector.instanceOf[WrapperDataAttributesFilter]
 
-  "WrapperDataFilter" must {
+  "WrapperDataAttributesFilter" must {
 
     "attach wrapperData when request is authenticated and not excluded" in {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] =
@@ -79,7 +79,7 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
             )
           )
 
-      val result = wrapperDataFilter.apply(f)(request)
+      val result = wrapperDataAttributesFilter.apply(f)(request)
 
       status(result) mustBe OK
 
@@ -100,7 +100,7 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
         val f: RequestHeader => Future[Result] =
           r => Future.successful(Ok(Json.obj("wrapperData" -> r.attrs.get(Keys.wrapperDataKey))))
 
-        val result = wrapperDataFilter.apply(f)(request)
+        val result = wrapperDataAttributesFilter.apply(f)(request)
 
         status(result) mustBe OK
 
@@ -119,7 +119,7 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
       val f: RequestHeader => Future[Result] =
         r => Future.successful(Ok(Json.obj("wrapperData" -> r.attrs.get(Keys.wrapperDataKey))))
 
-      val result = wrapperDataFilter.apply(f)(request)
+      val result = wrapperDataAttributesFilter.apply(f)(request)
 
       status(result) mustBe OK
 
@@ -134,7 +134,7 @@ class WrapperDataFilterSpec extends AsyncWordSpec with Matchers with MockitoSuga
   }
 }
 
-object WrapperDataFilterSpec {
+object WrapperDataAttributesFilterSpec {
 
   import uk.gov.hmrc.sca.models._
 

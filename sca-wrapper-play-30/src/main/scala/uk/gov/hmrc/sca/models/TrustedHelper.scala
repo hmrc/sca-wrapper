@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.sca.filters
+package uk.gov.hmrc.sca.models
 
-import play.api.mvc.{EssentialAction, EssentialFilter}
+import play.api.libs.json.{Json, Reads}
 
-import javax.inject.Inject
+case class TrustedHelper(
+  principalName: String,
+  attorneyName: String,
+  returnLinkUrl: String,
+  principalNino: Option[String]
+)
 
-class WrapperDataFilter @Inject() (
-  wrapperDataAttributesFilter: WrapperDataAttributesFilter,
-  langQueryParamFilter: LangQueryParamFilter
-) extends EssentialFilter {
-
-  override def apply(next: EssentialAction): EssentialAction =
-    wrapperDataAttributesFilter(langQueryParamFilter(next))
+object TrustedHelper {
+  val reads: Reads[TrustedHelper] = Json.reads[TrustedHelper]
 }

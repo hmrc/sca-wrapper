@@ -29,7 +29,7 @@ import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.stubMessages
 import play.twirl.api.{Html, HtmlFormat}
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.sca.config.AppConfig
@@ -438,12 +438,31 @@ object WrapperServiceSpec {
     leftAligned = true,
     position = 0,
     Some("hmrc-account-icon hmrc-account-icon--home"),
-    None
+    None,
+    current = Some(false)
   )
   val menuItemConfig2: MenuItemConfig =
-    MenuItemConfig("messages", "Messages", "pertaxUrl-messages", leftAligned = false, position = 0, None, None)
+    MenuItemConfig(
+      "messages",
+      "Messages",
+      "pertaxUrl-messages",
+      leftAligned = false,
+      position = 0,
+      None,
+      None,
+      current = Some(false)
+    )
   val menuItemConfig3: MenuItemConfig =
-    MenuItemConfig("progress", "Check progress", "trackingUrl-track", leftAligned = false, position = 1, None, None)
+    MenuItemConfig(
+      "progress",
+      "Check progress",
+      "trackingUrl-track",
+      leftAligned = false,
+      position = 1,
+      None,
+      None,
+      current = Some(false)
+    )
   val menuItemConfig4: MenuItemConfig = MenuItemConfig(
     "profile",
     "Profile and settings",
@@ -451,7 +470,8 @@ object WrapperServiceSpec {
     leftAligned = false,
     position = 2,
     None,
-    None
+    None,
+    current = Some(false)
   )
   val menuItemConfig5: MenuItemConfig = MenuItemConfig(
     "signout",
@@ -460,7 +480,8 @@ object WrapperServiceSpec {
     leftAligned = false,
     position = 3,
     None,
-    None
+    None,
+    current = Some(false)
   )
 
   val expectedPtaMenuConfigSortedWithUnreadAndSignoutUrl: PtaMenuConfig = PtaMenuConfig(

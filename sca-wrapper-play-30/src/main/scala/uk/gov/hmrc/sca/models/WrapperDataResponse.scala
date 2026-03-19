@@ -17,7 +17,7 @@
 package uk.gov.hmrc.sca.models
 
 import play.api.libs.json.{Format, Json, OFormat}
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.sca.models.TrustedHelper
 
 case class WrapperDataResponse(
   menuItemConfig: Seq[MenuItemConfig],

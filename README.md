@@ -36,7 +36,7 @@ anything (e.g button position on the menu bar, href links, button names etc. can
 
 Clone https://github.com/hmrc/single-customer-account-frontend for a working example of the Wrapper being integrated with a standard HMRC MDTP frontend. `HomeController`
 shows how the integration works.
-To run all the SCA services from service manager, run `sm --start SCA_FUTURES_AL` or `sm2 --start SCA_FUTURES_AL`
+To run all the SCA services from service manager, run `sm --start SCA_FUTURES_ALL` or `sm2 --start SCA_FUTURES_ALL`
 
 ### License
 
