@@ -139,7 +139,6 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       document.getElementsByTag("link").asScala.exists(x => x.attr("href").equals("/assets/pta.css")) mustBe true
       document.getElementsByTag("link").asScala.exists(x => x.attr("href").equals("/customStylesheet")) mustBe true
 
-      // NOTE: this expectation matches main branch wording
       document
         .select(".govuk-phase-banner__content")
         .asScala
@@ -190,7 +189,6 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         ).toString()
       )
 
-      // NOTE: this expectation matches main branch wording
       document
         .select(".govuk-phase-banner__content")
         .asScala
