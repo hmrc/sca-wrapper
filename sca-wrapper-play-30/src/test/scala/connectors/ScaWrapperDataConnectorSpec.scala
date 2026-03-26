@@ -28,7 +28,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, UrBannerDetails, Webchat, WrapperDataResponse}
 import utils.BaseSpec
 
 class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with PatienceConfiguration {
@@ -85,14 +85,57 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with Patien
        |    ],
        |    "webchatPages":[
        |      {
-         |      "pattern":"test-page",
-         |      "skinElement":"popup",
-         |      "isEnabled":true,
-         |      "chatType":"loadHMRCChatSkinElement"
+       |      "pattern":"test-page",
+       |      "skinElement":"popup",
+       |      "isEnabled":true,
+       |      "chatType":"loadHMRCChatSkinElement"
        |      }
        |    ],
        |  "unreadMessageCount": 2
        |   }
+       |""".stripMargin
+
+  val jsonResponseWithBespokeUrBanner: String =
+    s"""
+       |{
+       |  "menuItemConfig": [
+       |    {
+       |      "id": "home",
+       |      "text": "Account home",
+       |      "href": "http://localhost:9232/personal-account",
+       |      "leftAligned": true,
+       |      "position": 0,
+       |      "icon": "hmrc-account-icon hmrc-account-icon--home"
+       |    }
+       |  ],
+       |  "ptaMinMenuConfig": {
+       |    "menuName": "Account menu",
+       |    "backName": "Back"
+       |  },
+       |  "urBanners": [
+       |    {
+       |      "page": "test-page",
+       |      "link": "test-link",
+       |      "isEnabled": true,
+       |      "bannerDetails": {
+       |        "titleEn": "Help improve this service",
+       |        "titleCy": "Helpu gwella'r gwasanaeth hwn",
+       |        "linkTextEn": "Take part",
+       |        "linkTextCy": "Cymerwch ran",
+       |        "hideCloseButton": false
+       |      }
+       |    }
+       |  ],
+       |  "webchatPages": [
+       |    {
+       |      "page": "test-page",
+       |      "skin": "popup",
+       |      "isEnabled": true,
+       |      "chatType": "loadHMRCChatSkinElement"
+       |    }
+       |  ],
+       |  "unreadMessageCount": 2
+       |}
        |""".stripMargin
 
   "ScaWrapperDataConnector.WrapperDataResponse" must {
@@ -126,6 +169,53 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with Patien
       server.stubFor(
         get(urlEqualTo(urlWrapperDataWithMessages))
           .willReturn(okJson(jsonResponse))
+      )
+
+      val result = scaWrapperDataConnector.wrapperDataWithMessages().futureValue(Timeout(Span(2, Seconds)))
+      result mustBe Some(expectedResponse)
+    }
+
+    "return a successful WrapperDataResponse including bespoke UR banner fields when present in JSON" in {
+      val ptaMenuConfig  = PtaMinMenuConfig("Account menu", "Back")
+      val menuItemConfig = MenuItemConfig(
+        "home",
+        "Account home",
+        "http://localhost:9232/personal-account",
+        leftAligned = true,
+        position = 0,
+        Some("hmrc-account-icon hmrc-account-icon--home"),
+        None
+      )
+
+      val bespokeUrBannerDetails = UrBannerDetails(
+        titleEn = "Help improve this service",
+        titleCy = "Helpu gwella'r gwasanaeth hwn",
+        linkTextEn = "Take part",
+        linkTextCy = "Cymerwch ran",
+        hideCloseButton = false
+      )
+
+      val bespokeUrBanner = defaultUrBanner.copy(
+        bannerDetails = Some(bespokeUrBannerDetails)
+      )
+
+      val expectedResponse = WrapperDataResponse(
+        menuItemConfig = Seq(menuItemConfig),
+        ptaMinMenuConfig = ptaMenuConfig,
+        urBanners = List(bespokeUrBanner),
+        webchatPages = List(defaultWebchat),
+        unreadMessageCount = Some(2),
+        trustedHelper = None
+      )
+
+      when(mockAppConfig.scaWrapperDataUrl).thenReturn(
+        s"http://localhost:${server.port()}/single-customer-account-wrapper-data"
+      )
+      when(mockAppConfig.versionNum).thenReturn("1.0.3")
+
+      server.stubFor(
+        get(urlEqualTo(urlWrapperDataWithMessages))
+          .willReturn(okJson(jsonResponseWithBespokeUrBanner))
       )
 
       val result = scaWrapperDataConnector.wrapperDataWithMessages().futureValue(Timeout(Span(2, Seconds)))
@@ -218,9 +308,8 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with Patien
           .willReturn(ok("invalid-json"))
       )
 
-      scaWrapperDataConnector.wrapperDataWithMessages().map { result =>
-        result mustBe None
-      }
+      val result = scaWrapperDataConnector.wrapperDataWithMessages().futureValue(Timeout(Span(2, Seconds)))
+      result mustBe None
     }
   }
 
@@ -243,9 +332,8 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with Patien
           .willReturn(okJson(toggleJson))
       )
 
-      scaWrapperDataConnector.serviceNavigationToggle().value.map { result =>
-        result mustBe Json.parse(toggleJson)
-      }
+      val result = scaWrapperDataConnector.serviceNavigationToggle().futureValue
+      result mustBe Json.parse(toggleJson)
     }
 
     "fail with exception when serviceNavigationToggle() returns a server error (500)" in {
