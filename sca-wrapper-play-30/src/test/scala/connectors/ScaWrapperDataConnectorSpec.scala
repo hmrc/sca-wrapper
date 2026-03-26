@@ -28,7 +28,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, UrBannerDetails, Webchat, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
 import utils.BaseSpec
 
 class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with PatienceConfiguration {
@@ -128,8 +128,8 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with Patien
        |  ],
        |  "webchatPages": [
        |    {
-       |      "page": "test-page",
-       |      "skin": "popup",
+       |      "pattern": "test-page",
+       |      "skinElement": "popup",
        |      "isEnabled": true,
        |      "chatType": "loadHMRCChatSkinElement"
        |    }
@@ -187,22 +187,10 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with Patien
         None
       )
 
-      val bespokeUrBannerDetails = UrBannerDetails(
-        titleEn = "Help improve this service",
-        titleCy = "Helpu gwella'r gwasanaeth hwn",
-        linkTextEn = "Take part",
-        linkTextCy = "Cymerwch ran",
-        hideCloseButton = false
-      )
-
-      val bespokeUrBanner = defaultUrBanner.copy(
-        bannerDetails = Some(bespokeUrBannerDetails)
-      )
-
       val expectedResponse = WrapperDataResponse(
         menuItemConfig = Seq(menuItemConfig),
         ptaMinMenuConfig = ptaMenuConfig,
-        urBanners = List(bespokeUrBanner),
+        urBanners = List(defaultUrBanner),
         webchatPages = List(defaultWebchat),
         unreadMessageCount = Some(2),
         trustedHelper = None
