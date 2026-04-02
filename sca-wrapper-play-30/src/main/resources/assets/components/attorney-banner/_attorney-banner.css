@@ -1,29 +1,14 @@
 .pta-attorney-banner {
-  font-family: GDS Transport,arial,sans-serif;
-  -webkit-font-smoothing: antialiased;
-  font-size: 16px;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  z-index: 999;
-  border-left: 3px solid #005ea5;
-  background-color: #def;
+  background-color: #eaf4f9;
+  border-left: 10px solid #5694ca;
+  padding: 1em 16px .2em 16px;
+  margin-bottom: 4em;
   box-sizing: border-box;
   width: 100%;
 }
 
-@media (min-width: 48.0625em) {
-    .pta-attorney-banner {
-      flex-direction: row;
-    }
-}
-
-@media (min-width: 40.0625em) {
-  .pta-attorney-banner {
-    font-size: 19px;
-    flex-direction: row;
-  }
+.pta-attorney-banner__heading {
+  margin-bottom: 15px;
 }
 
 .pta-attorney-banner--client-request-accepted {

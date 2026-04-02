@@ -13,5 +13,6 @@ sca-wrapper.fallback.menu.bta = Cyfrif treth busnes
 sca-wrapper.fallback.menu.name = Dewislen y cyfrif
 sca-wrapper.fallback.menu.back = Yn ôl
 
-attorney.banner.link=Yn ôl i’ch cyfrif
-attorney.banner.using.service.for=Rydych yn defnyddio’r gwasanaeth hwn ar gyfer <span class="govuk-!-font-weight-bold">{0}</span>.
+attorney.banner.link=Ewch yn ôl i’ch cyfrif
+attorney.banner.heading=Rydych wedi mewngofnodi fel cynorthwyydd dibynadwy
+attorney.banner.using.service.for=Ar hyn o bryd rydych yn defnyddio’r gwasanaeth ar ran {0}.
