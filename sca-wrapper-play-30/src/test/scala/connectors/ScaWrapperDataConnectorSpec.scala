@@ -85,10 +85,10 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with Patien
        |    ],
        |    "webchatPages":[
        |      {
-         |      "pattern":"test-page",
-         |      "skinElement":"popup",
-         |      "isEnabled":true,
-         |      "chatType":"loadHMRCChatSkinElement"
+       |      "pattern":"test-page",
+       |      "skinElement":"popup",
+       |      "isEnabled":true,
+       |      "chatType":"loadHMRCChatSkinElement"
        |      }
        |    ],
        |  "unreadMessageCount": 2
