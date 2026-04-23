@@ -80,6 +80,27 @@ class WrapperService @Inject() (
           case (None, true)     => false
         }
 
+    val urBannerForPage: Option[UrBanner]         = getUrBannerForPage
+    val bannerDetailsOpt: Option[UrBannerDetails] = urBannerForPage.flatMap(_.bannerDetails)
+
+    val (effectiveBannerConfig, urBannerUrl, bespokeBannerFromWrapper) =
+      bannerDetailsOpt match {
+        case Some(details) =>
+          val link = urBannerForPage.map(_.link).filter(_.nonEmpty)
+          (bannerConfig.copy(showHelpImproveBanner = false), link, Some(details))
+
+        case None =>
+          val basicWrapperBannerUrl: Option[String] =
+            urBannerForPage.filter(_.isEnabled).map(_.link)
+
+          val resolvedUrl: Option[String] =
+            basicWrapperBannerUrl.orElse {
+              if (bannerConfig.showHelpImproveBanner) appConfig.helpImproveBannerUrl else None
+            }
+
+          (bannerConfig, resolvedUrl, None)
+      }
+
     newScaLayout(
       menu = ptaMenuConfigOpt.map(ptaMenuBar(_)),
       menuConfig = ptaMenuConfigOpt,
@@ -94,11 +115,12 @@ class WrapperService @Inject() (
       showSignOutInHeader = showSignOutInHeader,
       scripts = scripts ++ webchatUtil.getWebchatScripts,
       styleSheets = styleSheets,
-      bannerConfig = bannerConfig,
+      bannerConfig = effectiveBannerConfig,
       fullWidth = fullWidth,
       disableSessionExpired = disableSessionExpired,
       optTrustedHelper = optTrustedHelper,
-      urBannerUrl = if (urBannerEnabled(bannerConfig)) getUrBannerUrl else None
+      urBannerUrl = urBannerUrl,
+      bespokeUserResearchBanner = bespokeBannerFromWrapper
     )(content)
   }
 
@@ -122,7 +144,7 @@ class WrapperService @Inject() (
     if (requestHeader.attrs.get(Keys.wrapperFilterHasRun).isEmpty) {
       logger.error(
         s"[SCA Wrapper Library][WrapperService][sortMenuItemConfig]{Expecting Wrapper Data in " +
-          s"the request but none was there due to missing/ misconfigured wrapper data filter}]"
+          s"the request but none was there due to missing/ misconfigured wrapper data filter}"
       )
     }
 
@@ -165,7 +187,7 @@ class WrapperService @Inject() (
       case Success(config)    => config
       case Failure(exception) =>
         logger.error(
-          s"[SCA Wrapper Library][WrapperService][setUnreadMessageCount] Set unread message count  exception: ${exception.getMessage}"
+          s"[SCA Wrapper Library][WrapperService][setUnreadMessageCount] Set unread message count exception: ${exception.getMessage}"
         )
         menuItemConfig
     }
@@ -215,23 +237,8 @@ class WrapperService @Inject() (
   private def getMessageDataFromRequest(requestHeader: RequestHeader): Option[Int] =
     requestHeader.attrs.get(Keys.messageDataKey)
 
-  private def getUrBannerDetailsForPage(implicit requestHeader: RequestHeader): Option[UrBanner] = {
-    val wrapperDataResponse = getWrapperDataResponse(requestHeader)
-    wrapperDataResponse.flatMap { response =>
-      response.urBanners.find(_.page.equals(requestHeader.uri))
+  private def getUrBannerForPage(implicit requestHeader: RequestHeader): Option[UrBanner] =
+    getWrapperDataResponse(requestHeader).flatMap { response =>
+      response.urBanners.find(_.page == requestHeader.path)
     }
-  }
-
-  private def getUrBannerUrl(implicit requestHeader: RequestHeader): Option[String] =
-    getUrBannerDetailsForPage match {
-      case Some(urBanner) => Some(urBanner.link)
-      case None           => appConfig.helpImproveBannerUrl
-    }
-
-  private def urBannerEnabled(config: BannerConfig)(implicit requestHeader: RequestHeader): Boolean =
-    getUrBannerDetailsForPage match {
-      case Some(urBanner) => urBanner.isEnabled
-      case None           => config.showHelpImproveBanner
-    }
-
 }
