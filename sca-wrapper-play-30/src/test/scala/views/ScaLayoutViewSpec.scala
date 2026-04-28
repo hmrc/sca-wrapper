@@ -215,8 +215,23 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
 
       document
         .getElementById("attorneyBanner")
+        .getElementsByTag("h3")
+        .text() mustBe "You are signed in as a trusted helper"
+
+      document
+        .getElementById("attorneyBanner")
+        .getElementsByClass("govuk-body")
+        .text() mustBe "You are currently using this service on behalf of principalName. Go back to your account"
+
+      document
+        .getElementById("attorneyBanner")
         .getElementsByAttribute("href")
         .attr("href") mustBe "returnLinkUrl"
+
+      document
+        .getElementById("attorneyBanner")
+        .getElementsByAttribute("href")
+        .text() mustBe "Go back to your account"
 
     }
   }

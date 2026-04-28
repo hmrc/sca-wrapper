@@ -34,24 +34,24 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
   private val standardScaLayout = app.injector.instanceOf[StandardScaLayout]
 
   private def createView(
-    sidebarContent: Option[Html] = None,
-    showBackLinkJS: Boolean = false,
-    backLinkUrl: Option[String] = None,
-    showSignOutInHeader: Boolean = false,
-    menuConfig: Option[PtaMenuConfig] = None,
-    serviceURLs: ServiceURLs = ServiceURLs(
-      serviceUrl = Some("Service-Name_Url"),
-      signOutUrl = Some("Signout-Url"),
-      accessibilityStatementUrl = Some("http://accessibility-url.org")
-    ),
-    bannerConfig: BannerConfig =
-      BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
-    fullWidth: Boolean = false,
-    hideMenuBar: Boolean = false,
-    disableSessionExpired: Boolean = false,
-    optTrustedHelper: Option[TrustedHelper] = None,
-    bespokeUserResearchBanner: Option[UrBannerDetails] = None
-  )(implicit messages: Messages): Html =
+                          sidebarContent: Option[Html] = None,
+                          showBackLinkJS: Boolean = false,
+                          backLinkUrl: Option[String] = None,
+                          showSignOutInHeader: Boolean = false,
+                          menuConfig: Option[PtaMenuConfig] = None,
+                          serviceURLs: ServiceURLs = ServiceURLs(
+                            serviceUrl = Some("Service-Name_Url"),
+                            signOutUrl = Some("Signout-Url"),
+                            accessibilityStatementUrl = Some("http://accessibility-url.org")
+                          ),
+                          bannerConfig: BannerConfig =
+                          BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
+                          fullWidth: Boolean = false,
+                          hideMenuBar: Boolean = false,
+                          disableSessionExpired: Boolean = false,
+                          optTrustedHelper: Option[TrustedHelper] = None,
+                          bespokeUserResearchBanner: Option[UrBannerDetails] = None
+                        )(implicit messages: Messages): Html =
     standardScaLayout(
       menu = if (hideMenuBar) None else menu,
       menuConfig = menuConfig,
@@ -230,7 +230,15 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       )
 
       document.getElementById("attorneyBanner").html().nonEmpty mustBe true
+
+      document.getElementById("attorneyBanner").getElementsByTag("h3").text() mustBe "You are signed in as a trusted helper"
+
+      document.getElementById("attorneyBanner").getElementsByClass("govuk-body").text() mustBe "You are currently using this service on behalf of principalName. Go back to your account"
+
       document.getElementById("attorneyBanner").getElementsByAttribute("href").attr("href") mustBe "returnLinkUrl"
+
+      document.getElementById("attorneyBanner").getElementsByAttribute("href").text() mustBe "Go back to your account"
+
     }
 
     "use Service Navigation when useNewServiceNavigationKey is true and hide old PTA menu" in {
