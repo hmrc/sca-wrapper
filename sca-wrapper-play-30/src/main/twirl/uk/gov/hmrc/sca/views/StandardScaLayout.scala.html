@@ -22,7 +22,7 @@
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.{HmrcStandardPageParams, ServiceURLs, TemplateOverrides}
 @import uk.gov.hmrc.sca.config.AppConfig
-@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig, PtaMenuConfig}
+@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig, PtaMenuConfig, UrBannerDetails}
 @import uk.gov.hmrc.sca.utils.Keys
 @import uk.gov.hmrc.sca.views.html._
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
@@ -42,7 +42,8 @@
         ptaAttorneyBanner: PtaAttorneyBanner,
         twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
         fullWidthMainContent: FullWidthMainContent,
-        twoThirdsMainContent: TwoThirdsMainContent
+        twoThirdsMainContent: TwoThirdsMainContent,
+        bespokeUserResearchBannerView: BespokeUserResearchBannerView
 )(implicit contactFrontendConfig: ContactFrontendConfig)
 
 @(menu: Option[HtmlFormat.Appendable],
@@ -62,90 +63,110 @@
         fullWidth: Boolean,
         disableSessionExpired: Boolean,
         optTrustedHelper: Option[TrustedHelper],
-        urBannerUrl: Option[String])(
-        contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
+        urBannerUrl: Option[String],
+        bespokeUserResearchBanner: Option[UrBannerDetails]
+)(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
 
 @useNewServiceNavigation = @{
     request.attrs.get(Keys.useNewServiceNavigationKey).contains(true)
 }
 
 @headBlock = {
+@styleSheets
 
-    @styleSheets
+@if(!disableSessionExpired) {
+    @hmrcTimeoutDialogHelper(
+        timeout         = Some(appConfig.timeout),
+        countdown       = Some(appConfig.countdown),
+        keepAliveUrl    = Some(keepAliveUrl),
+        signOutUrl      = serviceURLs.signOutUrl.getOrElse("#"),
+        timeoutUrl      = timeOutUrl,
+        synchroniseTabs = Some(appConfig.synchroniseTabs)
+    )
+}
 
-    @if(!disableSessionExpired) {
-        @hmrcTimeoutDialogHelper(
-            timeout         = Some(appConfig.timeout),
-            countdown       = Some(appConfig.countdown),
-            keepAliveUrl    = Some(keepAliveUrl),
-            signOutUrl      = serviceURLs.signOutUrl.getOrElse("#"),
-            timeoutUrl      = timeOutUrl,
-            synchroniseTabs = Some(appConfig.synchroniseTabs)
-        )
-    }
-
-    @ptaHead()
+@ptaHead()
 }
 
 @additionalScripts = {
-    @scripts
-    @ptaScripts()
+@scripts
+@ptaScripts()
 }
 
 @attorneyBanner = @{
     optTrustedHelper.map { helper =>
-        ptaAttorneyBanner(AttorneyBanner(name       = helper.principalName, classes    = "govuk-!-margin-top-2", accountUrl = helper.returnLinkUrl))
+        ptaAttorneyBanner(
+            AttorneyBanner(
+                name       = helper.principalName,
+                classes    = "govuk-!-margin-top-2",
+                accountUrl = helper.returnLinkUrl
+            )
+        )
     }
 }
 
 @beforeContent = {
 
-    @if(!useNewServiceNavigation) {
-        @defining(request.uri) { _ =>
-            @menu
-        }
+@if(!useNewServiceNavigation) {
+    @defining(request.uri) { _ =>
+        @menu
     }
+}
 
-    @defining(appConfig.welshToggle && !useNewServiceNavigation) { welshEnabled =>
-        @if(showBackLinkJS || backLinkUrl.isDefined ) {
-            <div class="govuk-grid-row">
-                @if(showBackLinkJS){
-                    <div class="govuk-grid-column-one-half">
-                        <div class="govuk-!-display-inline-block js-enabled">
-                            @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
-                        </div>
-                    </div>
-                } else {
-                    <div class="govuk-grid-column-one-half">
-                        @govukBackLink(BackLink.withDefaultText(backLinkUrl.getOrElse("#")))
-                    </div>
-                }
+@for(cfg <- bespokeUserResearchBanner) {
+    @for(url <- urBannerUrl) {
+        @bespokeUserResearchBannerView(
+            url,
+            cfg.titleEn,
+            cfg.titleCy,
+            cfg.linkTextEn,
+            cfg.linkTextCy,
+            cfg.hideCloseButton
+        )
+    }
+}
+
+@defining(appConfig.welshToggle && !useNewServiceNavigation) { welshEnabled =>
+    @if(showBackLinkJS || backLinkUrl.isDefined ) {
+        <div class="govuk-grid-row">
+            @if(showBackLinkJS){
                 <div class="govuk-grid-column-one-half">
-                    @if(welshEnabled) {
-                        @hmrcLanguageSelectHelper()
-                    }
+                    <div class="govuk-!-display-inline-block js-enabled">
+                    @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
+                    </div>
                 </div>
-            </div>
-        } else {
+            } else {
+                <div class="govuk-grid-column-one-half">
+                @govukBackLink(BackLink.withDefaultText(backLinkUrl.getOrElse("#")))
+                </div>
+            }
+            <div class="govuk-grid-column-one-half">
             @if(welshEnabled) {
                 @hmrcLanguageSelectHelper()
             }
+            </div>
+        </div>
+    } else {
+        @if(welshEnabled) {
+            @hmrcLanguageSelectHelper()
         }
     }
+}
 
-    @attorneyBanner
+@attorneyBanner
 }
 
 @content = {
-    @contentBlock
+@contentBlock
     <div class="govuk-!-margin-top-8">
         <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
         @hmrcReportTechnicalIssueHelper()
         <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
+
         @if(bannerConfig.showBetaBanner) {
             @govukPhaseBanner(betaBanner())
         } else if(bannerConfig.showAlphaBanner) {
-            @govukPhaseBanner(alphaBanner(appConfig.alphaBannerFeedbackUrl))
+        @govukPhaseBanner(alphaBanner(appConfig.alphaBannerFeedbackUrl))
         }
     </div>
 }
@@ -160,14 +181,14 @@
             val all = (cfg.leftAlignedItems ++ cfg.rightAlignedItems).sortBy(_.position)
             all.filterNot(_.id == "signout").map { mi =>
                 val label = mi.notificationBadge match {
-                        case Some(count) =>
-        HtmlContent(Html(s"""${mi.text} <span class="hmrc-notification-badge">$count</span>"""))
-        case None =>
-            Text(mi.text)
-    }
-    ServiceNavigationItem(content = label, href = mi.href, current = mi.current.contains(true))
-}
-    }
+                    case Some(count) =>
+                        HtmlContent(Html(s"""${mi.text} <span class="hmrc-notification-badge">$count</span>"""))
+                    case None =>
+                        Text(mi.text)
+                }
+                ServiceNavigationItem(content = label, href = mi.href, current = mi.current.contains(true))
+            }
+        }
 
     items
 }
@@ -199,7 +220,8 @@
         ),
         banners = Banners(
             displayHmrcBanner  = false,
-            userResearchBanner = urBannerUrl.map(url => UserResearchBanner(url = url))
+            userResearchBanner = if (bespokeUserResearchBanner.isDefined) None
+            else urBannerUrl.map(url => UserResearchBanner(url = url))
         ),
         templateOverrides = TemplateOverrides(
             additionalHeadBlock    = Some(headBlock),
@@ -217,9 +239,9 @@
                 }
             )
         ),
-        serviceName = if (useNewServiceNavigation) None else serviceNameValue,
-        pageTitle   = pageTitle,
-        isWelshTranslationAvailable = true,
-        serviceNavigation            = serviceNavigationValue
+        serviceName                   = if (useNewServiceNavigation) None else serviceNameValue,
+        pageTitle                     = pageTitle,
+        isWelshTranslationAvailable   = true,
+        serviceNavigation             = serviceNavigationValue
     )
 )(content)

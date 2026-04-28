@@ -1,1 +1,9 @@
 @import "components/attorney-banner/_attorney-banner.css";
+
+.bespoke-user-research-banner {
+    width: 100vw;
+    position: relative;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    inset-inline: 50%;
+}

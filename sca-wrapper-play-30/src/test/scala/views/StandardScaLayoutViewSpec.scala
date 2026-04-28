@@ -21,7 +21,7 @@ import play.api.test.Helpers.stubMessages
 import play.twirl.api.Html
 import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
-import uk.gov.hmrc.sca.models.{BannerConfig, PtaMenuConfig}
+import uk.gov.hmrc.sca.models.{BannerConfig, PtaMenuConfig, UrBannerDetails}
 import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.sca.views.html.StandardScaLayout
 import utils.ViewBaseSpec
@@ -34,23 +34,24 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
   private val standardScaLayout = app.injector.instanceOf[StandardScaLayout]
 
   private def createView(
-    sidebarContent: Option[Html] = None,
-    showBackLinkJS: Boolean = false,
-    backLinkUrl: Option[String] = None,
-    showSignOutInHeader: Boolean = false,
-    menuConfig: Option[PtaMenuConfig] = None,
-    serviceURLs: ServiceURLs = ServiceURLs(
-      serviceUrl = Some("Service-Name_Url"),
-      signOutUrl = Some("Signout-Url"),
-      accessibilityStatementUrl = Some("http://accessibility-url.org")
-    ),
-    bannerConfig: BannerConfig =
-      BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
-    fullWidth: Boolean = false,
-    hideMenuBar: Boolean = false,
-    disableSessionExpired: Boolean = false,
-    optTrustedHelper: Option[TrustedHelper] = None
-  )(implicit messages: Messages): Html =
+                          sidebarContent: Option[Html] = None,
+                          showBackLinkJS: Boolean = false,
+                          backLinkUrl: Option[String] = None,
+                          showSignOutInHeader: Boolean = false,
+                          menuConfig: Option[PtaMenuConfig] = None,
+                          serviceURLs: ServiceURLs = ServiceURLs(
+                            serviceUrl = Some("Service-Name_Url"),
+                            signOutUrl = Some("Signout-Url"),
+                            accessibilityStatementUrl = Some("http://accessibility-url.org")
+                          ),
+                          bannerConfig: BannerConfig =
+                          BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
+                          fullWidth: Boolean = false,
+                          hideMenuBar: Boolean = false,
+                          disableSessionExpired: Boolean = false,
+                          optTrustedHelper: Option[TrustedHelper] = None,
+                          bespokeUserResearchBanner: Option[UrBannerDetails] = None
+                        )(implicit messages: Messages): Html =
     standardScaLayout(
       menu = if (hideMenuBar) None else menu,
       menuConfig = menuConfig,
@@ -69,10 +70,12 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       fullWidth = fullWidth,
       disableSessionExpired = disableSessionExpired,
       optTrustedHelper = optTrustedHelper,
-      urBannerUrl = Some("test-ur-banner-link")
+      urBannerUrl = Some("test-ur-banner-link"),
+      bespokeUserResearchBanner = bespokeUserResearchBanner
     )(Html("Content-Block"))(fakeRequest, messages)
 
   "WrapperService layout" must {
+
     "return a Wrapper layout with default parameters in English" in {
       val document = asDocument(createView().toString())
 
@@ -94,6 +97,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       document.getElementById("menu.right.2").attr("href") mustBe "pertaxUrl-profile-and-settings"
       document.getElementById("menu.right.3").attr("href") mustBe "pertaxUrl-signout-feedback-PERTAX"
       document.select(".govuk-skip-link").text() mustBe "Skip to main content"
+
       document
         .getElementsByAttributeValue("name", "hmrc-timeout-dialog")
         .attr("data-keep-alive-url") mustBe "Keep-Alive-Url"
@@ -105,9 +109,11 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("content") mustBe "hmrc-timeout-dialog"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-timeout") mustBe "900"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-countdown") mustBe "120"
+
       val lang = document.getElementsByClass("hmrc-language-select__list-item").asScala.toList
       lang.head.text() mustBe "English"
       lang(1).text() mustBe "Newid yr iaith i’r Gymraeg Cymraeg"
+
       document.getElementsByAttributeValue("href", "/help/cookies").text() mustBe "Cookies"
       document.getElementsByAttributeValue("href", "/help/privacy").text() mustBe "Privacy policy"
       document.getElementsByAttributeValue("href", "/help/terms-and-conditions").text() mustBe "Terms and conditions"
@@ -118,6 +124,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       document
         .getElementsByAttributeValue("href", "https://www.gov.uk/cymraeg")
         .text() mustBe "Rhestr o Wasanaethau Cymraeg"
+
       document
         .select(".govuk-footer__licence-description")
         .text() mustBe "All content is available under the Open Government Licence v3.0, except where otherwise stated"
@@ -127,9 +134,11 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         .attr(
           "href"
         ) mustBe "https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/"
+
       document.getElementsByTag("script").asScala.exists(x => x.attr("src").equals("/customscript.js")) mustBe true
       document.getElementsByTag("link").asScala.exists(x => x.attr("href").equals("/assets/pta.css")) mustBe true
       document.getElementsByTag("link").asScala.exists(x => x.attr("href").equals("/customStylesheet")) mustBe true
+
       document
         .select(".govuk-phase-banner__content")
         .asScala
@@ -137,6 +146,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         .map(_.text()) mustBe Some(
         "Alpha This is a new service. Help us improve it and give your feedback (opens in new tab)."
       )
+
       document.getElementsByTag("h2").asScala.exists(x => x.text().equals("Support links")) mustBe true
       document.select(".govuk-grid-column-two-thirds").asScala.nonEmpty mustBe true
       document
@@ -219,30 +229,16 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         ).toString()
       )
 
-      document
-        .getElementById("attorneyBanner")
-        .html()
-        .nonEmpty mustBe true
+      document.getElementById("attorneyBanner").html().nonEmpty mustBe true
 
-      document
-        .getElementById("attorneyBanner")
-        .getElementsByTag("h3")
-        .text() mustBe "You are signed in as a trusted helper"
+      document.getElementById("attorneyBanner").getElementsByTag("h3").text() mustBe "You are signed in as a trusted helper"
 
-      document
-        .getElementById("attorneyBanner")
-        .getElementsByClass("govuk-body")
-        .text() mustBe "You are currently using this service on behalf of principalName. Go back to your account"
+      document.getElementById("attorneyBanner").getElementsByClass("govuk-body").text() mustBe "You are currently using this service on behalf of principalName. Go back to your account"
 
-      document
-        .getElementById("attorneyBanner")
-        .getElementsByAttribute("href")
-        .attr("href") mustBe "returnLinkUrl"
+      document.getElementById("attorneyBanner").getElementsByAttribute("href").attr("href") mustBe "returnLinkUrl"
 
-      document
-        .getElementById("attorneyBanner")
-        .getElementsByAttribute("href")
-        .text() mustBe "Go back to your account"
+      document.getElementById("attorneyBanner").getElementsByAttribute("href").text() mustBe "Go back to your account"
+
     }
 
     "use Service Navigation when useNewServiceNavigationKey is true and hide old PTA menu" in {
@@ -271,18 +267,37 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         fullWidth = false,
         disableSessionExpired = false,
         optTrustedHelper = None,
-        urBannerUrl = Some("test-ur-banner-link")
+        urBannerUrl = Some("test-ur-banner-link"),
+        bespokeUserResearchBanner = None
       )(Html("Content-Block"))(requestWithServiceNav, messages)
 
       val document = asDocument(view.toString())
 
       document.select(".govuk-header__service-name").asScala.isEmpty mustBe true
-
       document.getElementById("secondary-nav") mustBe null
 
       val serviceNavEls = document.select(".govuk-service-navigation").asScala
       serviceNavEls.nonEmpty mustBe true
       serviceNavEls.head.text() must include("Service-Name-Key")
+    }
+
+    "render bespoke user research banner when details are provided" in {
+      val bespokeDetails = UrBannerDetails(
+        titleEn = "Help improve this service",
+        titleCy = "Helpu gwella'r gwasanaeth hwn",
+        linkTextEn = "Take part in user research",
+        linkTextCy = "Cymerwch ran mewn ymchwil defnyddwyr",
+        hideCloseButton = false
+      )
+
+      val document = asDocument(
+        createView(
+          bespokeUserResearchBanner = Some(bespokeDetails)
+        ).toString()
+      )
+
+      document.getElementsContainingOwnText("Help improve this service").asScala.nonEmpty mustBe true
+      document.getElementsContainingOwnText("Take part in user research").asScala.nonEmpty mustBe true
     }
   }
 }
