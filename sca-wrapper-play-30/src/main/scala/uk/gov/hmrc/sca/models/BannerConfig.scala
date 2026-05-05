@@ -16,4 +16,14 @@
 
 package uk.gov.hmrc.sca.models
 
-case class BannerConfig(showAlphaBanner: Boolean, showBetaBanner: Boolean, showHelpImproveBanner: Boolean)
+case class BannerConfig(
+  showAlphaBanner: Boolean,
+  showBetaBanner: Boolean,
+  @deprecated(
+    "BannerConfig.showHelpImproveBanner is deprecated. Configure user research banners in " +
+      "single-customer-account-wrapper-data using ur-banners.items instead. The fallback behaviour remains unchanged " +
+      "and will only be removed in a future major version.",
+    since = "3.0.0"
+  )
+  showHelpImproveBanner: Boolean
+)

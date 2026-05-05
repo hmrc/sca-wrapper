@@ -25,6 +25,7 @@ import uk.gov.hmrc.sca.controllers.routes
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 
 import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import javax.inject.{Inject, Singleton}
 
 @Singleton
@@ -43,7 +44,8 @@ class AppConfig @Inject() (
   def alphaBannerFeedbackUrl(implicit request: RequestHeader): String = contactFrontendBetaFeedbackUrl()
 
   val timeoutHttpClientMillis: Int     = configuration.get[Int]("sca-wrapper.timeoutHttpClientMillis")
-  val enc: String => String            = URLEncoder.encode(_: String, "UTF-8")
+  val enc: String => String            =
+    URLEncoder.encode(_, StandardCharsets.UTF_8)
   val exitSurveyOrigin: Option[String] = configuration.getOptional[String]("sca-wrapper.exit-survey-origin")
 
   // service config
@@ -63,7 +65,7 @@ class AppConfig @Inject() (
     s"${configuration.get[String]("sca-wrapper.services.pertax-frontend.url")}/personal-account"
   private val trackingUrl: String          =
     s"${configuration.get[String]("sca-wrapper.services.tracking-frontend.url")}"
-  val feedbackFrontendUrl: String          =
+  lazy val feedbackFrontendUrl: String     =
     s"${configuration.get[String]("sca-wrapper.services.feedback-frontend.url")}/feedback"
   val scaWrapperDataUrl: String            =
     s"${configuration.get[String]("sca-wrapper.services.single-customer-account-wrapper-data.url")}/single-customer-account-wrapper-data"
@@ -73,8 +75,15 @@ class AppConfig @Inject() (
   val webChatKey: Option[String]           = configuration.getOptional[String]("request-body-encryption.key")
 
   // banners
-  val showAlphaBanner: Boolean       = configuration.get[Boolean]("sca-wrapper.banners.show-alpha")
-  val showBetaBanner: Boolean        = configuration.get[Boolean]("sca-wrapper.banners.show-beta")
+  val showAlphaBanner: Boolean = configuration.get[Boolean]("sca-wrapper.banners.show-alpha")
+  val showBetaBanner: Boolean  = configuration.get[Boolean]("sca-wrapper.banners.show-beta")
+
+  @deprecated(
+    "sca-wrapper.banners.show-help-improve is deprecated. Configure user research banners in " +
+      "single-customer-account-wrapper-data using ur-banners.items instead. The fallback behaviour remains unchanged " +
+      "and will only be removed in a future major version.",
+    since = "3.0.0"
+  )
   val showHelpImproveBanner: Boolean = configuration.get[Boolean]("sca-wrapper.banners.show-help-improve")
 
   val synchroniseTabs: Boolean = configuration.get[Boolean]("sca-wrapper.synchronise-tabs")
