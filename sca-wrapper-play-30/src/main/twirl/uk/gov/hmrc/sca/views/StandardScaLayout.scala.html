@@ -26,6 +26,7 @@
 @import uk.gov.hmrc.sca.utils.Keys
 @import uk.gov.hmrc.sca.views.html._
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
+@import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 
 @this(
         appConfig: AppConfig,
@@ -68,7 +69,7 @@
 )(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
 
 @useNewServiceNavigation = @{
-    request.attrs.get(Keys.useNewServiceNavigationKey).contains(true)
+    request.attrs.get(UseServiceNavigation).contains(true)
 }
 
 @headBlock = {

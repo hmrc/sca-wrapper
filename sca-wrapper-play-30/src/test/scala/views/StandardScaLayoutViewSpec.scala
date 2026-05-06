@@ -19,10 +19,10 @@ package views
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import play.twirl.api.Html
+import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.sca.models.{BannerConfig, PtaMenuConfig, UrBannerDetails}
-import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.sca.views.html.StandardScaLayout
 import utils.ViewBaseSpec
 import views.NewScaLayoutViewSpec.menu
@@ -249,7 +249,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
 
     "use Service Navigation when useNewServiceNavigationKey is true and hide old PTA menu" in {
       implicit val messages: Messages = stubMessages()
-      val requestWithServiceNav       = fakeRequest.addAttr(Keys.useNewServiceNavigationKey, true)
+      val requestWithServiceNav       = fakeRequest.addAttr(UseServiceNavigation, true)
 
       val view = standardScaLayout(
         menu = menu,

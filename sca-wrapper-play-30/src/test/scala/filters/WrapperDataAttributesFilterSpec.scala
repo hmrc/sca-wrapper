@@ -31,6 +31,7 @@ import play.api.mvc.{AnyContentAsEmpty, RequestHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
 import play.api.{Application, inject}
+import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 import uk.gov.hmrc.sca.filters.WrapperDataAttributesFilter
 import uk.gov.hmrc.sca.services.ScaWrapperDataService
 import uk.gov.hmrc.sca.utils.Keys
@@ -74,7 +75,7 @@ class WrapperDataAttributesFilterSpec extends AsyncWordSpec with Matchers with M
             Ok(
               Json.obj(
                 "wrapperData"             -> r.attrs.get(Keys.wrapperDataKey),
-                "useNewServiceNavigation" -> r.attrs.get(Keys.useNewServiceNavigationKey)
+                "useNewServiceNavigation" -> r.attrs.get(UseServiceNavigation)
               )
             )
           )

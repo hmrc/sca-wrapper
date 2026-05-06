@@ -27,6 +27,7 @@ import uk.gov.hmrc.sca.config.AppConfig
 import uk.gov.hmrc.sca.models._
 import uk.gov.hmrc.sca.utils.{Keys, WebchatUtil}
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, StandardScaLayout}
+import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 
 import javax.inject.Inject
 import scala.util.{Failure, Success, Try}
@@ -65,7 +66,7 @@ class WrapperService @Inject() (
     disableSessionExpired: Boolean = appConfig.disableSessionExpired
   )(implicit messages: Messages, requestHeader: RequestHeader): HtmlFormat.Appendable = {
 
-    val useNewServiceNavigation: Boolean = requestHeader.attrs.get(Keys.useNewServiceNavigationKey).contains(true)
+    val useNewServiceNavigation: Boolean = requestHeader.attrs.get(UseServiceNavigation).contains(true)
 
     val ptaMenuConfigOpt: Option[PtaMenuConfig] =
       if (hideMenuBar) None else Some(sortMenuItemConfig(serviceURLs.signOutUrl))

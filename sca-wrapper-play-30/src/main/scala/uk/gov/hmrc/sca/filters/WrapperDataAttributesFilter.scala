@@ -78,7 +78,6 @@ class WrapperDataAttributesFilter @Inject() (
     requestHeader
       .addAttr(Keys.wrapperFilterHasRun, true)
       .pipe(_.addAttr(Keys.wrapperIsAuthenticatedKey, isAuthenticated))
-      .pipe(_.addAttr(Keys.useNewServiceNavigationKey, useNewServiceNavigation))
       .pipe(_.addAttr(UseServiceNavigation, useNewServiceNavigation))
       .pipe(rh => optWrapperDataResponse.fold(rh)(wdr => rh.addAttr(Keys.wrapperDataKey, wdr)))
       .pipe(rh => unreadMessageCount.fold(rh)(count => rh.addAttr(Keys.messageDataKey, count)))
