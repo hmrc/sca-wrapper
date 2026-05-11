@@ -28,6 +28,7 @@ import uk.gov.hmrc.sca.utils.Keys
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.chaining.scalaUtilChainingOps
+import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 
 class WrapperDataAttributesFilter @Inject() (
   scaWrapperDataService: ScaWrapperDataService
@@ -77,7 +78,7 @@ class WrapperDataAttributesFilter @Inject() (
     requestHeader
       .addAttr(Keys.wrapperFilterHasRun, true)
       .pipe(_.addAttr(Keys.wrapperIsAuthenticatedKey, isAuthenticated))
-      .pipe(_.addAttr(Keys.useNewServiceNavigationKey, useNewServiceNavigation))
+      .pipe(_.addAttr(UseServiceNavigation, useNewServiceNavigation))
       .pipe(rh => optWrapperDataResponse.fold(rh)(wdr => rh.addAttr(Keys.wrapperDataKey, wdr)))
       .pipe(rh => unreadMessageCount.fold(rh)(count => rh.addAttr(Keys.messageDataKey, count)))
   }

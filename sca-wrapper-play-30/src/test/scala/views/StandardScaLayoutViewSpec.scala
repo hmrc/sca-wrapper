@@ -19,10 +19,10 @@ package views
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import play.twirl.api.Html
+import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.sca.models.{BannerConfig, PtaMenuConfig, UrBannerDetails}
-import uk.gov.hmrc.sca.utils.Keys
 import uk.gov.hmrc.sca.views.html.StandardScaLayout
 import utils.ViewBaseSpec
 import views.NewScaLayoutViewSpec.menu
@@ -34,24 +34,24 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
   private val standardScaLayout = app.injector.instanceOf[StandardScaLayout]
 
   private def createView(
-                          sidebarContent: Option[Html] = None,
-                          showBackLinkJS: Boolean = false,
-                          backLinkUrl: Option[String] = None,
-                          showSignOutInHeader: Boolean = false,
-                          menuConfig: Option[PtaMenuConfig] = None,
-                          serviceURLs: ServiceURLs = ServiceURLs(
-                            serviceUrl = Some("Service-Name_Url"),
-                            signOutUrl = Some("Signout-Url"),
-                            accessibilityStatementUrl = Some("http://accessibility-url.org")
-                          ),
-                          bannerConfig: BannerConfig =
-                          BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
-                          fullWidth: Boolean = false,
-                          hideMenuBar: Boolean = false,
-                          disableSessionExpired: Boolean = false,
-                          optTrustedHelper: Option[TrustedHelper] = None,
-                          bespokeUserResearchBanner: Option[UrBannerDetails] = None
-                        )(implicit messages: Messages): Html =
+    sidebarContent: Option[Html] = None,
+    showBackLinkJS: Boolean = false,
+    backLinkUrl: Option[String] = None,
+    showSignOutInHeader: Boolean = false,
+    menuConfig: Option[PtaMenuConfig] = None,
+    serviceURLs: ServiceURLs = ServiceURLs(
+      serviceUrl = Some("Service-Name_Url"),
+      signOutUrl = Some("Signout-Url"),
+      accessibilityStatementUrl = Some("http://accessibility-url.org")
+    ),
+    bannerConfig: BannerConfig =
+      BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
+    fullWidth: Boolean = false,
+    hideMenuBar: Boolean = false,
+    disableSessionExpired: Boolean = false,
+    optTrustedHelper: Option[TrustedHelper] = None,
+    bespokeUserResearchBanner: Option[UrBannerDetails] = None
+  )(implicit messages: Messages): Html =
     standardScaLayout(
       menu = if (hideMenuBar) None else menu,
       menuConfig = menuConfig,
@@ -231,9 +231,15 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
 
       document.getElementById("attorneyBanner").html().nonEmpty mustBe true
 
-      document.getElementById("attorneyBanner").getElementsByTag("h3").text() mustBe "You are signed in as a trusted helper"
+      document
+        .getElementById("attorneyBanner")
+        .getElementsByTag("h3")
+        .text() mustBe "You are signed in as a trusted helper"
 
-      document.getElementById("attorneyBanner").getElementsByClass("govuk-body").text() mustBe "You are currently using this service on behalf of principalName. Go back to your account"
+      document
+        .getElementById("attorneyBanner")
+        .getElementsByClass("govuk-body")
+        .text() mustBe "You are currently using this service on behalf of principalName. Go back to your account"
 
       document.getElementById("attorneyBanner").getElementsByAttribute("href").attr("href") mustBe "returnLinkUrl"
 
@@ -243,7 +249,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
 
     "use Service Navigation when useNewServiceNavigationKey is true and hide old PTA menu" in {
       implicit val messages: Messages = stubMessages()
-      val requestWithServiceNav       = fakeRequest.addAttr(Keys.useNewServiceNavigationKey, true)
+      val requestWithServiceNav       = fakeRequest.addAttr(UseServiceNavigation, true)
 
       val view = standardScaLayout(
         menu = menu,

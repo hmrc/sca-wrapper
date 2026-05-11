@@ -29,6 +29,7 @@ import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.stubMessages
 import play.twirl.api.{Html, HtmlFormat}
+import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
@@ -357,10 +358,10 @@ class WrapperServiceSpec extends BaseSpec {
       val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", defaultUrBanner.page)
         .withAttrs(
           TypedMap(
-            Keys.wrapperDataKey             -> wrapperDataResponse,
-            Keys.messageDataKey             -> 2,
-            Keys.useNewServiceNavigationKey -> true,
-            RequestAttrKey.Cookies          -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
+            Keys.wrapperDataKey    -> wrapperDataResponse,
+            Keys.messageDataKey    -> 2,
+            UseServiceNavigation   -> true,
+            RequestAttrKey.Cookies -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
           )
         )
 
