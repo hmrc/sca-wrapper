@@ -82,7 +82,7 @@ class AppConfig @Inject() (
     "sca-wrapper.banners.show-help-improve is deprecated. Configure user research banners in " +
       "single-customer-account-wrapper-data using ur-banners.items instead. The fallback behaviour remains unchanged " +
       "and will only be removed in a future major version.",
-    since = "3.0.0"
+    since = "5.0.0"
   )
   val showHelpImproveBanner: Boolean = configuration.get[Boolean]("sca-wrapper.banners.show-help-improve")
 

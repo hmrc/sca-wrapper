@@ -23,7 +23,7 @@ case class BannerConfig(
     "BannerConfig.showHelpImproveBanner is deprecated. Configure user research banners in " +
       "single-customer-account-wrapper-data using ur-banners.items instead. The fallback behaviour remains unchanged " +
       "and will only be removed in a future major version.",
-    since = "3.0.0"
+    since = "5.0.0"
   )
   showHelpImproveBanner: Boolean
 )
