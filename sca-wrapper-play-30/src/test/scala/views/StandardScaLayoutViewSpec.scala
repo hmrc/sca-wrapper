@@ -22,6 +22,7 @@ import play.twirl.api.Html
 import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
+import uk.gov.hmrc.sca.config.BackLinkConfig
 import uk.gov.hmrc.sca.models.{BannerConfig, PtaMenuConfig, UrBannerDetails}
 import uk.gov.hmrc.sca.views.html.StandardScaLayout
 import utils.ViewBaseSpec
@@ -35,8 +36,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
 
   private def createView(
     sidebarContent: Option[Html] = None,
-    showBackLinkJS: Boolean = false,
-    backLinkUrl: Option[String] = None,
+    backLinkConfig: Option[BackLinkConfig] = None,
     showSignOutInHeader: Boolean = false,
     menuConfig: Option[PtaMenuConfig] = None,
     serviceURLs: ServiceURLs = ServiceURLs(
@@ -59,10 +59,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       serviceNameKey = Some("Service-Name-Key"),
       pageTitle = Some("Page-Title"),
       sidebarContent = sidebarContent,
-      timeOutUrl = Some("TimeOut-Url"),
-      keepAliveUrl = "Keep-Alive-Url",
-      showBackLinkJS = showBackLinkJS,
-      backLinkUrl = backLinkUrl,
+      backLinkConfig = backLinkConfig,
       showSignOutInHeader = showSignOutInHeader,
       scripts = Seq(Html("<script src=/customscript.js></script>")),
       styleSheets = Seq(Html("<link href=/customStylesheet rel=stylesheet/>")),
@@ -98,9 +95,6 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       document.getElementById("menu.right.3").attr("href") mustBe "pertaxUrl-signout-feedback-PERTAX"
       document.select(".govuk-skip-link").text() mustBe "Skip to main content"
 
-      document
-        .getElementsByAttributeValue("name", "hmrc-timeout-dialog")
-        .attr("data-keep-alive-url") mustBe "Keep-Alive-Url"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-sign-out-url") mustBe "Signout-Url"
       document
         .getElementsByAttributeValue("name", "hmrc-timeout-dialog")
@@ -165,7 +159,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
     }
 
     "return a Wrapper layout when there is a backlinkUrl in English" in {
-      val document = asDocument(createView(backLinkUrl = Some("backlink-url")).toString())
+      val document = asDocument(createView(backLinkConfig = Some(BackLinkConfig.UrlBack("backlink-url"))).toString())
 
       document.getElementsByAttributeValue("href", "backlink-url").text() mustBe "Back"
     }
@@ -262,10 +256,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
         serviceNameKey = Some("Service-Name-Key"),
         pageTitle = Some("Page-Title"),
         sidebarContent = None,
-        timeOutUrl = Some("TimeOut-Url"),
-        keepAliveUrl = "Keep-Alive-Url",
-        showBackLinkJS = false,
-        backLinkUrl = None,
+        backLinkConfig = None,
         showSignOutInHeader = false,
         scripts = Seq(Html("<script src=/customscript.js></script>")),
         styleSheets = Seq(Html("<link href=/customStylesheet rel=stylesheet/>")),
