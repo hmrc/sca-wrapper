@@ -14,19 +14,17 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.sca.models.TrustedHelper
 @import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.servicenavigation.{ServiceNavigation, ServiceNavigationItem}
 @import uk.gov.hmrc.hmrcfrontend.config.ContactFrontendConfig
+@import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.{HmrcStandardPageParams, ServiceURLs, TemplateOverrides}
-@import uk.gov.hmrc.sca.config.AppConfig
-@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig, PtaMenuConfig, UrBannerDetails}
-@import uk.gov.hmrc.sca.utils.Keys
+@import uk.gov.hmrc.sca.config.{AppConfig, BackLinkConfig}
+@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig, PtaMenuConfig, TrustedHelper, UrBannerDetails}
 @import uk.gov.hmrc.sca.views.html._
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
-@import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 
 @this(
         appConfig: AppConfig,
@@ -53,10 +51,7 @@
         serviceNameKey: Option[String],
         pageTitle: Option[String],
         sidebarContent: Option[Html],
-        timeOutUrl: Option[String],
-        keepAliveUrl: String,
-        showBackLinkJS: Boolean,
-        backLinkUrl: Option[String],
+        backLinkConfig: Option[BackLinkConfig],
         showSignOutInHeader: Boolean,
         scripts: Seq[HtmlFormat.Appendable],
         styleSheets: Seq[HtmlFormat.Appendable],
@@ -79,9 +74,9 @@
     @hmrcTimeoutDialogHelper(
         timeout         = Some(appConfig.timeout),
         countdown       = Some(appConfig.countdown),
-        keepAliveUrl    = Some(keepAliveUrl),
+        keepAliveUrl    = Some(appConfig.keepAliveUrl),
         signOutUrl      = serviceURLs.signOutUrl.getOrElse("#"),
-        timeoutUrl      = timeOutUrl,
+        timeoutUrl      = appConfig.timeOutUrl,
         synchroniseTabs = Some(appConfig.synchroniseTabs)
     )
 }
@@ -128,28 +123,32 @@
 }
 
 @defining(appConfig.welshToggle && !useNewServiceNavigation) { welshEnabled =>
-    @if(showBackLinkJS || backLinkUrl.isDefined ) {
-        <div class="govuk-grid-row">
-            @if(showBackLinkJS){
-                <div class="govuk-grid-column-one-half">
-                    <div class="govuk-!-display-inline-block js-enabled">
-                    @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
-                    </div>
-                </div>
-            } else {
-                <div class="govuk-grid-column-one-half">
-                @govukBackLink(BackLink.withDefaultText(backLinkUrl.getOrElse("#")))
-                </div>
-            }
-            <div class="govuk-grid-column-one-half">
+    @backLinkConfig match {
+        case None => {
             @if(welshEnabled) {
                 @hmrcLanguageSelectHelper()
             }
+        }
+        case Some(blc) => {
+            <div class="govuk-grid-row">
+                @if(blc.isJsBack) {
+                    <div class="govuk-grid-column-one-half">
+                        <div class="govuk-!-display-inline-block js-enabled">
+                        @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
+                        </div>
+                    </div>
+                }
+                @for(url <- blc.urlOpt) {
+                    <div class="govuk-grid-column-one-half">
+                    @govukBackLink(BackLink.withDefaultText(url))
+                    </div>
+                }
+                <div class="govuk-grid-column-one-half">
+                    @if(welshEnabled) {
+                        @hmrcLanguageSelectHelper()
+                    }
+                </div>
             </div>
-        </div>
-    } else {
-        @if(welshEnabled) {
-            @hmrcLanguageSelectHelper()
         }
     }
 }
