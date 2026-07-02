@@ -71,8 +71,12 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
       val document = asDocument(createView().toString())
 
       document.title() mustBe "Page-Title"
-      document.select(".govuk-header__service-name").attr("href") mustBe "Service-Name_Url"
-      document.select(".govuk-header__service-name").text() mustBe "Service-Name-Key"
+      document
+        .select(".govuk-service-navigation__service-name .govuk-service-navigation__link")
+        .attr("href") mustBe "Service-Name_Url"
+      document
+        .select(".govuk-service-navigation__service-name .govuk-service-navigation__link")
+        .text() mustBe "Service-Name-Key"
       document.getElementById("secondary-nav").className mustBe "hmrc-account-menu"
       document.getElementById("secondary-nav").attr("data-module") mustBe "hmrc-account-menu"
       document.getElementById("menu.name").text() mustBe "Account menu"
@@ -99,9 +103,9 @@ class ScaLayoutViewSpec extends ViewBaseSpec {
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("content") mustBe "hmrc-timeout-dialog"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-timeout") mustBe "900"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-countdown") mustBe "120"
-      val lang = document.getElementsByClass("hmrc-language-select__list-item").asScala.toList
-      lang(0).text() mustBe "English"
-      lang(1).text() mustBe "Newid yr iaith i’r Gymraeg Cymraeg"
+      val lang = document.getElementsByClass("hmrc-service-navigation-language-select__list-item").asScala.toList
+      lang(0).text() mustBe "ENG"
+      lang(1).text() must include("CYM")
       document.getElementsByAttributeValue("href", "/help/cookies").text() mustBe "Cookies"
       document.getElementsByAttributeValue("href", "/help/privacy").text() mustBe "Privacy policy"
       document.getElementsByAttributeValue("href", "/help/terms-and-conditions").text() mustBe "Terms and conditions"

@@ -29,7 +29,6 @@ import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.stubMessages
 import play.twirl.api.{Html, HtmlFormat}
-import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
@@ -354,13 +353,12 @@ class WrapperServiceSpec extends BaseSpec {
       verify(mockAppConfig, times(0)).helpImproveBannerUrl
     }
 
-    "return default New Sca layout and show sign out in header when useNewServiceNavigationKey is true" in {
+    "return default New Sca layout and keep sign out in account menu when menu is visible" in {
       val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", defaultUrBanner.page)
         .withAttrs(
           TypedMap(
             Keys.wrapperDataKey    -> wrapperDataResponse,
             Keys.messageDataKey    -> 2,
-            UseServiceNavigation   -> true,
             RequestAttrKey.Cookies -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
           )
         )
@@ -399,7 +397,7 @@ class WrapperServiceSpec extends BaseSpec {
 
       menuCaptor.getValue mustBe standardMenu
       menuConfigCaptor.getValue mustBe Some(expectedPtaMenuConfigSortedWithUnreadAndSignoutUrl)
-      showSignOutInHeaderCaptor.getValue mustBe true
+      showSignOutInHeaderCaptor.getValue mustBe false
     }
 
     "return the continueUrl if it is a valid relative URL" in {

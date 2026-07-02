@@ -14,19 +14,16 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.sca.models.TrustedHelper
 @import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.servicenavigation.{ServiceNavigation, ServiceNavigationItem}
 @import uk.gov.hmrc.hmrcfrontend.config.ContactFrontendConfig
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.{HmrcStandardPageParams, ServiceURLs, TemplateOverrides}
-@import uk.gov.hmrc.sca.config.AppConfig
-@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig, PtaMenuConfig, UrBannerDetails}
-@import uk.gov.hmrc.sca.utils.Keys
+@import uk.gov.hmrc.sca.config.{AppConfig, BackLinkConfig}
+@import uk.gov.hmrc.sca.models.{AttorneyBanner, BannerConfig, PtaMenuConfig, TrustedHelper, UrBannerDetails}
 @import uk.gov.hmrc.sca.views.html._
 @import uk.gov.hmrc.sca.views.html.components.FullWidthMainContent
-@import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 
 @this(
         appConfig: AppConfig,
@@ -35,7 +32,7 @@
         hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
         alphaBanner: StandardAlphaBanner,
         betaBanner: StandardBetaBanner,
-        hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
+        hmrcLanguageSelectHelper: HmrcServiceNavigationLanguageSelectHelper,
         hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
         ptaScripts: PtaScripts,
         ptaHead: PtaHead,
@@ -53,10 +50,7 @@
         serviceNameKey: Option[String],
         pageTitle: Option[String],
         sidebarContent: Option[Html],
-        timeOutUrl: Option[String],
-        keepAliveUrl: String,
-        showBackLinkJS: Boolean,
-        backLinkUrl: Option[String],
+        backLinkConfig: Option[BackLinkConfig],
         showSignOutInHeader: Boolean,
         scripts: Seq[HtmlFormat.Appendable],
         styleSheets: Seq[HtmlFormat.Appendable],
@@ -68,10 +62,6 @@
         bespokeUserResearchBanner: Option[UrBannerDetails]
 )(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
 
-@useNewServiceNavigation = @{
-    request.attrs.get(UseServiceNavigation).contains(true)
-}
-
 @headBlock = {
 @styleSheets
 
@@ -79,9 +69,9 @@
     @hmrcTimeoutDialogHelper(
         timeout         = Some(appConfig.timeout),
         countdown       = Some(appConfig.countdown),
-        keepAliveUrl    = Some(keepAliveUrl),
+        keepAliveUrl    = Some(appConfig.keepAliveUrl),
         signOutUrl      = serviceURLs.signOutUrl.getOrElse("#"),
-        timeoutUrl      = timeOutUrl,
+        timeoutUrl      = appConfig.timeOutUrl,
         synchroniseTabs = Some(appConfig.synchroniseTabs)
     )
 }
@@ -108,10 +98,8 @@
 
 @beforeContent = {
 
-@if(!useNewServiceNavigation) {
-    @defining(request.uri) { _ =>
-        @menu
-    }
+@defining(request.uri) { _ =>
+    @menu
 }
 
 @for(cfg <- bespokeUserResearchBanner) {
@@ -127,29 +115,33 @@
     }
 }
 
-@defining(appConfig.welshToggle && !useNewServiceNavigation) { welshEnabled =>
-    @if(showBackLinkJS || backLinkUrl.isDefined ) {
-        <div class="govuk-grid-row">
-            @if(showBackLinkJS){
-                <div class="govuk-grid-column-one-half">
-                    <div class="govuk-!-display-inline-block js-enabled">
-                    @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
-                    </div>
-                </div>
-            } else {
-                <div class="govuk-grid-column-one-half">
-                @govukBackLink(BackLink.withDefaultText(backLinkUrl.getOrElse("#")))
-                </div>
-            }
-            <div class="govuk-grid-column-one-half">
+@defining(appConfig.welshToggle) { welshEnabled =>
+    @backLinkConfig match {
+        case None => {
             @if(welshEnabled) {
                 @hmrcLanguageSelectHelper()
             }
+        }
+        case Some(blc) => {
+            <div class="govuk-grid-row">
+                @if(blc.isJsBack) {
+                    <div class="govuk-grid-column-one-half">
+                        <div class="govuk-!-display-inline-block js-enabled">
+                        @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
+                        </div>
+                    </div>
+                }
+                @for(url <- blc.urlOpt) {
+                    <div class="govuk-grid-column-one-half">
+                    @govukBackLink(BackLink.withDefaultText(url))
+                    </div>
+                }
+                <div class="govuk-grid-column-one-half">
+                    @if(welshEnabled) {
+                        @hmrcLanguageSelectHelper()
+                    }
+                </div>
             </div>
-        </div>
-    } else {
-        @if(welshEnabled) {
-            @hmrcLanguageSelectHelper()
         }
     }
 }
@@ -194,24 +186,6 @@
     items
 }
 
-@serviceNavigationValue = @{
-    if (useNewServiceNavigation) {
-        val baseNav = ServiceNavigation(
-            serviceName = serviceNameValue,
-            serviceUrl  = serviceURLs.serviceUrl,
-            navigation  = serviceNavItems
-        )
-
-        val navWithLang =
-            if (appConfig.welshToggle) baseNav.withLanguageToggle()
-            else baseNav
-
-        Some(navWithLang)
-    } else {
-        None
-    }
-}
-
 @hmrcStandardPage(
     HmrcStandardPageParams(
         serviceURLs = ServiceURLs(
@@ -240,9 +214,8 @@
                 }
             )
         ),
-        serviceName                   = if (useNewServiceNavigation) None else serviceNameValue,
+        serviceName                   = serviceNameValue,
         pageTitle                     = pageTitle,
-        isWelshTranslationAvailable   = true,
-        serviceNavigation             = serviceNavigationValue
+        isWelshTranslationAvailable   = true
     )
 )(content)
