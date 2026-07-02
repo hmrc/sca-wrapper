@@ -32,6 +32,23 @@ anything (e.g button position on the menu bar, href links, button names etc. can
 
 `runTests.sh` and `publishLocal.sh` are provided to quickly test and publish versions of the library for Play 3.0.
 
+## Migrating to the next major version
+### play-frontend version upgraded
+### timeOutUrl and keepAliveUrl removed as parameters
+- These are now read from config only. Remove them from your standardScaLayout() call.
+
+### showBackLinkJS / backLinkUrl replaced by BackLinkConfig
+
+// JS back <br>
+backLinkConfig = Some(BackLinkConfig.JsBack)
+
+// explicit URL <br>
+backLinkConfig = Some(BackLinkConfig.UrlBack("/previous-page"))
+
+// no back link <br>
+backLinkConfig = None
+### Removed service navigation
+
 ## Working example
 
 Clone https://github.com/hmrc/single-customer-account-frontend for a working example of the Wrapper being integrated with a standard HMRC MDTP frontend. `HomeController`

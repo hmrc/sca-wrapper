@@ -23,11 +23,10 @@ import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
-import uk.gov.hmrc.sca.config.AppConfig
+import uk.gov.hmrc.sca.config.{AppConfig, BackLinkConfig}
 import uk.gov.hmrc.sca.models._
 import uk.gov.hmrc.sca.utils.{Keys, WebchatUtil}
 import uk.gov.hmrc.sca.views.html.{PtaMenuBar, StandardScaLayout}
-import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 
 import javax.inject.Inject
 import scala.util.{Failure, Success, Try}
@@ -51,12 +50,7 @@ class WrapperService @Inject() (
     serviceURLs: ServiceURLs,
     serviceNameKey: Option[String] = appConfig.serviceNameKey,
     sidebarContent: Option[Html] = None,
-    @deprecated("Please use appConfig for this setting rather than passing it as a parameter.", since = "3.0.0")
-    timeOutUrl: Option[String] = appConfig.timeOutUrl,
-    @deprecated("Please use appConfig for this setting rather than passing it as a parameter.", since = "3.0.0")
-    keepAliveUrl: String = appConfig.keepAliveUrl,
-    showBackLinkJS: Boolean = false,
-    backLinkUrl: Option[String] = None,
+    backLinkConfig: Option[BackLinkConfig] = None,
     scripts: Seq[HtmlFormat.Appendable] = Seq.empty,
     styleSheets: Seq[HtmlFormat.Appendable] = Seq.empty,
     bannerConfig: BannerConfig = defaultBannerConfig,
@@ -66,20 +60,10 @@ class WrapperService @Inject() (
     disableSessionExpired: Boolean = appConfig.disableSessionExpired
   )(implicit messages: Messages, requestHeader: RequestHeader): HtmlFormat.Appendable = {
 
-    val useNewServiceNavigation: Boolean = requestHeader.attrs.get(UseServiceNavigation).contains(true)
-
     val ptaMenuConfigOpt: Option[PtaMenuConfig] =
       if (hideMenuBar) None else Some(sortMenuItemConfig(serviceURLs.signOutUrl))
 
-    val showSignOutInHeader: Boolean =
-      if (useNewServiceNavigation) serviceURLs.signOutUrl.isDefined
-      else
-        (serviceURLs.signOutUrl, hideMenuBar) match {
-          case (Some(_), false) => false
-          case (Some(_), true)  => true // if menu hidden, user unauthenticated
-          case (None, false)    => throw new RuntimeException("The PTA menu cannot be shown without a signout url")
-          case (None, true)     => false
-        }
+    val showSignOutInHeader: Boolean = serviceURLs.signOutUrl.isDefined
 
     val urBannerForPage: Option[UrBanner]         = getUrBannerForPage
     val bannerDetailsOpt: Option[UrBannerDetails] = urBannerForPage.flatMap(_.bannerDetails)
@@ -109,10 +93,7 @@ class WrapperService @Inject() (
       serviceNameKey = serviceNameKey,
       pageTitle = pageTitle,
       sidebarContent = sidebarContent,
-      timeOutUrl = timeOutUrl,
-      keepAliveUrl = keepAliveUrl,
-      showBackLinkJS = showBackLinkJS,
-      backLinkUrl = backLinkUrl,
+      backLinkConfig = backLinkConfig,
       showSignOutInHeader = showSignOutInHeader,
       scripts = scripts ++ webchatUtil.getWebchatScripts,
       styleSheets = styleSheets,

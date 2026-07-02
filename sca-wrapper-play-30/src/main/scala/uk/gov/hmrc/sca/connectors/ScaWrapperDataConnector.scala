@@ -41,7 +41,7 @@ class ScaWrapperDataConnector @Inject() (
   ): Future[Option[WrapperDataResponse]] = {
     val lang = request.cookies.get("PLAY_LANG").map(_.value).getOrElse("en")
 
-    val url = url"${appConfig.scaWrapperDataUrl}/wrapper-data-with-messages?lang=$lang&version=${appConfig.versionNum}"
+    val url = url"${appConfig.scaWrapperDataUrl}/wrapper-data-with-messages?lang=$lang"
 
     logger.debug(
       s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperDataWithMessages] Requesting combined wrapper data with messages - lang: $lang"

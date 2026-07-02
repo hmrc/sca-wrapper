@@ -31,7 +31,6 @@ import play.api.mvc.{AnyContentAsEmpty, RequestHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
 import play.api.{Application, inject}
-import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 import uk.gov.hmrc.sca.filters.WrapperDataAttributesFilter
 import uk.gov.hmrc.sca.services.ScaWrapperDataService
 import uk.gov.hmrc.sca.utils.Keys
@@ -56,8 +55,6 @@ class WrapperDataAttributesFilterSpec extends AsyncWordSpec with Matchers with M
     when(mockScaWrapperDataService.wrapperDataWithMessages()(any(), any(), any()))
       .thenReturn(Future.successful(Some(wrapperDataResponse)))
 
-    when(mockScaWrapperDataService.retrieveServiceNavigationToggle()(any()))
-      .thenReturn(Future.successful(true))
   }
 
   val wrapperDataAttributesFilter: WrapperDataAttributesFilter =
@@ -74,8 +71,7 @@ class WrapperDataAttributesFilterSpec extends AsyncWordSpec with Matchers with M
           Future.successful(
             Ok(
               Json.obj(
-                "wrapperData"             -> r.attrs.get(Keys.wrapperDataKey),
-                "useNewServiceNavigation" -> r.attrs.get(UseServiceNavigation)
+                "wrapperData" -> r.attrs.get(Keys.wrapperDataKey)
               )
             )
           )
@@ -85,11 +81,8 @@ class WrapperDataAttributesFilterSpec extends AsyncWordSpec with Matchers with M
       status(result) mustBe OK
 
       verify(mockScaWrapperDataService, times(1)).wrapperDataWithMessages()(any(), any(), any())
-      verify(mockScaWrapperDataService, times(1)).retrieveServiceNavigationToggle()(any())
-
       contentAsJson(result) mustBe Json.obj(
-        "wrapperData"             -> Some(wrapperDataResponse),
-        "useNewServiceNavigation" -> Some(true)
+        "wrapperData" -> Some(wrapperDataResponse)
       )
     }
 
@@ -106,8 +99,6 @@ class WrapperDataAttributesFilterSpec extends AsyncWordSpec with Matchers with M
         status(result) mustBe OK
 
         verify(mockScaWrapperDataService, never()).wrapperDataWithMessages()(any(), any(), any())
-        verify(mockScaWrapperDataService, never()).retrieveServiceNavigationToggle()(any())
-
         contentAsJson(result) mustBe Json.obj(
           "wrapperData" -> Json.toJson(None)
         )
@@ -125,8 +116,6 @@ class WrapperDataAttributesFilterSpec extends AsyncWordSpec with Matchers with M
       status(result) mustBe OK
 
       verify(mockScaWrapperDataService, never()).wrapperDataWithMessages()(any(), any(), any())
-      verify(mockScaWrapperDataService, never()).retrieveServiceNavigationToggle()(any())
-
       contentAsJson(result) mustBe Json.obj(
         "wrapperData" -> Json.toJson(None)
       )
