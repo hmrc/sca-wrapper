@@ -17,11 +17,10 @@
 package views
 
 import play.api.i18n.Messages
-import play.api.test.Helpers.stubMessages
 import play.twirl.api.Html
-import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
+import uk.gov.hmrc.sca.config.BackLinkConfig
 import uk.gov.hmrc.sca.models.{BannerConfig, PtaMenuConfig, UrBannerDetails}
 import uk.gov.hmrc.sca.views.html.StandardScaLayout
 import utils.ViewBaseSpec
@@ -35,8 +34,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
 
   private def createView(
     sidebarContent: Option[Html] = None,
-    showBackLinkJS: Boolean = false,
-    backLinkUrl: Option[String] = None,
+    backLinkConfig: Option[BackLinkConfig] = None,
     showSignOutInHeader: Boolean = false,
     menuConfig: Option[PtaMenuConfig] = None,
     serviceURLs: ServiceURLs = ServiceURLs(
@@ -59,10 +57,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       serviceNameKey = Some("Service-Name-Key"),
       pageTitle = Some("Page-Title"),
       sidebarContent = sidebarContent,
-      timeOutUrl = Some("TimeOut-Url"),
-      keepAliveUrl = "Keep-Alive-Url",
-      showBackLinkJS = showBackLinkJS,
-      backLinkUrl = backLinkUrl,
+      backLinkConfig = backLinkConfig,
       showSignOutInHeader = showSignOutInHeader,
       scripts = Seq(Html("<script src=/customscript.js></script>")),
       styleSheets = Seq(Html("<link href=/customStylesheet rel=stylesheet/>")),
@@ -80,27 +75,14 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       val document = asDocument(createView().toString())
 
       document.title() mustBe "Page-Title"
-      document.select(".govuk-header__service-name").attr("href") mustBe "Service-Name_Url"
-      document.select(".govuk-header__service-name").text() mustBe "Service-Name-Key"
-      document.getElementById("secondary-nav").className mustBe "hmrc-account-menu"
-      document.getElementById("secondary-nav").attr("data-module") mustBe "hmrc-account-menu"
-      document.getElementById("menu.name").text() mustBe "Account menu"
-      document.getElementById("menu.back").text() mustBe "Back"
-      document.getElementById("menu.left.0").text() mustBe "Account home"
-      document.getElementById("menu.right.0").text() mustBe "Messages"
-      document.getElementById("menu.right.1").text() mustBe "Check progress"
-      document.getElementById("menu.right.2").text() mustBe "Profile and settings"
-      document.getElementById("menu.right.3").text() mustBe "Sign out"
-      document.getElementById("menu.left.0").attr("href") mustBe "pertaxUrl"
-      document.getElementById("menu.right.0").attr("href") mustBe "pertaxUrl-messages"
-      document.getElementById("menu.right.1").attr("href") mustBe "trackingUrl-track"
-      document.getElementById("menu.right.2").attr("href") mustBe "pertaxUrl-profile-and-settings"
-      document.getElementById("menu.right.3").attr("href") mustBe "pertaxUrl-signout-feedback-PERTAX"
+      document
+        .select(".govuk-service-navigation__service-name .govuk-service-navigation__link")
+        .attr("href") mustBe "Service-Name_Url"
+      document
+        .select(".govuk-service-navigation__service-name .govuk-service-navigation__link")
+        .text() mustBe "Service-Name-Key"
       document.select(".govuk-skip-link").text() mustBe "Skip to main content"
 
-      document
-        .getElementsByAttributeValue("name", "hmrc-timeout-dialog")
-        .attr("data-keep-alive-url") mustBe "Keep-Alive-Url"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-sign-out-url") mustBe "Signout-Url"
       document
         .getElementsByAttributeValue("name", "hmrc-timeout-dialog")
@@ -110,14 +92,10 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-timeout") mustBe "900"
       document.getElementsByAttributeValue("name", "hmrc-timeout-dialog").attr("data-countdown") mustBe "120"
 
-      val lang = document.getElementsByClass("hmrc-language-select__list-item").asScala.toList
-      lang.head.text() mustBe "English"
-      lang(1).text() mustBe "Newid yr iaith i’r Gymraeg Cymraeg"
+      val lang = document.getElementsByClass("hmrc-service-navigation-language-select__list-item").asScala.toList
+      lang.head.text() mustBe "ENG"
+      lang(1).text() must include("CYM")
 
-      document.getElementsByAttributeValue("href", "/help/cookies").text() mustBe "Cookies"
-      document.getElementsByAttributeValue("href", "/help/privacy").text() mustBe "Privacy policy"
-      document.getElementsByAttributeValue("href", "/help/terms-and-conditions").text() mustBe "Terms and conditions"
-      document.getElementsByAttributeValue("href", "https://www.gov.uk/help").text() mustBe "Help using GOV.UK"
       document
         .getElementsByAttributeValue("href", "https://www.gov.uk/government/organisations/hm-revenue-customs/contact")
         .text() mustBe "Contact"
@@ -151,7 +129,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
       document.select(".govuk-grid-column-two-thirds").asScala.nonEmpty mustBe true
       document
         .getElementsByClass("govuk-link hmrc-user-research-banner__link")
-        .text() mustBe "Sign up to take part in research (opens in new tab)"
+        .text() mustBe "Join our research panel (opens in new tab)"
       document
         .getElementsByClass("govuk-link hmrc-user-research-banner__link")
         .asScala
@@ -165,7 +143,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
     }
 
     "return a Wrapper layout when there is a backlinkUrl in English" in {
-      val document = asDocument(createView(backLinkUrl = Some("backlink-url")).toString())
+      val document = asDocument(createView(backLinkConfig = Some(BackLinkConfig.UrlBack("backlink-url"))).toString())
 
       document.getElementsByAttributeValue("href", "backlink-url").text() mustBe "Back"
     }
@@ -245,46 +223,6 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
 
       document.getElementById("attorneyBanner").getElementsByAttribute("href").text() mustBe "Go back to your account"
 
-    }
-
-    "use Service Navigation when useNewServiceNavigationKey is true and hide old PTA menu" in {
-      implicit val messages: Messages = stubMessages()
-      val requestWithServiceNav       = fakeRequest.addAttr(UseServiceNavigation, true)
-
-      val view = standardScaLayout(
-        menu = menu,
-        menuConfig = None,
-        serviceURLs = ServiceURLs(
-          serviceUrl = Some("Service-Name_Url"),
-          signOutUrl = Some("Signout-Url"),
-          accessibilityStatementUrl = Some("http://accessibility-url.org")
-        ),
-        serviceNameKey = Some("Service-Name-Key"),
-        pageTitle = Some("Page-Title"),
-        sidebarContent = None,
-        timeOutUrl = Some("TimeOut-Url"),
-        keepAliveUrl = "Keep-Alive-Url",
-        showBackLinkJS = false,
-        backLinkUrl = None,
-        showSignOutInHeader = false,
-        scripts = Seq(Html("<script src=/customscript.js></script>")),
-        styleSheets = Seq(Html("<link href=/customStylesheet rel=stylesheet/>")),
-        bannerConfig = BannerConfig(showAlphaBanner = true, showBetaBanner = false, showHelpImproveBanner = false),
-        fullWidth = false,
-        disableSessionExpired = false,
-        optTrustedHelper = None,
-        urBannerUrl = Some("test-ur-banner-link"),
-        bespokeUserResearchBanner = None
-      )(Html("Content-Block"))(requestWithServiceNav, messages)
-
-      val document = asDocument(view.toString())
-
-      document.select(".govuk-header__service-name").asScala.isEmpty mustBe true
-      document.getElementById("secondary-nav") mustBe null
-
-      val serviceNavEls = document.select(".govuk-service-navigation").asScala
-      serviceNavEls.nonEmpty mustBe true
-      serviceNavEls.head.text() must include("Service-Name-Key")
     }
 
     "render bespoke user research banner when details are provided" in {

@@ -41,7 +41,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with Patien
     .build()
 
   private val urlWrapperDataWithMessages =
-    "/single-customer-account-wrapper-data/wrapper-data-with-messages?lang=en&version=1.0.3"
+    "/single-customer-account-wrapper-data/wrapper-data-with-messages?lang=en"
 
   private val urlServiceNavigationToggle =
     "/single-customer-account-wrapper-data/service-navigation/toggle"
@@ -241,7 +241,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with Patien
               log.getMessage.contains("Server error while calling combined wrapper data")
           )
         log.map(_.getMessage) mustBe Some(
-          s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperDataWithMessages] Server error while calling combined wrapper data: GET of 'http://localhost:${server.port()}/single-customer-account-wrapper-data/wrapper-data-with-messages?lang=en&version=1.0.3' returned 500. Response body: ''"
+          s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperDataWithMessages] Server error while calling combined wrapper data: GET of 'http://localhost:${server.port()}/single-customer-account-wrapper-data/wrapper-data-with-messages?lang=en' returned 500. Response body: ''"
         )
         log.map(_.getThrowableProxy) mustBe Some(null)
       }
@@ -265,10 +265,10 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with Patien
               log.getMessage.contains("Exception while calling combined wrapper data")
           )
         log.map(_.getMessage) mustBe Some(
-          s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperDataWithMessages] Exception while calling combined wrapper data: GET of 'http://localhost:${server.port()}/single-customer-account-wrapper-data/wrapper-data-with-messages?lang=en&version=1.0.3' returned 400. Response body: ''"
+          s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperDataWithMessages] Exception while calling combined wrapper data: GET of 'http://localhost:${server.port()}/single-customer-account-wrapper-data/wrapper-data-with-messages?lang=en' returned 400. Response body: ''"
         )
         log.map(_.getThrowableProxy.getMessage) mustBe Some(
-          s"GET of 'http://localhost:${server.port()}/single-customer-account-wrapper-data/wrapper-data-with-messages?lang=en&version=1.0.3' returned 400. Response body: ''"
+          s"GET of 'http://localhost:${server.port()}/single-customer-account-wrapper-data/wrapper-data-with-messages?lang=en' returned 400. Response body: ''"
         )
       }
     }
@@ -291,7 +291,7 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with Patien
               log.getMessage.contains("Time out while calling combined wrapper data")
           )
         log.map(_.getMessage) mustBe Some(
-          s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperDataWithMessages] Time out while calling combined wrapper data: GET of 'http://localhost:${server.port()}/single-customer-account-wrapper-data/wrapper-data-with-messages?lang=en&version=1.0.3' timed out with message 'Request timeout to localhost/127.0.0.1:${server
+          s"[SCA Wrapper Library][ScaWrapperDataConnector][wrapperDataWithMessages] Time out while calling combined wrapper data: GET of 'http://localhost:${server.port()}/single-customer-account-wrapper-data/wrapper-data-with-messages?lang=en' timed out with message 'Request timeout to localhost/127.0.0.1:${server
               .port()} after 1000 ms'"
         )
         log.map(_.getThrowableProxy) mustBe Some(null)

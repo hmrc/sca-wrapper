@@ -29,16 +29,15 @@ import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.stubMessages
 import play.twirl.api.{Html, HtmlFormat}
-import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-import uk.gov.hmrc.sca.config.AppConfig
+import uk.gov.hmrc.sca.config.{AppConfig, BackLinkConfig}
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models._
 import uk.gov.hmrc.sca.services.WrapperService
 import uk.gov.hmrc.sca.utils.{Keys, WebchatUtil}
-import uk.gov.hmrc.sca.views.html.{PtaMenuBar, ScaLayout, StandardScaLayout}
+import uk.gov.hmrc.sca.views.html.{PtaMenuBar, StandardScaLayout}
 import utils.BaseSpec
 
 import java.net.URLEncoder
@@ -49,7 +48,6 @@ class WrapperServiceSpec extends BaseSpec {
 
   private implicit val messages: Messages = stubMessages()
 
-  private val mockScaLayout               = mock[ScaLayout]
   private val mockScaWrapperDataConnector = mock[ScaWrapperDataConnector]
   private val mockAppConfig               = mock[AppConfig]
   private val mockPtaMenuBar              = mock[PtaMenuBar]
@@ -58,7 +56,6 @@ class WrapperServiceSpec extends BaseSpec {
 
   val modules: Seq[GuiceableModule] =
     Seq(
-      bind[ScaLayout].toInstance(mockScaLayout),
       bind[StandardScaLayout].toInstance(mockStandardScaLayout),
       bind[ScaWrapperDataConnector].toInstance(mockScaWrapperDataConnector),
       bind[AppConfig].toInstance(mockAppConfig),
@@ -78,7 +75,6 @@ class WrapperServiceSpec extends BaseSpec {
   )
 
   override def beforeEach(): Unit = {
-    reset(mockScaLayout)
     reset(mockStandardScaLayout)
     reset(mockScaWrapperDataConnector)
     reset(mockAppConfig)
@@ -101,7 +97,6 @@ class WrapperServiceSpec extends BaseSpec {
       when(mockAppConfig.showBetaBanner).thenReturn(false)
       when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
       when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
-      when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
       when(mockAppConfig.disableSessionExpired).thenReturn(false)
       when(mockWebchatUtil.getWebchatScripts(any())).thenReturn(Seq.empty[Html])
 
@@ -114,10 +109,7 @@ class WrapperServiceSpec extends BaseSpec {
         serviceNameKey = serviceNameKeyCaptor.capture(),
         pageTitle = pageTitleCaptor.capture(),
         sidebarContent = sideBarContentCaptor.capture(),
-        timeOutUrl = timeOutUrlCaptor.capture(),
-        keepAliveUrl = keepAliveUrlCaptor.capture(),
-        showBackLinkJS = showBackLinkJSCaptor.capture(),
-        backLinkUrl = backLinkUrlCaptor.capture(),
+        backLinkConfig = backLinkConfigCaptor.capture(),
         showSignOutInHeader = showSignOutInHeaderCaptor.capture(),
         scripts = scriptsCaptor.capture(),
         styleSheets = styleSheetsCaptor.capture(),
@@ -133,7 +125,6 @@ class WrapperServiceSpec extends BaseSpec {
       verify(mockAppConfig, times(1)).showBetaBanner
       verify(mockAppConfig, times(1)).showHelpImproveBanner
       verify(mockAppConfig, times(1)).serviceNameKey
-      verify(mockAppConfig, times(1)).keepAliveUrl
       verify(mockAppConfig, times(1)).disableSessionExpired
       verify(mockAppConfig, times(0)).helpImproveBannerUrl
       verify(mockWebchatUtil, times(1)).getWebchatScripts(any())
@@ -145,10 +136,8 @@ class WrapperServiceSpec extends BaseSpec {
       serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
       pageTitleCaptor.getValue mustBe None
       sideBarContentCaptor.getValue mustBe None
-      keepAliveUrlCaptor.getValue mustBe "/refresh-session"
-      showBackLinkJSCaptor.getValue mustBe false
-      backLinkUrlCaptor.getValue mustBe None
-      showSignOutInHeaderCaptor.getValue mustBe false
+      backLinkConfigCaptor.getValue mustBe None
+      showSignOutInHeaderCaptor.getValue mustBe true
       scriptsCaptor.getValue mustBe Seq.empty
       styleSheetsCaptor.getValue mustBe Seq.empty
       bannerConfigCaptor.getValue mustBe BannerConfig(
@@ -178,7 +167,6 @@ class WrapperServiceSpec extends BaseSpec {
       when(mockAppConfig.showBetaBanner).thenReturn(false)
       when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
       when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
-      when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
       when(mockAppConfig.disableSessionExpired).thenReturn(false)
       when(mockWebchatUtil.getWebchatScripts(any())).thenReturn(Seq.empty[Html])
 
@@ -195,10 +183,7 @@ class WrapperServiceSpec extends BaseSpec {
         serviceNameKey = serviceNameKeyCaptor.capture(),
         pageTitle = pageTitleCaptor.capture(),
         sidebarContent = sideBarContentCaptor.capture(),
-        timeOutUrl = timeOutUrlCaptor.capture(),
-        keepAliveUrl = keepAliveUrlCaptor.capture(),
-        showBackLinkJS = showBackLinkJSCaptor.capture(),
-        backLinkUrl = backLinkUrlCaptor.capture(),
+        backLinkConfig = backLinkConfigCaptor.capture(),
         showSignOutInHeader = showSignOutInHeaderCaptor.capture(),
         scripts = scriptsCaptor.capture(),
         styleSheets = styleSheetsCaptor.capture(),
@@ -220,10 +205,8 @@ class WrapperServiceSpec extends BaseSpec {
       serviceNameKeyCaptor.getValue mustBe Some("Default-Service-Name-Key")
       pageTitleCaptor.getValue mustBe None
       sideBarContentCaptor.getValue mustBe None
-      keepAliveUrlCaptor.getValue mustBe "/refresh-session"
-      showBackLinkJSCaptor.getValue mustBe false
-      backLinkUrlCaptor.getValue mustBe None
-      showSignOutInHeaderCaptor.getValue mustBe false
+      backLinkConfigCaptor.getValue mustBe None
+      showSignOutInHeaderCaptor.getValue mustBe true
       scriptsCaptor.getValue mustBe Seq.empty
       styleSheetsCaptor.getValue mustBe Seq.empty
       bannerConfigCaptor.getValue mustBe BannerConfig(
@@ -257,7 +240,6 @@ class WrapperServiceSpec extends BaseSpec {
       when(mockAppConfig.showBetaBanner).thenReturn(false)
       when(mockAppConfig.showHelpImproveBanner).thenReturn(false)
       when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
-      when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
       when(mockAppConfig.disableSessionExpired).thenReturn(false)
       when(mockWebchatUtil.getWebchatScripts(any())).thenReturn(Seq.empty[Html])
 
@@ -270,10 +252,7 @@ class WrapperServiceSpec extends BaseSpec {
         serviceNameKey = any(),
         pageTitle = any(),
         sidebarContent = any(),
-        timeOutUrl = any(),
-        keepAliveUrl = any(),
-        showBackLinkJS = any(),
-        backLinkUrl = any(),
+        backLinkConfig = any(),
         showSignOutInHeader = any(),
         scripts = any(),
         styleSheets = any(),
@@ -321,7 +300,6 @@ class WrapperServiceSpec extends BaseSpec {
       when(mockAppConfig.showBetaBanner).thenReturn(false)
       when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
       when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
-      when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
       when(mockAppConfig.disableSessionExpired).thenReturn(false)
       when(mockWebchatUtil.getWebchatScripts(any())).thenReturn(Seq.empty[Html])
 
@@ -334,10 +312,7 @@ class WrapperServiceSpec extends BaseSpec {
         serviceNameKey = any(),
         pageTitle = any(),
         sidebarContent = any(),
-        timeOutUrl = any(),
-        keepAliveUrl = any(),
-        showBackLinkJS = any(),
-        backLinkUrl = any(),
+        backLinkConfig = any(),
         showSignOutInHeader = any(),
         scripts = any(),
         styleSheets = any(),
@@ -360,7 +335,6 @@ class WrapperServiceSpec extends BaseSpec {
           TypedMap(
             Keys.wrapperDataKey    -> wrapperDataResponse,
             Keys.messageDataKey    -> 2,
-            UseServiceNavigation   -> true,
             RequestAttrKey.Cookies -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
           )
         )
@@ -369,7 +343,6 @@ class WrapperServiceSpec extends BaseSpec {
       when(mockAppConfig.showBetaBanner).thenReturn(false)
       when(mockAppConfig.showHelpImproveBanner).thenReturn(true)
       when(mockAppConfig.serviceNameKey).thenReturn(Some("Default-Service-Name-Key"))
-      when(mockAppConfig.keepAliveUrl).thenReturn("/refresh-session")
       when(mockAppConfig.disableSessionExpired).thenReturn(false)
       when(mockWebchatUtil.getWebchatScripts(any())).thenReturn(Seq.empty[Html])
 
@@ -382,10 +355,7 @@ class WrapperServiceSpec extends BaseSpec {
         serviceNameKey = serviceNameKeyCaptor.capture(),
         pageTitle = pageTitleCaptor.capture(),
         sidebarContent = sideBarContentCaptor.capture(),
-        timeOutUrl = timeOutUrlCaptor.capture(),
-        keepAliveUrl = keepAliveUrlCaptor.capture(),
-        showBackLinkJS = showBackLinkJSCaptor.capture(),
-        backLinkUrl = backLinkUrlCaptor.capture(),
+        backLinkConfig = backLinkConfigCaptor.capture(),
         showSignOutInHeader = showSignOutInHeaderCaptor.capture(),
         scripts = scriptsCaptor.capture(),
         styleSheets = styleSheetsCaptor.capture(),
@@ -525,10 +495,8 @@ object WrapperServiceSpec {
   val pageTitleCaptor: ArgumentCaptor[Option[String]]                          = ArgumentCaptor.forClass(classOf[Option[String]])
   val sideBarContentCaptor: ArgumentCaptor[Option[Html]]                       = ArgumentCaptor.forClass(classOf[Option[Html]])
   val signoutUrlCaptor: ArgumentCaptor[Option[String]]                         = ArgumentCaptor.forClass(classOf[Option[String]])
-  val timeOutUrlCaptor: ArgumentCaptor[Option[String]]                         = ArgumentCaptor.forClass(classOf[Option[String]])
-  val keepAliveUrlCaptor: ArgumentCaptor[String]                               = ArgumentCaptor.forClass(classOf[String])
-  val showBackLinkJSCaptor: ArgumentCaptor[Boolean]                            = ArgumentCaptor.forClass(classOf[Boolean])
-  val backLinkUrlCaptor: ArgumentCaptor[Option[String]]                        = ArgumentCaptor.forClass(classOf[Option[String]])
+  val backLinkConfigCaptor: ArgumentCaptor[Option[BackLinkConfig]]             =
+    ArgumentCaptor.forClass(classOf[Option[BackLinkConfig]])
   val showSignOutInHeaderCaptor: ArgumentCaptor[Boolean]                       = ArgumentCaptor.forClass(classOf[Boolean])
   val scriptsCaptor: ArgumentCaptor[Seq[HtmlFormat.Appendable]]                =
     ArgumentCaptor.forClass(classOf[Seq[HtmlFormat.Appendable]])

@@ -28,7 +28,6 @@ import uk.gov.hmrc.sca.utils.Keys
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.chaining.scalaUtilChainingOps
-import uk.gov.hmrc.hmrcfrontend.config.ServiceNavigationCanBeControlledByRequestAttr.UseServiceNavigation
 
 class WrapperDataAttributesFilter @Inject() (
   scaWrapperDataService: ScaWrapperDataService
@@ -58,27 +57,16 @@ class WrapperDataAttributesFilter @Inject() (
       Future.successful(None)
     }
 
-  private def retrieveToggle(
-    isAuthenticated: Boolean
-  )(implicit headerCarrier: HeaderCarrier): Future[Boolean] =
-    if (isAuthenticated) {
-      scaWrapperDataService.retrieveServiceNavigationToggle()
-    } else {
-      Future.successful(false)
-    }
-
   private def updateRequestHeader(
     requestHeader: RequestHeader,
     isAuthenticated: Boolean,
-    optWrapperDataResponse: Option[WrapperDataResponse],
-    useNewServiceNavigation: Boolean
+    optWrapperDataResponse: Option[WrapperDataResponse]
   ): RequestHeader = {
     val unreadMessageCount: Option[Int] = optWrapperDataResponse.flatMap(_.unreadMessageCount)
 
     requestHeader
       .addAttr(Keys.wrapperFilterHasRun, true)
       .pipe(_.addAttr(Keys.wrapperIsAuthenticatedKey, isAuthenticated))
-      .pipe(_.addAttr(UseServiceNavigation, useNewServiceNavigation))
       .pipe(rh => optWrapperDataResponse.fold(rh)(wdr => rh.addAttr(Keys.wrapperDataKey, wdr)))
       .pipe(rh => unreadMessageCount.fold(rh)(count => rh.addAttr(Keys.messageDataKey, count)))
   }
@@ -91,8 +79,7 @@ class WrapperDataAttributesFilter @Inject() (
 
     for {
       optWrapperData      <- retrieveWrapperData(isAuthenticated)
-      useNewServiceNav    <- retrieveToggle(isAuthenticated)
-      updatedRequestHeader = updateRequestHeader(rh, isAuthenticated, optWrapperData, useNewServiceNav)
+      updatedRequestHeader = updateRequestHeader(rh, isAuthenticated, optWrapperData)
       result              <- f(updatedRequestHeader)
     } yield result
   }
