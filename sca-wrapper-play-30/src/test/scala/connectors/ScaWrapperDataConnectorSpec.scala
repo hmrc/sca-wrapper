@@ -21,9 +21,7 @@ import org.mockito.Mockito.when
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.concurrent.PatienceConfiguration.Timeout
 import org.scalatest.time.{Seconds, Span}
-import play.api.libs.json.Json
 import play.api.{Application, Logger}
-import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 import uk.gov.hmrc.sca.config.AppConfig
@@ -42,9 +40,6 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with Patien
 
   private val urlWrapperDataWithMessages =
     "/single-customer-account-wrapper-data/wrapper-data-with-messages?lang=en"
-
-  private val urlServiceNavigationToggle =
-    "/single-customer-account-wrapper-data/service-navigation/toggle"
 
   lazy val testLogger: Logger       = Logger("test-logger")
   lazy val httpClient: HttpClientV2 = app.injector.instanceOf[HttpClientV2]
@@ -320,44 +315,4 @@ class ScaWrapperDataConnectorSpec extends BaseSpec with LogCapturing with Patien
     }
   }
 
-  "ScaWrapperDataConnector.serviceNavigationToggle" must {
-
-    "return a JsValue" in {
-      when(mockAppConfig.scaWrapperDataUrl).thenReturn(
-        s"http://localhost:${server.port()}/single-customer-account-wrapper-data"
-      )
-
-      val toggleJson =
-        """
-          |{
-          |  "useNewServiceNavigation": true
-          |}
-          |""".stripMargin
-
-      server.stubFor(
-        get(urlEqualTo(urlServiceNavigationToggle))
-          .willReturn(okJson(toggleJson))
-      )
-
-      scaWrapperDataConnector.serviceNavigationToggle().value.map { result =>
-        result mustBe Json.parse(toggleJson)
-      }
-    }
-
-    "fail with exception when serviceNavigationToggle() returns a server error (500)" in {
-      when(mockAppConfig.scaWrapperDataUrl).thenReturn(
-        s"http://localhost:${server.port()}/single-customer-account-wrapper-data"
-      )
-
-      server.stubFor(
-        get(urlEqualTo(urlServiceNavigationToggle))
-          .willReturn(serverError())
-      )
-
-      whenReady(scaWrapperDataConnector.serviceNavigationToggle().failed) { ex =>
-        ex mustBe a[UpstreamErrorResponse]
-      }
-
-    }
-  }
 }

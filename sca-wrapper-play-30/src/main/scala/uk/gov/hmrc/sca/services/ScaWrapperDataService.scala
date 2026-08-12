@@ -18,43 +18,19 @@ package uk.gov.hmrc.sca.services
 
 import play.api.Logging
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.models.WrapperDataResponse
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
-import scala.util.control.NonFatal
 
-class ScaWrapperDataService @Inject() (scaWrapperDataConnector: ScaWrapperDataConnector)(implicit ec: ExecutionContext)
-    extends Logging {
+class ScaWrapperDataService @Inject() (scaWrapperDataConnector: ScaWrapperDataConnector) extends Logging {
 
   def wrapperDataWithMessages()(implicit
     ec: ExecutionContext,
     hc: HeaderCarrier,
     request: RequestHeader
   ): Future[Option[WrapperDataResponse]] = scaWrapperDataConnector.wrapperDataWithMessages()
-
-  def retrieveServiceNavigationToggle()(implicit headerCarrier: HeaderCarrier): Future[Boolean] =
-    scaWrapperDataConnector
-      .serviceNavigationToggle()
-      .map(json =>
-        Try((json \ "useNewServiceNavigation").as[Boolean]) match {
-          case Success(toggle) => toggle
-          case Failure(error)  =>
-            logger.error(error.getMessage, error)
-            false
-        }
-      )
-      .recover {
-        case ex @ UpstreamErrorResponse(_, statusCode, _, _) if statusCode < 499 =>
-          logger.error(ex.message, ex)
-          false
-        case ex @ UpstreamErrorResponse(_, _, _, _)                              =>
-          logger.error(ex.message)
-          false
-        case NonFatal(_)                                                         => false
-      }
 
 }
