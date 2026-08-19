@@ -1,9 +1,9 @@
 import sbt._
 
 object LibDependencies {
-  val bootstrapVersion = "10.7.0"
-  private val playHmrcFrontendVersion = "13.9.0"
-  private val webchatVersion = "1.8.0"
+  val bootstrapVersion = "10.8.0"
+  private val playHmrcFrontendVersion = "13.11.0"
+  private val webchatVersion = "1.9.0"
 
 
   val play30: Seq[ModuleID] = Seq(
