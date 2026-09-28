@@ -28,10 +28,12 @@ import javax.inject.Inject
 
 class WebchatUtil @Inject() (appConfig: AppConfig, injector: Injector) extends Logging {
 
+  private val chatSkinElementId = "HMRC_DAv4_1"
+
   private def getChatType(webchat: Webchat, webChatClient: WebChatClient)(implicit requestHeader: RequestHeader) =
     if (webchat.chatType.equals("loadWebChatContainer"))
       webChatClient.loadWebChatContainer(webchat.skinElement)(requestHeader.withBody(""))
-    else webChatClient.loadHMRCChatSkinElement(webchat.skinElement)(requestHeader.withBody(""))
+    else webChatClient.loadHMRCChatSkinElement(webchat.skinElement, chatSkinElementId)(requestHeader.withBody(""))
 
   def getWebchatScripts(implicit requestHeader: RequestHeader): Seq[HtmlFormat.Appendable] = {
     val wrapperDataResponse: Option[WrapperDataResponse] = requestHeader.attrs.get(Keys.wrapperDataKey)
