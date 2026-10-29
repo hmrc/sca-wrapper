@@ -111,20 +111,20 @@
     }
 }
 
-<div class="govuk-grid-row">
+  @if(backLinkConfig.isDefined) {
+    <div class="govuk-grid-row">
     @if(backLinkConfig.exists(_.isJsBack)) {
-    <div class="govuk-grid-column-one-half">
-        <div class="govuk-!-display-inline-block js-enabled">
-            @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
+        <div class="govuk-grid-column-full">
+            @govukBackLink(BackLink.withDefaultText(backLinkConfig.flatMap(_.urlOpt).getOrElse("#")))
         </div>
-    </div>
     }
     @for(url <- backLinkConfig.flatMap(_.urlOpt)) {
-    <div class="govuk-grid-column-one-half">
-        @govukBackLink(BackLink.withDefaultText(url))
-    </div>
+        <div class="govuk-grid-column-one-half">
+            @govukBackLink(BackLink.withDefaultText(url))
+        </div>
     }
-</div>
+    </div>
+  }
 
 @attorneyBanner
 }
