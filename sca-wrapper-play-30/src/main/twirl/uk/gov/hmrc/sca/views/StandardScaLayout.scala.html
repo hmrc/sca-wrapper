@@ -115,7 +115,7 @@
     <div class="govuk-grid-row">
     @if(backLinkConfig.exists(_.isJsBack)) {
         <div class="govuk-grid-column-full">
-            @govukBackLink(BackLink.withDefaultText(backLinkConfig.flatMap(_.urlOpt).getOrElse("#")))
+            @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
         </div>
     }
     @for(url <- backLinkConfig.flatMap(_.urlOpt)) {
