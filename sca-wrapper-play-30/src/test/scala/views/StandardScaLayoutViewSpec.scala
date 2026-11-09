@@ -211,7 +211,7 @@ class StandardScaLayoutViewSpec extends ViewBaseSpec {
 
       document
         .getElementById("attorneyBanner")
-        .getElementsByTag("h3")
+        .getElementById("attorneyHeader")
         .text() mustBe "You are signed in as a trusted helper"
 
       document
