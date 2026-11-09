@@ -112,7 +112,7 @@
 }
 
   @if(backLinkConfig.isDefined) {
-    <div class="govuk-grid-row">
+    <nav class="govuk-grid-row" aria-label="Previous page">
     @if(backLinkConfig.exists(_.isJsBack)) {
         <div class="govuk-grid-column-full">
             @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
@@ -123,7 +123,7 @@
             @govukBackLink(BackLink.withDefaultText(url))
         </div>
     }
-    </div>
+    </nav>
   }
 
 @attorneyBanner
