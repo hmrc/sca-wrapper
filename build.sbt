@@ -19,14 +19,13 @@ import sbt.Keys.*
 
 val libName = "sca-wrapper"
 
-val scala2_13 = "2.13.18"
 val scala3_3 = "3.3.7"
 
 // Disable multiple project tests running at the same time, since notablescan flag is a global setting.
 // https://www.scala-sbt.org/1.x/docs/Parallel-Execution.html
 Global / concurrentRestrictions += Tags.limitSum(1, Tags.Test, Tags.Untagged)
 
-ThisBuild / scalaVersion := scala2_13
+ThisBuild / scalaVersion := scala3_3
 ThisBuild / majorVersion := 6
 ThisBuild / isPublicArtefact := true
 ThisBuild / organization := "uk.gov.hmrc"
@@ -39,7 +38,7 @@ lazy val library = Project(libName, file("."))
   .settings(publish / skip := true)
   .aggregate(projects *)
 
-def buildScalacOptions(scalaVersion: String): Seq[String] = {
+def buildScalacOptions: Seq[String] =
   Seq(
     "-feature",
     "-unchecked",
@@ -47,30 +46,14 @@ def buildScalacOptions(scalaVersion: String): Seq[String] = {
     "-Wconf:msg=.*showHelpImproveBanner.*deprecated.*:s",
     "-Wconf:cat=deprecation&msg=method layout in class WrapperService is deprecated:s",
     "-Wconf:cat=deprecation&msg=method safeSignoutUrl in class WrapperService is deprecated:s",
-    "-Wconf:cat=deprecation&msg=Please use appConfig for this setting rather than passing it as a parameter:s"
-  ) ++ {
-    CrossVersion.partialVersion(scalaVersion) match {
-      case Some((2, _)) =>
-        Seq(
-          "-Xlint:_",
-          "-Wunused:_",
-          "-Wextra-implicit",
-          "-Wvalue-discard",
-          "-Wdead-code",
-          "-Werror",
-        )
-      case _ =>
-        Seq(
-          "-Ysafe-init",
-          "-language:noAutoTupling",
-          "-language:strictEquality",
-          "-Wconf:msg=Flag.*repeatedly:s",
-          "-Wvalue-discard",
-          "-Xfatal-warnings"
-        )
-    }
-  }
-}
+    "-Wconf:cat=deprecation&msg=Please use appConfig for this setting rather than passing it as a parameter:s",
+    "-Ysafe-init",
+    "-language:noAutoTupling",
+    "-language:strictEquality",
+    "-Wconf:msg=Flag.*repeatedly:s",
+    "-Wvalue-discard",
+    "-Xfatal-warnings"
+  )
 
 lazy val play30 = Project(s"$libName-play-30", file(s"$libName-play-30"))
   .enablePlugins(PlayScala)
@@ -78,13 +61,13 @@ lazy val play30 = Project(s"$libName-play-30", file(s"$libName-play-30"))
   .settings(CodeCoverageSettings.settings *)
   .settings(
     TwirlKeys.templateImports := templateImports,
-    crossScalaVersions := Seq(scala3_3, scala2_13),
+    crossScalaVersions := Seq(scala3_3),
     libraryDependencies ++= LibDependencies.play30 ++ LibDependencies.play30Test,
     Compile / routes / sources ++= {
       val dirs = (Compile / unmanagedResourceDirectories).value
       (dirs * "routes").get ++ (dirs * "*.routes").get
     },
-    scalacOptions ++= buildScalacOptions(scalaVersion.value),
+    scalacOptions ++= buildScalacOptions,
     Test / Keys.fork := true,
     Test / parallelExecution := true,
     Test / scalacOptions --= Seq("-language:strictEquality", "-Wdead-code", "-Wvalue-discard")
@@ -92,7 +75,7 @@ lazy val play30 = Project(s"$libName-play-30", file(s"$libName-play-30"))
 
 lazy val play30Test = Project(s"$libName-test-play-30", file(s"$libName-test-play-30"))
   .settings(
-    crossScalaVersions := Seq(scala3_3, scala2_13),
+    crossScalaVersions := Seq(scala3_3),
     libraryDependencies ++= Seq(
       "uk.gov.hmrc" %% s"bootstrap-test-play-30" % LibDependencies.bootstrapVersion)
   )
