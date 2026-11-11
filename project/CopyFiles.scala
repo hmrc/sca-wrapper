@@ -4,25 +4,21 @@ import sbt.Keys.*
 
 object CopySources {
   /** Copies source files from one module to another, and applies transformations
-   * with support for Scala 2 and Scala 3 specific directories */
+   * with support for Scala 3 specific directories */
   def copySources(module: Project, transformSource: String => String, transformResource: String => String) = {
     def transformWith(fromSettingBase: SettingKey[File], toSetting: SettingKey[File], transform: String => String) =
       Def.task {
         val fromBase = (module / fromSettingBase).value
         val to = toSetting.value
         val currentScalaVersion = scalaVersion.value
-        val isScala3 = currentScalaVersion.startsWith("3.")
 
-        // Define base directory and potential version-specific directories
+        // Define base directory and the Scala 3-specific directory
         val baseDir = fromBase
-        val scala2Dir = new File(fromBase.getParentFile, s"${fromBase.getName}-2")
         val scala3Dir = new File(fromBase.getParentFile, s"${fromBase.getName}-3")
 
-        // Collect all relevant directories based on Scala version
         val dirsToProcess = Seq(
           baseDir -> to,
-          (if (isScala3 && scala3Dir.exists) scala3Dir -> to else null),
-          (if (!isScala3 && scala2Dir.exists) scala2Dir -> to else null)
+          (if (scala3Dir.exists) scala3Dir -> to else null)
         ).filterNot(_ == null)
 
         // Process all directories
