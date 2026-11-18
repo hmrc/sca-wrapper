@@ -1,14 +1,7 @@
 .pta-attorney-banner {
   background-color: #eaf4f9;
   border-left: 10px solid #5694ca;
-  padding: 1em 16px .2em 16px;
-  margin-bottom: 4em;
   box-sizing: border-box;
-  width: 100%;
-}
-
-.pta-attorney-banner__heading {
-  margin-bottom: 15px;
 }
 
 .pta-attorney-banner--client-request-accepted {
